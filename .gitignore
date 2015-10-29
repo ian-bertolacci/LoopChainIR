@@ -30,3 +30,7 @@
 
 # Debug files
 *.dSYM/
+
+# Third-Party Builds
+third-party/install/
+third-party/build/
