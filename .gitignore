@@ -34,3 +34,6 @@
 # Third-Party Builds
 third-party/install/
 third-party/build/
+
+# Test outputs
+test/bin/*
