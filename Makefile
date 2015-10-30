@@ -5,8 +5,8 @@ BIN=$(PROJECT_DIR)/bin
 SRC=$(PROJECT_DIR)/src
 
 TEST=$(PROJECT_DIR)/test
-TESTBIN=$(TEST)/bin
-TESTSRC=$(TEST)/src
+TEST_BIN=$(TEST)/bin
+TEST_SRC=$(TEST)/src
 
 THIRD_PARTY=$(PROJECT_DIR)/third-party
 THIRD_PARTY_SRC=$(THIRD_PARTY)/source
@@ -19,6 +19,7 @@ INC=$(THIRD_PARTY_INSTALL)/include
 # Global Variables
 MAKE_JOBS=8
 
+# Compiler and flags
 CXX=g++
 CXXFLAGS += -g -Wall -Wextra -pthread
 CPPFLAGS += -isystem $(INC)
@@ -31,15 +32,17 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 TESTS = Box_test
 
-#
+# Project object files and executable
 OBJS = $(BIN)/Box.o $(BIN)/LoopChain.o $(BIN)/LoopNest.o
-EXE = $(BIN)/SomethingSomethingSomething
+# What thing are we actually making?
+EXE=$(BIN)/SomethingSomethingSomething
 
 all: $(EXE)
 
 $(EXE): $(OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) $^ -o $(EXE)
 
+# These three are temporary
 Box.o: $(BIN)/Box.o
 
 LoopChain.o: $(BIN)/LoopChain.o
@@ -57,24 +60,23 @@ $(BIN)/LoopNest.o: $(SRC)/LoopNest.h $(SRC)/LoopNest.cpp
 
 tests: $(TESTS)
 
+$(TESTS): $(TEST_BIN)/gtest_main.a $(OBJS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(TEST_SRC)/$@.cpp -o $(TEST_BIN)/$@.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -lpthread $(TEST_BIN)/$@.o $(OBJS) $(TEST_BIN)/gtest_main.a -o $(TEST_BIN)/$@
+	$(TEST_BIN)/$@
 
-$(TESTS): $(TESTBIN)/gtest_main.a $(OBJS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(TESTSRC)/$@.cpp -o $(TESTBIN)/$@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -lpthread $(TESTBIN)/$@.o $(OBJS) $(TESTBIN)/gtest_main.a -o $(TESTBIN)/$@
-	$(TESTBIN)/$@
-
-$(TESTBIN)/gtest-all.o : $(GTEST_SRCS_)
+$(TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest-all.cc -o $@
 
-$(TESTBIN)/gtest_main.o : $(GTEST_SRCS_)
+$(TEST_BIN)/gtest_main.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest_main.cc -o $@
 
-$(TESTBIN)/gtest.a : $(TESTBIN)/gtest-all.o
+$(TEST_BIN)/gtest.a : $(TEST_BIN)/gtest-all.o
 	$(AR) $(ARFLAGS) $@ $^
 
-$(TESTBIN)/gtest_main.a : $(TESTBIN)/gtest-all.o $(TESTBIN)/gtest_main.o
+$(TEST_BIN)/gtest_main.a : $(TEST_BIN)/gtest-all.o $(TEST_BIN)/gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
 genesis: nuke
@@ -94,7 +96,6 @@ genesis: nuke
 	&& make -j$(MAKE_JOBS) \
 	&& make install
 
-
 neat:
 	- rm -r $(BIN)/*.o $(BIN)/*.a
 
@@ -102,7 +103,7 @@ clean-third-party:
 	- rm -rf $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 
 clean-test:
-	- rm $(TESTBIN)/*
+	- rm $(TEST_BIN)/*
 
 clean: clean-test
 	- rm -r $(BIN)/*
