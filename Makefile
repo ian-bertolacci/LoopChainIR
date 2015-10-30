@@ -2,7 +2,7 @@
 PROJECT_DIR=$(PWD)
 
 BIN=$(PROJECT_DIR)/bin
-SRC=$(PROJECT_DIR)/SRC
+SRC=$(PROJECT_DIR)/src
 
 TEST=$(PROJECT_DIR)/test
 TESTBIN=$(TEST)/bin
@@ -28,15 +28,40 @@ GTEST_DIR=$(THIRD_PARTY_INSTALL)/gtest
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
-TESTS =
 
-all:
+TESTS = Box_test
 
-tests: $(TESTBIN)/gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC)/sample1.cc -o $(TESTBIN)/sample1.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC)/sample1_unittest.cc -o $(TESTBIN)/sample1_unittest.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -lpthread $(TESTBIN)/sample1.o $(TESTBIN)/sample1_unittest.o $(TESTBIN)/gtest_main.a -o $(TESTBIN)/unit_test
-	$(TESTBIN)/unit_test
+#
+OBJS = $(BIN)/Box.o $(BIN)/LoopChain.o $(BIN)/LoopNest.o
+EXE = $(BIN)/SomethingSomethingSomething
+
+all: $(EXE)
+
+$(EXE): $(OBJS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) $^ -o $(EXE)
+
+Box.o: $(BIN)/Box.o
+
+LoopChain.o: $(BIN)/LoopChain.o
+
+LoopNest.o: $(BIN)/LoopNest.o
+
+$(BIN)/Box.o: $(SRC)/Box.h $(SRC)/Box.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/Box.cpp -c -o $@
+
+$(BIN)/LoopChain.o: $(SRC)/LoopChain.h $(SRC)/LoopChain.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/LoopChain.cpp -c -o $@
+
+$(BIN)/LoopNest.o: $(SRC)/LoopNest.h $(SRC)/LoopNest.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/LoopNest.cpp -c -o $@
+
+tests: $(TESTS)
+
+
+$(TESTS): $(TESTBIN)/gtest_main.a $(OBJS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(TESTSRC)/$@.cpp -o $(TESTBIN)/$@.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -lpthread $(TESTBIN)/$@.o $(OBJS) $(TESTBIN)/gtest_main.a -o $(TESTBIN)/$@
+	$(TESTBIN)/$@
 
 $(TESTBIN)/gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
@@ -69,6 +94,9 @@ genesis: nuke
 	&& make -j$(MAKE_JOBS) \
 	&& make install
 
+
+neat:
+	- rm -r $(BIN)/*.o $(BIN)/*.a
 
 clean-third-party:
 	- rm -rf $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
