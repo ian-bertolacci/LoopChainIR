@@ -28,11 +28,11 @@ are compiled to. Known as $(BIN).
   + src/ : Where all the source for the unit tests live. Known as $(TEST_SRC)
 * third-party/ : Subdirectory for third-party materials, their source,
 their build directories, and their install directories. Known as $(THIRD_PARTY)
-  + source/ : The original source distributions of thrid-party materials. Known
+  + source/ : The original source distributions of third-party materials. Known
     as $(THIRD_PARTY_SRC)
   + build/: Where third-party materials are extracted to and built. Created
     after `make genesis`. Known as $(THIRD_PARTY_BUILD)
-  + install/ : Where thrid-party materials are installed to. Created after
+  + install/ : Where third-party materials are installed to. Created after
     `make genesis`. Known as $(THIRD_PARTY_INSTALL)
     - lib/ : Third-party libraries. Known as $(LIB)
     - include/ : Third-party headers. Known as $(INC)
@@ -64,8 +64,12 @@ Tests are run with
 
 `make tests`
 
+Or individually using the name of the test, for example:
+
+`make Box_test`
+
 ## Third-Party materials
-Included with this project are several thrid-party materials under the
+Included with this project are several third-party materials under the
 $(THID_PARTY_SRC) directory.
 1. ISL
   + [isl-0.15.tar.gz](http://isl.gforge.inria.fr/isl-0.15.tar.gz)
