@@ -1,3 +1,14 @@
+/*******************************************************************************
+\file LoopNest_test.cpp
+\autors Ian J. Bertolacci
+
+\purpose
+To perform unit testsing on the LoopNest data structure.
+
+\copyright
+Copyright 2015 Colorado State University
+*******************************************************************************/
+
 #include "gtest/gtest.h"
 #include "LoopNest.h"
 #include <iostream>

@@ -1,3 +1,14 @@
+/*******************************************************************************
+\file LoopChain_test.cpp
+\autors Ian J. Bertolacci
+
+\purpose
+To perform unit testsing on the LoopChain data structure.
+
+\copyright
+Copyright 2015 Colorado State University
+*******************************************************************************/
+
 #include "gtest/gtest.h"
 #include "LoopChain.h"
 #include <iostream>

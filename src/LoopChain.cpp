@@ -1,3 +1,14 @@
+/*******************************************************************************
+\file LoopChain.cpp
+\autors Ian J. Bertolacci
+
+\purpose
+Contains an ordered sequence of loop nests.
+
+\copyright
+Copyright 2015 Colorado State University
+*******************************************************************************/
+
 #include "LoopChain.h"
 
 LoopChain::LoopChain(): chain() {

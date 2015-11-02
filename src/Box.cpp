@@ -1,3 +1,17 @@
+/*******************************************************************************
+\file Box.cpp
+\autors Ian J. Bertolacci
+
+\purpose
+Contains the bounds on a loop nest.
+Currently, bounds are represented simply as a string, containing only the
+expression that gives that bound. For example the bounds 0 <= x <= N+M would be
+"0" for the lower bound, and "N+M" for the upper bound.
+
+\copyright
+Copyright 2015 Colorado State University
+*******************************************************************************/
+
 #include "Box.h"
 
 Box::Box( std::vector<std::string> input_lower_bounds, std::vector<std::string> input_upper_bounds )
