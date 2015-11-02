@@ -42,13 +42,6 @@ all: $(EXE)
 $(EXE): $(OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) $^ -o $(EXE)
 
-# These three are temporary
-Box.o: $(BIN)/Box.o
-
-LoopChain.o: $(BIN)/LoopChain.o
-
-LoopNest.o: $(BIN)/LoopNest.o
-
 $(BIN)/Box.o: $(SRC)/Box.h $(SRC)/Box.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/Box.cpp -c -o $@
 
