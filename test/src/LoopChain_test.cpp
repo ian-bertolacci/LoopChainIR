@@ -18,35 +18,25 @@ using namespace std;
 
 TEST(LoopChainTest, FourChain) {
   LoopChain chain;
-  vector<string> upper, lower;
 
-  lower.push_back( "0" );
-  upper.push_back( "N" );
-  Box box_1( lower, upper );
+  string lower[1];
+  string upper[1];
 
-  lower.clear();
-  upper.clear();
+  lower[0] = "0";
+  upper[0] = "N";
+  Box box_1( lower, upper, 1 );
 
-  lower.push_back( "1" );
-  upper.push_back( "M" );
-  Box box_2( lower, upper );
+  lower[0] = "1";
+  upper[0] = "M";
+  Box box_2( lower, upper, 1 );
 
-  lower.clear();
-  upper.clear();
+  lower[0] = "2";
+  upper[0] = "J";
+  Box box_3( lower, upper, 1 );
 
-  lower.push_back( "2" );
-  upper.push_back( "J" );
-  Box box_3( lower, upper );
-
-  lower.clear();
-  upper.clear();
-
-  lower.push_back( "3" );
-  upper.push_back( "K" );
-  Box box_4( lower, upper );
-
-  lower.clear();
-  upper.clear();
+  lower[0] = "3";
+  upper[0] = "K";
+  Box box_4( lower, upper, 1 );
 
   chain.append( LoopNest( box_1 ) );
   chain.append( LoopNest( box_2 ) );
@@ -55,35 +45,27 @@ TEST(LoopChainTest, FourChain) {
 
   EXPECT_EQ( chain.length(), 4 );
 
-  Box got_box = chain.getNest(0).getBounds();
+  Box got_box = chain.getNest(0).getDomain();
 
   EXPECT_EQ( got_box.dimensions(), 1 );
-  EXPECT_EQ( got_box.getDimensionLowerBound(0), string("0"));
-  EXPECT_EQ( got_box.getDimensionUpperBound(0), string("N"));
-  EXPECT_EQ( got_box.getDimensionsBounds(0).first,  string("0"));
-  EXPECT_EQ( got_box.getDimensionsBounds(0).second, string("N"));
+  EXPECT_EQ( got_box.getLowerBound(0), string("0"));
+  EXPECT_EQ( got_box.getUpperBound(0), string("N"));
 
-  got_box = chain.getNest(1).getBounds();
+  got_box = chain.getNest(1).getDomain();
 
   EXPECT_EQ( got_box.dimensions(), 1 );
-  EXPECT_EQ( got_box.getDimensionLowerBound(0), string("1"));
-  EXPECT_EQ( got_box.getDimensionUpperBound(0), string("M"));
-  EXPECT_EQ( got_box.getDimensionsBounds(0).first,  string("1"));
-  EXPECT_EQ( got_box.getDimensionsBounds(0).second, string("M"));
+  EXPECT_EQ( got_box.getLowerBound(0), string("1"));
+  EXPECT_EQ( got_box.getUpperBound(0), string("M"));
 
-  got_box = chain.getNest(2).getBounds();
+  got_box = chain.getNest(2).getDomain();
 
   EXPECT_EQ( got_box.dimensions(), 1 );
-  EXPECT_EQ( got_box.getDimensionLowerBound(0), string("2"));
-  EXPECT_EQ( got_box.getDimensionUpperBound(0), string("J"));
-  EXPECT_EQ( got_box.getDimensionsBounds(0).first,  string("2"));
-  EXPECT_EQ( got_box.getDimensionsBounds(0).second, string("J"));
+  EXPECT_EQ( got_box.getLowerBound(0), string("2"));
+  EXPECT_EQ( got_box.getUpperBound(0), string("J"));
 
-  got_box = chain.getNest(3).getBounds();
+  got_box = chain.getNest(3).getDomain();
 
   EXPECT_EQ( got_box.dimensions(), 1 );
-  EXPECT_EQ( got_box.getDimensionLowerBound(0), string("3"));
-  EXPECT_EQ( got_box.getDimensionUpperBound(0), string("K"));
-  EXPECT_EQ( got_box.getDimensionsBounds(0).first,  string("3"));
-  EXPECT_EQ( got_box.getDimensionsBounds(0).second, string("K"));
+  EXPECT_EQ( got_box.getLowerBound(0), string("3"));
+  EXPECT_EQ( got_box.getUpperBound(0), string("K"));
 }

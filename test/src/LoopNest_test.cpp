@@ -17,16 +17,14 @@ Copyright 2015 Colorado State University
 using namespace std;
 
 TEST(LoopNestTest, ConstructFromBox) {
-  vector<string> lower, upper;
-  lower.push_back(string("0"));
-  upper.push_back(string("1"));
+  string lower[1] = { "0" };
+  string upper[1] = { "1" };
 
-  Box box( lower, upper );
+  Box box( lower, upper, 1 );
   LoopNest nest( box );
-  Box got_box = nest.getBounds();
+  Box got_box = nest.getDomain();
+
   EXPECT_EQ( got_box.dimensions(), box.dimensions() );
-  EXPECT_EQ( got_box.getDimensionLowerBound(0), box.getDimensionLowerBound(0) );
-  EXPECT_EQ( got_box.getDimensionUpperBound(0), box.getDimensionUpperBound(0) );
-  EXPECT_EQ( got_box.getDimensionsBounds(0).first, box.getDimensionsBounds(0).first );
-  EXPECT_EQ( got_box.getDimensionsBounds(0).second, box.getDimensionsBounds(0).second );
+  EXPECT_EQ( got_box.getLowerBound(0), box.getLowerBound(0) );
+  EXPECT_EQ( got_box.getUpperBound(0), box.getUpperBound(0) );
 }

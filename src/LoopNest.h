@@ -21,7 +21,7 @@ private:
 
 public:
   LoopNest( Box loop_bounds );
-  Box& getBounds();
+  Box& getDomain();
 };
 
 #endif
