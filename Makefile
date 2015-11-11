@@ -22,7 +22,7 @@ MAKE_JOBS=8
 # Compiler and flags
 CXX=g++
 CXXFLAGS += -g -Wall -Wextra -pthread
-CPPFLAGS += -isystem $(INC)
+CPPFLAGS += -isystem $(INC) -lisl
 
 # Test Variables
 GTEST_DIR=$(THIRD_PARTY_INSTALL)/gtest
@@ -30,10 +30,14 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
-TESTS = Box_test LoopNest_test LoopChain_test
+TESTS = Box_test LoopNest_test LoopChain_test DefaultSequentialSchedule_test
 
 # Project object files and executable
-OBJS = $(BIN)/Box.o $(BIN)/LoopChain.o $(BIN)/LoopNest.o
+OBJS = $(BIN)/Box.o \
+       $(BIN)/LoopChain.o \
+			 $(BIN)/LoopNest.o \
+			 $(BIN)/DefaultSequentialSchedule.o
+
 # What thing are we actually making?
 EXE=$(BIN)/SomethingSomethingSomething
 
@@ -50,6 +54,9 @@ $(BIN)/LoopChain.o: $(SRC)/LoopChain.h $(SRC)/LoopChain.cpp
 
 $(BIN)/LoopNest.o: $(SRC)/LoopNest.h $(SRC)/LoopNest.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/LoopNest.cpp -c -o $@
+
+$(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.h $(SRC)/DefaultSequentialSchedule.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/DefaultSequentialSchedule.cpp -c -o $@
 
 tests: $(TESTS)
 
