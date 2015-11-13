@@ -1,3 +1,15 @@
+/*******************************************************************************
+\file all_isl.h
+\autors Ian J. Bertolacci
+
+\purpose
+ISL has many headers, which have many depenencies.
+This header brings them all together, in a simpler package.
+
+\copyright
+Copyright 2015 Colorado State University
+*******************************************************************************/
+
 #ifndef ALL_ISL_H
 #define ALL_ISL_H
 #include <isl/aff.h>

@@ -1,3 +1,14 @@
+/*******************************************************************************
+\file DefaultSequentialSchedule.cpp
+\autors Ian J. Bertolacci
+
+\purpose
+Generate a simple sequential, non-parallel schedule from a LoopChain.
+
+\copyright
+Copyright 2015 Colorado State University
+*******************************************************************************/
+
 #include "DefaultSequentialSchedule.h"
 
 DefaultSequentialSchedule::DefaultSequentialSchedule( LoopChain& chain){
@@ -66,6 +77,7 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
       }
     }// for_each dimension
 
+    // Create the full string representing an ISL Domain
     std::string domain_string = SSTR( "[" << symbolic_string.str() << "] -> {"
                                           << "statement_" << nest_idx << "[" << statement_string.str() << "] : "
                                           << inequalities_string.str() << "}"
@@ -74,6 +86,7 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
     domains.push_back( isl_union_set_read_from_str(ctx, domain_string.c_str() ) );
     //std::cout << domain_string << std::endl;
 
+    // Create the loop chain map string
     map_string << "statement_" << nest_idx << "[" << statement_string.str() << "]"
                << " -> [" << nest_idx << "," << statement_string.str() << "]; ";
 
@@ -92,6 +105,7 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
     }
   }
 
+  /
   isl_union_map* chain_map = isl_union_map_read_from_str(ctx, map_string.str().c_str() );
   isl_union_map* schedule = isl_union_map_intersect_domain(chain_map, full_domain);
   isl_ast_build* build = isl_ast_build_alloc(ctx);
@@ -100,15 +114,17 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
                p = isl_printer_set_output_format(p, ISL_FORMAT_C);
                p = isl_printer_print_ast_node(p, tree);
 
-  // TODO Figure out how to free these objects...
-  // isl_union_map_free( chain_map ); // breaks.
-  // isl_union_map_free( schedule ); // breaks
-  //isl_union_set_free( full_domain ); // breaks
-  /* breaks
+  /*
+  TODO Figure out how to free these objects...
+  isl_union_map_free( chain_map ); // breaks.
+  isl_union_map_free( schedule ); // breaks
+  isl_union_set_free( full_domain ); // breaks
+  breaks
   for( std::vector<isl_union_set*>::iterator it = domains.begin(); it != domains.end(); ++it ){
     isl_union_set_free(*it);
   }
   */
+
   isl_ast_build_free( build );
   isl_printer_free( p );
   isl_ast_node_free( tree );
