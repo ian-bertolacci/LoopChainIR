@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file Box.h
+\file RectangularDomain.h
 \autors Ian J. Bertolacci
 
 \purpose
@@ -12,14 +12,14 @@ expression that gives that bound. For example the bounds 0 <= x <= N+M would be
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#ifndef BOX_H
-#define BOX_H
+#ifndef RECTANGULAR_DOMAIN_H
+#define RECTANGULAR_DOMAIN_H
 
 #include <string>
 #include <vector>
 #include <utility>
 
-class Box
+class RectangularDomain
 {
 private:
   std::vector<std::string> upper_bounds;
@@ -28,7 +28,7 @@ private:
 public:
   typedef std::vector<std::string>::size_type size_type;
 
-  Box( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions );
+  RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions );
 
   size_type dimensions();
 

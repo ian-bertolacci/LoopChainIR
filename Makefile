@@ -30,10 +30,10 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
-TESTS = Box_test LoopNest_test LoopChain_test DefaultSequentialSchedule_test
+TESTS = RectangularDomain_test LoopNest_test LoopChain_test DefaultSequentialSchedule_test
 
 # Project object files and executable
-OBJS = $(BIN)/Box.o \
+OBJS = $(BIN)/RectangularDomain.o \
        $(BIN)/LoopChain.o \
 			 $(BIN)/LoopNest.o \
 			 $(BIN)/DefaultSequentialSchedule.o
@@ -46,8 +46,8 @@ all: $(EXE)
 $(EXE): $(OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) $^ -o $(EXE)
 
-$(BIN)/Box.o: $(SRC)/Box.h $(SRC)/Box.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/Box.cpp -c -o $@
+$(BIN)/RectangularDomain.o: $(SRC)/RectangularDomain.h $(SRC)/RectangularDomain.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/RectangularDomain.cpp -c -o $@
 
 $(BIN)/LoopChain.o: $(SRC)/LoopChain.h $(SRC)/LoopChain.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/LoopChain.cpp -c -o $@

@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file Box.cpp
+\file RectangularDomain.cpp
 \autors Ian J. Bertolacci
 
 \purpose
@@ -12,9 +12,9 @@ expression that gives that bound. For example the bounds 0 <= x <= N+M would be
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#include "Box.h"
+#include "RectangularDomain.h"
 
-Box::Box( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions ){
+RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions ){
   if( input_lower_bounds == NULL ){
     // error
   }
@@ -34,13 +34,13 @@ Box::Box( std::string input_lower_bounds[], std::string input_upper_bounds[], si
 
 }
 
-Box::size_type Box::dimensions(){
+RectangularDomain::size_type RectangularDomain::dimensions(){
   return this->lower_bounds.size();
 }
-std::string Box::getUpperBound( Box::size_type dimension ){
+std::string RectangularDomain::getUpperBound( RectangularDomain::size_type dimension ){
   return this->upper_bounds[dimension];
 }
 
-std::string Box::getLowerBound( Box::size_type dimension ){
+std::string RectangularDomain::getLowerBound( RectangularDomain::size_type dimension ){
   return this->lower_bounds[dimension];
 }

@@ -12,10 +12,10 @@ Copyright 2015 Colorado State University
 
 #include "LoopNest.h"
 
-LoopNest::LoopNest( Box loop_bounds ): bounds( loop_bounds ){
+LoopNest::LoopNest( RectangularDomain loop_bounds ): bounds( loop_bounds ){
 
 }
 
-Box& LoopNest::getDomain(){
+RectangularDomain& LoopNest::getDomain(){
   return this->bounds;
 }

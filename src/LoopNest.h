@@ -13,15 +13,15 @@ Copyright 2015 Colorado State University
 #ifndef LOOPNEST_H
 #define LOOPNEST_H
 
-#include "Box.h"
+#include "RectangularDomain.h"
 
 class LoopNest{
 private:
-  Box bounds;
+  RectangularDomain bounds;
 
 public:
-  LoopNest( Box loop_bounds );
-  Box& getDomain();
+  LoopNest( RectangularDomain loop_bounds );
+  RectangularDomain& getDomain();
 };
 
 #endif

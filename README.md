@@ -57,8 +57,8 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
 Testing is conducted through the [Google Test](https://code.google.com/p/googletest/)
 unit test framework.
 
-Preferably, each project source file gets its own unit test file (i.e. Box.cpp
-and Box_test.cpp).
+Preferably, each project source file gets its own unit test file (i.e. RectangularDomain.cpp
+and RectangularDomain_test.cpp).
 
 Tests are run with
 
@@ -66,7 +66,7 @@ Tests are run with
 
 Or individually using the name of the test, for example:
 
-`make Box_test`
+`make RectangularDomain_test`
 
 ## Third-Party materials
 Included with this project are several third-party materials under the

@@ -31,7 +31,7 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
 
   for( LoopChain::size_type nest_idx = 0; nest_idx < this->chain.length(); nest_idx += 1 ){
     LoopNest& nest = this->chain.getNest( nest_idx );
-    Box& domain = nest.getDomain();
+    RectangularDomain& domain = nest.getDomain();
 
     // String of statement
     std::ostringstream statement_string;
@@ -44,7 +44,7 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
     std::ostringstream inequalities_string;
 
     bool is_not_first_symbolic = false; // for comma insertion
-    for( Box::size_type dimension = 0; dimension < domain.dimensions(); dimension += 1 ){
+    for( RectangularDomain::size_type dimension = 0; dimension < domain.dimensions(); dimension += 1 ){
       std::string lower = domain.getLowerBound( dimension );
       std::string upper = domain.getUpperBound( dimension );
 
@@ -105,7 +105,6 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
     }
   }
 
-  /
   isl_union_map* chain_map = isl_union_map_read_from_str(ctx, map_string.str().c_str() );
   isl_union_map* schedule = isl_union_map_intersect_domain(chain_map, full_domain);
   isl_ast_build* build = isl_ast_build_alloc(ctx);

@@ -24,24 +24,24 @@ TEST(DefaultSequentialScheduleTest, Construct_Get_FourChain) {
 
   lower[0] = "0";
   upper[0] = "N";
-  Box box_1( lower, upper, 1 );
+  RectangularDomain domain_1( lower, upper, 1 );
 
   lower[0] = "1";
   upper[0] = "M";
-  Box box_2( lower, upper, 1 );
+  RectangularDomain domain_2( lower, upper, 1 );
 
   lower[0] = "2";
   upper[0] = "J";
-  Box box_3( lower, upper, 1 );
+  RectangularDomain domain_3( lower, upper, 1 );
 
   lower[0] = "3";
   upper[0] = "K";
-  Box box_4( lower, upper, 1 );
+  RectangularDomain domain_4( lower, upper, 1 );
 
-  chain.append( LoopNest( box_1 ) );
-  chain.append( LoopNest( box_2 ) );
-  chain.append( LoopNest( box_3 ) );
-  chain.append( LoopNest( box_4 ) );
+  chain.append( LoopNest( domain_1 ) );
+  chain.append( LoopNest( domain_2 ) );
+  chain.append( LoopNest( domain_3 ) );
+  chain.append( LoopNest( domain_4 ) );
 
   DefaultSequentialSchedule sched( chain );
 
@@ -49,29 +49,29 @@ TEST(DefaultSequentialScheduleTest, Construct_Get_FourChain) {
 
   EXPECT_EQ( got_chain.length(), 4 );
 
-  Box got_box = got_chain.getNest(0).getDomain();
+  RectangularDomain got_domain = got_chain.getNest(0).getDomain();
 
-  EXPECT_EQ( got_box.dimensions(), 1 );
-  EXPECT_EQ( got_box.getLowerBound(0), string("0"));
-  EXPECT_EQ( got_box.getUpperBound(0), string("N"));
+  EXPECT_EQ( got_domain.dimensions(), 1 );
+  EXPECT_EQ( got_domain.getLowerBound(0), string("0"));
+  EXPECT_EQ( got_domain.getUpperBound(0), string("N"));
 
-  got_box = got_chain.getNest(1).getDomain();
+  got_domain = got_chain.getNest(1).getDomain();
 
-  EXPECT_EQ( got_box.dimensions(), 1 );
-  EXPECT_EQ( got_box.getLowerBound(0), string("1"));
-  EXPECT_EQ( got_box.getUpperBound(0), string("M"));
+  EXPECT_EQ( got_domain.dimensions(), 1 );
+  EXPECT_EQ( got_domain.getLowerBound(0), string("1"));
+  EXPECT_EQ( got_domain.getUpperBound(0), string("M"));
 
-  got_box = got_chain.getNest(2).getDomain();
+  got_domain = got_chain.getNest(2).getDomain();
 
-  EXPECT_EQ( got_box.dimensions(), 1 );
-  EXPECT_EQ( got_box.getLowerBound(0), string("2"));
-  EXPECT_EQ( got_box.getUpperBound(0), string("J"));
+  EXPECT_EQ( got_domain.dimensions(), 1 );
+  EXPECT_EQ( got_domain.getLowerBound(0), string("2"));
+  EXPECT_EQ( got_domain.getUpperBound(0), string("J"));
 
-  got_box = got_chain.getNest(3).getDomain();
+  got_domain = got_chain.getNest(3).getDomain();
 
-  EXPECT_EQ( got_box.dimensions(), 1 );
-  EXPECT_EQ( got_box.getLowerBound(0), string("3"));
-  EXPECT_EQ( got_box.getUpperBound(0), string("K"));
+  EXPECT_EQ( got_domain.dimensions(), 1 );
+  EXPECT_EQ( got_domain.getLowerBound(0), string("3"));
+  EXPECT_EQ( got_domain.getUpperBound(0), string("K"));
 
 }
 
@@ -83,9 +83,9 @@ TEST(DefaultSequentialScheduleTest, Gen_OneChain) {
 
   lower[0] = "0";
   upper[0] = "N";
-  Box box( lower, upper, 1 );
+  RectangularDomain domain( lower, upper, 1 );
 
-  chain.append( LoopNest( box ) );
+  chain.append( LoopNest( domain ) );
 
   DefaultSequentialSchedule sched( chain );
 
@@ -98,9 +98,9 @@ TEST(DefaultSequentialScheduleTest, Gen_OneChain_TwoD) {
   string lower[2] = { "0", "K" };
   string upper[2] = { "N", "M" };
 
-  Box box( lower, upper, 2 );
+  RectangularDomain domain( lower, upper, 2 );
 
-  chain.append( LoopNest( box ) );
+  chain.append( LoopNest( domain ) );
 
   DefaultSequentialSchedule sched( chain );
 
@@ -115,24 +115,24 @@ TEST(DefaultSequentialScheduleTest, Gen_FourChain) {
 
   lower[0] = "0";
   upper[0] = "N";
-  Box box_1( lower, upper, 1 );
+  RectangularDomain domain_1( lower, upper, 1 );
 
   lower[0] = "1";
   upper[0] = "M";
-  Box box_2( lower, upper, 1 );
+  RectangularDomain domain_2( lower, upper, 1 );
 
   lower[0] = "2";
   upper[0] = "J";
-  Box box_3( lower, upper, 1 );
+  RectangularDomain domain_3( lower, upper, 1 );
 
   lower[0] = "3";
   upper[0] = "K";
-  Box box_4( lower, upper, 1 );
+  RectangularDomain domain_4( lower, upper, 1 );
 
-  chain.append( LoopNest( box_1 ) );
-  chain.append( LoopNest( box_2 ) );
-  chain.append( LoopNest( box_3 ) );
-  chain.append( LoopNest( box_4 ) );
+  chain.append( LoopNest( domain_1 ) );
+  chain.append( LoopNest( domain_2 ) );
+  chain.append( LoopNest( domain_3 ) );
+  chain.append( LoopNest( domain_4 ) );
 
   DefaultSequentialSchedule sched( chain );
 
