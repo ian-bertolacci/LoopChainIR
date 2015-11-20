@@ -150,3 +150,34 @@ TEST(DefaultSequentialScheduleTest, Gen_FourChain) {
 
   sched.codegen( stdout );
 }
+
+TEST(DefaultSequentialScheduleTest, SC_Loops_Default) {
+  LoopChain chain;
+
+  string symbols[6] = { "Lx","Ux","Ly","Uy","Lz","Uz" };
+
+  string d1_lower[3] = { "Lx", "Ly", "Lz" };
+  string d1_upper[3] = { "Ux+1", "Uy", "Uz" };
+  RectangularDomain domain_1( d1_lower, d1_upper, 3, symbols, 6 );
+
+  string d2_lower[3] = { "Lx", "Ly", "Lz" };
+  string d2_upper[3] = { "Ux", "Uy+1", "Uz" };
+  RectangularDomain domain_2( d2_lower, d2_upper, 3, symbols, 6 );
+
+  string d3_lower[3] = { "Lx", "Ly", "Lz" };
+  string d3_upper[3] = { "Ux", "Uy", "Uz+1" };
+  RectangularDomain domain_3( d3_lower, d3_upper, 3, symbols, 6 );
+
+  string d4_lower[3] = { "Lx", "Ly", "Lz" };
+  string d4_upper[3] = { "Ux", "Uy", "Uz" };
+  RectangularDomain domain_4( d4_lower, d4_upper, 3, symbols, 6 );
+
+  chain.append( LoopNest( domain_1 ) );
+  chain.append( LoopNest( domain_2 ) );
+  chain.append( LoopNest( domain_3 ) );
+  chain.append( LoopNest( domain_4 ) );
+
+  DefaultSequentialSchedule sched( chain );
+
+  sched.codegen( stdout );
+}
