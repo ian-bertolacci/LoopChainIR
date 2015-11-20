@@ -25,6 +25,7 @@ TEST(LoopNestTest, ConstructFromRectangularDomain) {
   RectangularDomain got_domain = nest.getDomain();
 
   EXPECT_EQ( got_domain.dimensions(), domain.dimensions() );
+  EXPECT_EQ( got_domain.symbolics(), domain.symbolics() );
   EXPECT_EQ( got_domain.getLowerBound(0), domain.getLowerBound(0) );
   EXPECT_EQ( got_domain.getUpperBound(0), domain.getUpperBound(0) );
 }

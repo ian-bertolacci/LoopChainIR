@@ -35,15 +35,22 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
 
     // String of statement
     std::ostringstream statement_string;
-    //statement_string << ;
 
     // String of symbolic bounds
     std::ostringstream symbolic_string;
 
+    bool is_not_first_symbolic = false; // for comma insertion
+    for( RectangularDomain::size_type symbolic = 0; symbolic < domain.symbolics(); symbolic += 1 ){
+      if( is_not_first_symbolic ){
+        symbolic_string << ",";
+      }
+      symbolic_string << domain.getSymbol(symbolic);
+      is_not_first_symbolic = true;
+    }
+
     // String of bounds inequalities
     std::ostringstream inequalities_string;
 
-    bool is_not_first_symbolic = false; // for comma insertion
     for( RectangularDomain::size_type dimension = 0; dimension < domain.dimensions(); dimension += 1 ){
       std::string lower = domain.getLowerBound( dimension );
       std::string upper = domain.getUpperBound( dimension );
@@ -58,23 +65,6 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
       if( dimension > 0 ) inequalities_string << " and ";
       inequalities_string << lower << " <= " << index_symbol << " <= " << upper;
 
-
-      // find and add symolic bounds to symbolic string
-      if( lower.find_first_of(ALPHA_CHARS) != std::string::npos ){
-        if( is_not_first_symbolic ){
-          symbolic_string << ",";
-        }
-        symbolic_string << lower;
-        is_not_first_symbolic = true;
-      }
-
-      if( upper.find_first_of(ALPHA_CHARS) != std::string::npos ){
-        if( is_not_first_symbolic ){
-          symbolic_string << ",";
-        }
-        symbolic_string << upper;
-        is_not_first_symbolic = true;
-      }
     }// for_each dimension
 
     // Create the full string representing an ISL Domain
@@ -83,8 +73,8 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
                                           << inequalities_string.str() << "}"
                                     );
 
+    // Construct actual ISL domain and append it.
     domains.push_back( isl_union_set_read_from_str(ctx, domain_string.c_str() ) );
-    //std::cout << domain_string << std::endl;
 
     // Create the loop chain map string
     map_string << "statement_" << nest_idx << "[" << statement_string.str() << "]"
@@ -105,8 +95,11 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
     }
   }
 
+  // Create mapping and schedule
   isl_union_map* chain_map = isl_union_map_read_from_str(ctx, map_string.str().c_str() );
   isl_union_map* schedule = isl_union_map_intersect_domain(chain_map, full_domain);
+
+  // Create AST and print to output_file
   isl_ast_build* build = isl_ast_build_alloc(ctx);
   isl_ast_node* tree = isl_ast_build_node_from_schedule_map(build, schedule);
   isl_printer* p = isl_printer_to_file(ctx, output_file);

@@ -24,17 +24,19 @@ class RectangularDomain
 private:
   std::vector<std::string> upper_bounds;
   std::vector<std::string> lower_bounds;
+  std::vector<std::string> symbols;
 
 public:
   typedef std::vector<std::string>::size_type size_type;
 
+  RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions, std::string symbols[], size_type symbolics );
   RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions );
-
   size_type dimensions();
+  size_type symbolics();
 
   std::string getUpperBound( size_type dimension );
   std::string getLowerBound( size_type dimension );
-
+  std::string getSymbol( size_type symbolic );
 
 };
 
