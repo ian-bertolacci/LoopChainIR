@@ -13,19 +13,12 @@ Copyright 2015 Colorado State University
 *******************************************************************************/
 
 #include "RectangularDomain.h"
+#include "util.h"
 
 RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions ){
-  if( input_lower_bounds == NULL ){
-    // error
-  }
-
-  if( input_upper_bounds == NULL ){
-    // error
-  }
-
-  if( dimensions <= 0 ){
-    // error
-  }
+  assertWithException( input_lower_bounds != NULL, "Lower bounds array cannot be null" );
+  assertWithException( input_upper_bounds != NULL, "Upper bounds array cannot be null" );
+  assertWithException( dimensions >= 1, "Cannot have domain with fewer than one dimension" );
 
   for( size_type d = 0; d < dimensions; d += 1 ){
     this->lower_bounds.push_back( input_lower_bounds[d] );
@@ -35,17 +28,11 @@ RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::str
 }
 
 RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions, std::string symbols[], size_type symbolics ){
-  if( input_lower_bounds == NULL ){
-    // error
-  }
-
-  if( input_upper_bounds == NULL ){
-    // error
-  }
-
-  if( dimensions <= 0 ){
-    // error
-  }
+  assertWithException( input_lower_bounds != NULL, "Lower bounds array cannot be null" );
+  assertWithException( input_upper_bounds != NULL, "Upper bounds array cannot be null" );
+  assertWithException( dimensions >= 1, "Cannot have domain with fewer than one dimension" );
+  assertWithException( symbols != NULL, "Symbols array cannot be null" );
+  assertWithException( symbolics >= 0, "Symbolics count cannot be negative" );
 
   for( size_type d = 0; d < dimensions; d += 1 ){
     this->lower_bounds.push_back( input_lower_bounds[d] );

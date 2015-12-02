@@ -36,7 +36,8 @@ TESTS = RectangularDomain_test LoopNest_test LoopChain_test DefaultSequentialSch
 OBJS = $(BIN)/RectangularDomain.o \
        $(BIN)/LoopChain.o \
 			 $(BIN)/LoopNest.o \
-			 $(BIN)/DefaultSequentialSchedule.o
+			 $(BIN)/DefaultSequentialSchedule.o \
+			 $(BIN)/util.o
 
 # What thing are we actually making?
 EXE=$(BIN)/SomethingSomethingSomething
@@ -57,6 +58,9 @@ $(BIN)/LoopNest.o: $(SRC)/LoopNest.h $(SRC)/LoopNest.cpp
 
 $(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.h $(SRC)/DefaultSequentialSchedule.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/DefaultSequentialSchedule.cpp -c -o $@
+
+$(BIN)/util.o: $(SRC)/util.h $(SRC)/util.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/util.cpp -c -o $@
 
 tests: $(TESTS)
 
