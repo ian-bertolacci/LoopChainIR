@@ -32,7 +32,6 @@ RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::str
   assertWithException( input_upper_bounds != NULL, "Upper bounds array cannot be null" );
   assertWithException( dimensions >= 1, "Cannot have domain with fewer than one dimension" );
   assertWithException( symbols != NULL, "Symbols array cannot be null" );
-  assertWithException( symbolics >= 0, "Symbolics count cannot be negative" );
 
   for( size_type d = 0; d < dimensions; d += 1 ){
     this->lower_bounds.push_back( input_lower_bounds[d] );

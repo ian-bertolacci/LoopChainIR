@@ -33,6 +33,8 @@ public:
               std::logic_error(error_message) {}
 };
 
-void assertWithException( bool condition, const std::string& message );
+#define assertWithException(condition,message )\
+  if( !(condition) ){ throw assert_exception( SSTR( "\"" << message << "\" " << __FILE__ << ":" << __LINE__ ) ); }
+//void assertWithException( bool condition, const std::string& message );
 
 #endif
