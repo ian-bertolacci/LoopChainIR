@@ -5,8 +5,12 @@ BIN=$(PROJECT_DIR)/bin
 SRC=$(PROJECT_DIR)/src
 
 TEST=$(PROJECT_DIR)/test
-TEST_BIN=$(TEST)/bin
-TEST_SRC=$(TEST)/src
+UNIT_TEST_DIR=$(TEST)/unit-tests
+UNIT_TEST_BIN=$(UNIT_TEST_DIR)/bin
+UNIT_TEST_SRC=$(UNIT_TEST_DIR)/src
+REG_TEST_DIR=$(TEST)/regression-tests
+REG_TEST_BIN=$(REG_TEST_DIR)/bin
+REG_TEST_DIR=$(REG_TEST_DIR)/src
 
 THIRD_PARTY=$(PROJECT_DIR)/third-party
 THIRD_PARTY_SRC=$(THIRD_PARTY)/source
@@ -30,7 +34,7 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
-TESTS = RectangularDomain_test LoopNest_test LoopChain_test DefaultSequentialSchedule_test
+UNIT_TESTS = RectangularDomain_test LoopNest_test LoopChain_test DefaultSequentialSchedule_test
 
 # Project object files and executable
 OBJS = $(BIN)/RectangularDomain.o \
@@ -62,25 +66,29 @@ $(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.h $(SRC)/De
 $(BIN)/util.o: $(SRC)/util.h $(SRC)/util.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/util.cpp -c -o $@
 
-tests: $(TESTS)
+all-tests: unit-tests regression-tests
 
-$(TESTS): $(TEST_BIN)/gtest_main.a $(OBJS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(TEST_SRC)/$@.cpp -o $(TEST_BIN)/$@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -lpthread $(TEST_BIN)/$@.o $(OBJS) $(TEST_BIN)/gtest_main.a -o $(TEST_BIN)/$@
-	$(TEST_BIN)/$@
+unit-tests: $(UNIT_TESTS)
 
-$(TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
+regression-tests:
+
+$(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(OBJS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $(OBJS) $(UNIT_TEST_BIN)/gtest_main.a -o $(UNIT_TEST_BIN)/$@
+	$(UNIT_TEST_BIN)/$@
+
+$(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest-all.cc -o $@
 
-$(TEST_BIN)/gtest_main.o : $(GTEST_SRCS_)
+$(UNIT_TEST_BIN)/gtest_main.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest_main.cc -o $@
 
-$(TEST_BIN)/gtest.a : $(TEST_BIN)/gtest-all.o
+$(UNIT_TEST_BIN)/gtest.a : $(UNIT_TEST_BIN)/gtest-all.o
 	$(AR) $(ARFLAGS) $@ $^
 
-$(TEST_BIN)/gtest_main.a : $(TEST_BIN)/gtest-all.o $(TEST_BIN)/gtest_main.o
+$(UNIT_TEST_BIN)/gtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)/gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
 genesis: nuke
@@ -107,7 +115,9 @@ clean-third-party:
 	- rm -rf $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 
 clean-test:
-	- rm $(TEST_BIN)/*
+	- rm $(UNIT_TEST_BIN)/*
+	- rm $(REG_TEST_BIN)/*
+	- rm $(REG_TEST_SANDBOX)/*
 
 clean: clean-test
 	- rm -r $(BIN)/*
