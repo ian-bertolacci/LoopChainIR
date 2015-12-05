@@ -1,0 +1,24 @@
+PROJECT_DIR=$(PWD)/..
+include $(PROJECT_DIR)/Makefile
+
+CODEGEN_BINARY=CODEGEN_BINARY_STAMP
+TEST_BINARY=TEST_BINARY_STAMP
+OUTPUT_FILE=OUTPUT_FILE_STAMP
+
+tool: $(CODEGEN_BINARY)
+
+test: $(TEST_BINARY)
+
+$(CODEGEN_BINARY): $(OBJS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $@.cpp -o $@.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -lpthread $@.o $(OBJS) -o $@
+
+$(TEST_BINARY): $(OBJS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $@.cpp -o $@.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -lpthread $@.o $(OBJS) -o $@
+
+clean-generated:
+	- rm *.o $(CODEGEN_BINARY) $(TEST_BINARY) \
+	     $(CODEGEN_BINARY).cpp $(TEST_BINARY).cpp \
+			 $(OUTPUT_FILE) \
+			 Makefile

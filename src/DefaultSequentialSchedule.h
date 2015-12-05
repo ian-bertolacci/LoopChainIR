@@ -12,10 +12,6 @@ Copyright 2015 Colorado State University
 #ifndef DEFAULT_SEQUENTIAL_SCHEDULE_H
 #define DEFAULT_SEQUENTIAL_SCHEDULE_H
 
-#define UPPER_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-#define LOWER_CHARS "abcdefghijklmnopqrstuvwxyz"
-#define ALPHA_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-
 #include "LoopChain.h"
 #include "all_isl.h"
 #include "util.h"

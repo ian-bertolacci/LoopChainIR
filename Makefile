@@ -1,5 +1,5 @@
 # Paths
-PROJECT_DIR=$(PWD)
+PROJECT_DIR ?= $(PWD)
 
 BIN=$(PROJECT_DIR)/bin
 SRC=$(PROJECT_DIR)/src
@@ -10,7 +10,7 @@ UNIT_TEST_BIN=$(UNIT_TEST_DIR)/bin
 UNIT_TEST_SRC=$(UNIT_TEST_DIR)/src
 REG_TEST_DIR=$(TEST)/regression-tests
 REG_TEST_BIN=$(REG_TEST_DIR)/bin
-REG_TEST_DIR=$(REG_TEST_DIR)/src
+REG_TEST_SRC=$(REG_TEST_DIR)/src
 
 THIRD_PARTY=$(PROJECT_DIR)/third-party
 THIRD_PARTY_SRC=$(THIRD_PARTY)/source
@@ -117,7 +117,7 @@ clean-third-party:
 clean-test:
 	- rm $(UNIT_TEST_BIN)/*
 	- rm $(REG_TEST_BIN)/*
-	- rm $(REG_TEST_SANDBOX)/*
+	#- rm $(REG_TEST_SANDBOX)/*
 
 clean: clean-test
 	- rm -r $(BIN)/*
