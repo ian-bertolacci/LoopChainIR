@@ -28,6 +28,8 @@ CXX=g++
 CXXFLAGS += -g -Wall -Wextra -pthread
 CPPFLAGS += -isystem $(INC) -lisl
 
+LD=ld
+LDFLAGS = -rpath $(LIB)
 # Test Variables
 GTEST_DIR=$(THIRD_PARTY_INSTALL)/gtest
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
@@ -52,19 +54,19 @@ $(EXE): $(OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) $^ -o $(EXE)
 
 $(BIN)/RectangularDomain.o: $(SRC)/RectangularDomain.h $(SRC)/RectangularDomain.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/RectangularDomain.cpp -c -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I$(SRC) $(SRC)/RectangularDomain.cpp -c -o $@
 
 $(BIN)/LoopChain.o: $(SRC)/LoopChain.h $(SRC)/LoopChain.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/LoopChain.cpp -c -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I$(SRC) $(SRC)/LoopChain.cpp -c -o $@
 
 $(BIN)/LoopNest.o: $(SRC)/LoopNest.h $(SRC)/LoopNest.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/LoopNest.cpp -c -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I$(SRC) $(SRC)/LoopNest.cpp -c -o $@
 
 $(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.h $(SRC)/DefaultSequentialSchedule.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/DefaultSequentialSchedule.cpp -c -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I$(SRC) $(SRC)/DefaultSequentialSchedule.cpp -c -o $@
 
 $(BIN)/util.o: $(SRC)/util.h $(SRC)/util.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/util.cpp -c -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I$(SRC) $(SRC)/util.cpp -c -o $@
 
 all-tests: unit-tests regression-tests
 
@@ -74,12 +76,12 @@ regression-tests:
 
 $(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $(OBJS) $(UNIT_TEST_BIN)/gtest_main.a -o $(UNIT_TEST_BIN)/$@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -Wl,-rpath -Wl,$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $(OBJS) $(UNIT_TEST_BIN)/gtest_main.a -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
 
 $(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
-            $(GTEST_DIR)/src/gtest-all.cc -o $@
+            ${GTEST_DIR}/src/gtest-all.cc -o $@
 
 $(UNIT_TEST_BIN)/gtest_main.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
@@ -99,6 +101,7 @@ genesis: nuke
 	# Unzip and copy gtest
 	unzip -q $(THIRD_PARTY_SRC)/gtest-1.7.0.zip -d $(THIRD_PARTY_INSTALL)/.
 	mv $(THIRD_PARTY_INSTALL)/gtest-1.7.0 $(GTEST_DIR)
+	cp -r $(GTEST_DIR)/include/gtest $(INC)
 	#
 	# build ISL
 	tar -xzf $(THIRD_PARTY_SRC)/isl-0.15.tar.gz -C $(THIRD_PARTY_BUILD)/.
