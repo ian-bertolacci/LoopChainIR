@@ -9,12 +9,12 @@ project.
 After getting this repository (via git clone, zip download, carrier pidgeon,
 what have you ), run:
 
-`make genesis`
+`make initialize`
 
 This will build and position all third-party materials in the correct place.
 To ensure that everything is in working order, run:
 
-`make tests`
+`make all-tests`
 
 All tests should, unless stated otherwise.
 
@@ -38,13 +38,14 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
     - include/ : Third-party headers. Known as $(INC)
 
 ## Make commands
-* `geneis`: This is the first command that should be run when getting started
+* `initialize`: This is the first command that should be run when getting started
   with the project. It builds and places all the third-party tools into good
   organized places.
-* `all`: Currently inoperable. Need to know what is being built (libray?
-  executable?)
-* `tests`: builds and runs all tests specified by the $(TESTS) variable.
-* `neat`: removes (recursively) all \*.o and \*.a files from $(BIN).
+* `all`: builds the LoopChainIR.a library
+* `all-tests`: performs `unit-tests` and `regression-tests`
+* `unit-tests`: Runs all unit tests specified by $(UNIT-TESTS)
+* `regression-tests`: Currently in-op awaiting regression testing framework
+* `neat`: removes all \*.o files from $(BIN).
 * `clean-third-party`: removes (recursively, **forced**) $(THIRD_PARTY_INSTALL)
   and $(THIRD_PARTY_BUILD).
 * `clean-test`: removes all files from $(TESTBIN)
@@ -53,7 +54,9 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
 * `nuke`: performs `clean` and `clean-third-party`. Mimics a restored project
   state.
 
-## Unit testing
+## Testing
+
+### Unit Testing
 Testing is conducted through the [Google Test](https://code.google.com/p/googletest/)
 unit test framework.
 
@@ -68,13 +71,16 @@ Or individually using the name of the test, for example:
 
 `make RectangularDomain_test`
 
+### Regression Testing
+
 ## Third-Party materials
 Included with this project are several third-party materials under the
-$(THID_PARTY_SRC) directory.
+$(THIRD_PARTY_SRC) directory.
 
 1. ISL
   + [isl-0.15.tar.gz](http://isl.gforge.inria.fr/isl-0.15.tar.gz)
   + Under MIT License
+  + Requires GMP (Not provided).
 2. Google Test
   + [gtest-1.7.0.zip](https://code.google.com/p/googletest/downloads/detail?name=gtest-1.7.0.zip)
   + Under BSD 3-Clause License

@@ -21,15 +21,13 @@ LIB=$(THIRD_PARTY_INSTALL)/lib
 INC=$(THIRD_PARTY_INSTALL)/include
 
 # Global Variables
-MAKE_JOBS=8
+MAKE_JOBS=2
 
 # Compiler and flags
 CXX=g++
 CXXFLAGS += -g -Wall -Wextra -pthread
 CPPFLAGS += -isystem $(INC)
 
-LD=ld
-LDFLAGS = -rpath $(LIB)
 # Test Variables
 GTEST_DIR=$(THIRD_PARTY_INSTALL)/gtest
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
@@ -53,6 +51,7 @@ all: $(EXE)
 $(EXE): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
+# Building the Ojbect Files
 $(BIN)/RectangularDomain.o: $(SRC)/RectangularDomain.h $(SRC)/RectangularDomain.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/RectangularDomain.cpp -c -o $@
 
@@ -68,6 +67,7 @@ $(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.h $(SRC)/De
 $(BIN)/util.o: $(SRC)/util.h $(SRC)/util.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/util.cpp -c -o $@
 
+# Testing
 all-tests: unit-tests regression-tests
 
 unit-tests: $(UNIT_TESTS)
@@ -79,6 +79,7 @@ $(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(EXE)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(LIB) -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
 
+#Building the Google Test framework
 $(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             ${GTEST_DIR}/src/gtest-all.cc -o $@
@@ -93,7 +94,8 @@ $(UNIT_TEST_BIN)/gtest.a : $(UNIT_TEST_BIN)/gtest-all.o
 $(UNIT_TEST_BIN)/gtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)/gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
-genesis: nuke
+# Initialize the project and install third-party materials
+initialize: nuke
 	mkdir $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 	mkdir $(LIB)
 	mkdir $(INC)
@@ -111,6 +113,7 @@ genesis: nuke
 	&& make -j$(MAKE_JOBS) \
 	&& make install
 
+# Cleaning
 neat:
 	- rm $(BIN)/*.o
 
@@ -120,7 +123,6 @@ clean-third-party:
 clean-test:
 	- rm $(UNIT_TEST_BIN)/*
 	- rm $(REG_TEST_BIN)/*
-	#- rm $(REG_TEST_SANDBOX)/*
 
 clean: clean-test
 	- rm $(BIN)/*
