@@ -26,7 +26,7 @@ MAKE_JOBS=8
 # Compiler and flags
 CXX=g++
 CXXFLAGS += -g -Wall -Wextra -pthread
-CPPFLAGS += -isystem $(INC) -lisl
+CPPFLAGS += -isystem $(INC) -I$(INC) -lisl
 
 LD=ld
 LDFLAGS = -rpath $(LIB)
@@ -76,7 +76,7 @@ regression-tests:
 
 $(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -Wl,-rpath -Wl,$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $(OBJS) $(UNIT_TEST_BIN)/gtest_main.a -o $(UNIT_TEST_BIN)/$@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -Wl,-rpath -Wl,$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $(OBJS) $(UNIT_TEST_BIN)/gtest_main.a -lisl -L$(LIB) -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
 
 $(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
