@@ -1,0 +1,9 @@
+test name: one_loop
+control:
+for( int i = 1; i <= N; i += 1 ){
+  statement( i );
+}
+:end
+generate:
+(i){1..N}
+:end

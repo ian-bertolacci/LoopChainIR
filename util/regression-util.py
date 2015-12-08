@@ -76,12 +76,13 @@ class RegressionTest:
         code_gen_template = open( "codegen_template.cpp", "r" ).read();
         code_gen_gen_output = re.sub( "GENERATED_CODE_GENERATOR_STAMP", self.tool_spec.generate_code( self.codegen_output_name ), code_gen_template )
 
-        print code_gen_gen_output
+        print "+" + code_gen_gen_output
         codegen_file_output = open( self.codegen_name + ".cpp" , 'w' );
         codegen_file_output.write( code_gen_gen_output )
         codegen_file_output.close()
 
     def generate_generated_code( self ):
+        self.generate_code_generator()
         # Generate code for test loops
         subprocess.call( ["make", "tool"] )
         subprocess.call( [self.codegen_name] )
@@ -212,6 +213,6 @@ def parse_test_file( file_name ):
     return RegressionTest( test_name, tool_spec, control_spec )
 
 if __name__ == "__main__":
-    test = parse_test_file( "input_test.test" )
+    test = parse_test_file( "wip.test" )
 
     test.run_test()
