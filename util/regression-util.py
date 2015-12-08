@@ -90,19 +90,30 @@ class RegressionTest:
 
         for statement in statement_regex.finditer( generated_code ):
             iters_to_string = "SSTR(" + re.sub( ",", " << \", \" << ", statement.group("iterators") ) + ")"
-            generated_code = generated_code.replace( statement.group(0)+";", "output.append(" + iters_to_string + "); // " + statement.group(0) )
+            generated_code = generated_code.replace( statement.group(0)+";", "output.push_back(" + iters_to_string + "); // " + statement.group(0) )
 
+        print "PYTHON SIDE: GENERATED CODE:"
         print generated_code
+        print ":GENERATED CODE :PYTHON SIDE\n\n"
 
         control_code =  self.control_spec.code
         for statement in statement_regex.finditer( control_code ):
             iters_to_string = "SSTR(" + re.sub( ",", " << \", \" << ", statement.group("iterators") ) + ")"
-            control_code = control_code.replace( statement.group(0)+";", "output.append(" + iters_to_string + "); // " + statement.group(0) )
+            control_code = control_code.replace( statement.group(0)+";", "output.push_back(" + iters_to_string + "); // " + statement.group(0) )
 
+        print "PYTHON SIDE: CONTROL CODE:"
         print control_code
+        print ":CONTROL CODE :PYTHON SIDE\n\n"
 
-        test_code_template = open( "test_template.cpp", "r" ).read()
-        test_code_output = re.sub( "GENERATED_CODE_STAMP", generated_code, test_code_template )
+        sym_count = 1;
+        symbolic_defines = ""
+        for nest in self.tool_spec.chain:
+            for symbolic in nest.symbols:
+                symbolic_defines = symbolic_defines + "#define " + symbolic + " " + str(sym_count*10) + "\n"
+
+        test_code_output = open( "test_template.cpp", "r" ).read()
+        test_code_output = re.sub( "BOUNDS_CODE_STAMP", symbolic_defines, test_code_output )
+        test_code_output = re.sub( "GENERATED_CODE_STAMP", generated_code, test_code_output )
         test_code_output = re.sub( "COMPARISON_CODE_STAMP", control_code, test_code_output )
 
         test_code_file = open( test_name + ".cpp", "w" )

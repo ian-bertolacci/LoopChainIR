@@ -3,13 +3,18 @@
 #include "util.h"
 using namespace std;
 
+/*****************************************************************************/
+/********** BEGIN INJECTED CODE FROM BOUNDS CHOOSER **************************/
+BOUNDS_CODE_STAMP
+/********** END OF INJECTED CODE FROM BOUNDS CHOOSER *************************/
+/*****************************************************************************/
+/*****************************************************************************/
 vector<string> test_generated(){
   vector<string> output;
   {
 /*****************************************************************************/
 /********** BEGIN INJECTED CODE FROM CODE GENERATOR **************************/
 GENERATED_CODE_STAMP
-
 /********** END OF INJECTED CODE FROM CODE GENERATOR *************************/
 /*****************************************************************************/
   }
@@ -33,13 +38,13 @@ int main( ){
   vector<string> comparison_iterations = test_comparison();
 
   assertWithException( generated_iterations.size() == comparison_iterations.size(),
-                       "Codes produce unequal number of iterations." <<
+                       "Codes produce unequal number of iterations.\n" <<
                        "Generated: " << generated_iterations.size() << "\n" <<
-                       "Comparison: " comparison_iterations.size() << "\n"
+                       "Comparison: " << comparison_iterations.size() << "\n"
                      );
   int count = 1;
-  for( vector<int>::iterator gen_iter = generated_iterations.begin(),
-                            comp_iter = comparison_iterations.begin();
+  for( vector<string>::iterator gen_iter = generated_iterations.begin(),
+                                comp_iter = comparison_iterations.begin();
        gen_iter != generated_iterations.begin() &&
        comp_iter != comparison_iterations.begin();
        ++gen_iter,
