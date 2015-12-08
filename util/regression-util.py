@@ -52,7 +52,7 @@ class RegressionTest:
         self.control_spec = control_spec
 
     def generate_makefile( self ):
-        makefile_template = open( "Makefile.template", "r").read();
+        makefile_template = open( "resources/Makefile.template", "r").read();
         makefile_output = re.sub( "CODEGEN_BINARY_STAMP", self.codegen_name, makefile_template )
         makefile_output = re.sub( "TEST_BINARY_STAMP", self.test_name, makefile_output )
         makefile_output = re.sub( "OUTPUT_FILE_STAMP", self.codegen_output_name, makefile_output )
@@ -73,7 +73,7 @@ class RegressionTest:
 
     def generate_code_generator( self ):
         # generate code generator code
-        code_gen_template = open( "codegen_template.cpp", "r" ).read();
+        code_gen_template = open( "resources/codegen_template.cpp", "r" ).read();
         code_gen_gen_output = re.sub( "GENERATED_CODE_GENERATOR_STAMP", self.tool_spec.generate_code( self.codegen_output_name ), code_gen_template )
 
         print "+" + code_gen_gen_output
@@ -131,7 +131,7 @@ class RegressionTest:
         control_code = self.generate_control_code()
         symbolic_defines = self.generate_symbolic_defines()
 
-        test_code_output = open( "test_template.cpp", "r" ).read()
+        test_code_output = open( "resources/test_template.cpp", "r" ).read()
         test_code_output = re.sub( "BOUNDS_CODE_STAMP", symbolic_defines, test_code_output )
         test_code_output = re.sub( "GENERATED_CODE_STAMP", generated_code, test_code_output )
         test_code_output = re.sub( "COMPARISON_CODE_STAMP", control_code, test_code_output )
@@ -213,6 +213,6 @@ def parse_test_file( file_name ):
     return RegressionTest( test_name, tool_spec, control_spec )
 
 if __name__ == "__main__":
-    test = parse_test_file( "wip.test" )
+    test = parse_test_file( "work_in_progress.test" )
 
     test.run_test()
