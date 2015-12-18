@@ -10,11 +10,6 @@
 
 using namespace std;
 
-// This is to reduce the code tempaltes to one.
-// if the stamp is not replaced by the utility, it will be removed.
-#define GENERATED_CODE_GENERATOR_STAMP
-#define GENERATED_GRAPH_CODE_GENERATOR_STAMP
-
 void simpleGenerateFromString( string expression, FILE* file ){
   isl_ctx* ctx;
   isl_ast_build* build;
@@ -45,11 +40,11 @@ void simpleGenerateFromString( string expression, FILE* file ){
   isl_ctx_free(ctx);
 }
 
-void generateFromList(){
+void generateGraphCode(){
   vector<string> expressions;
 /*****************************************************************************/
 /********** BEGIN INJECTED CODE FOR CODEGEN **********************************/
-GENERATED_GRAPH_CODE_LIST_STAMP
+// GENERATED_GRAPH_CODE_LIST_STAMP
 /********** END OF INJECTED CODE FOR CODEGEN *********************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -62,6 +57,21 @@ GENERATED_GRAPH_CODE_LIST_STAMP
     simpleGenerateFromString( *it, file );
     fprintf( file, "\n" );
   }
+}
+
+void writeScheduledCode( DefaultSequentialSchedule schedule, string filename ){
+  FILE* output_file = fopen( filename.c_str(), "w" );
+  schedule.codegen( output_file );
+  fclose( output_file );
+}
+
+void generateChainCode(){
+/*****************************************************************************/
+/********** BEGIN INJECTED CODE FOR CODEGEN **********************************/
+// GENERATED_GENERATOR_CODE_STAMP
+/********** END OF INJECTED CODE FOR CODEGEN *********************************/
+/*****************************************************************************/
+/*****************************************************************************/
 }
 
 
