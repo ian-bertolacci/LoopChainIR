@@ -1,4 +1,4 @@
-PROJECT_DIR=$(PWD)/..
+PROJECT_DIR=$(PWD)/../..
 include $(PROJECT_DIR)/Makefile
 
 TEST_BINARIES = code_generator \

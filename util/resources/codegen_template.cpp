@@ -54,7 +54,7 @@ GENERATED_GRAPH_CODE_LIST_STAMP
 /*****************************************************************************/
 /*****************************************************************************/
 
-  FILE* file = fopen( "iter_output.cpp", "w");
+  FILE* file = fopen( "graph_output.cpp", "w");
 
   for( vector<string>::iterator it = expressions.begin(); it != expressions.end(); ++it ){
     string expression = *it;
