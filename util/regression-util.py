@@ -11,11 +11,21 @@ class NestSpecification:
     self.dimensions = len( list_of_iterators )
 
   def generate_code( self, chain_name = "chain" ):
-    lower_bound_string = "string lower[{0}] = {1};".format( len(self.iterators), "".join( ["{"] + map( lambda idx: "\"" + self.bounds[idx][0] + "\"" + ( ", " if idx < len(self.bounds)-1 else ""), xrange(0,len(self.bounds)) ) + ["}"] ))
-    upper_bound_string = "string upper[{0}] = {1};".format( len(self.iterators), "".join( ["{"] + map( lambda idx: "\"" + self.bounds[idx][1] + "\"" + ( ", " if idx < len(self.bounds)-1 else ""), xrange(0,len(self.bounds)) ) + ["}"] ))
+
+    def write_array( array, index=[] ):
+      if not isinstance( index, list ):
+        index=[index]
+      print index
+      if len(index) == 0:
+        return "".join( ["{"] + map( lambda idx: "\"" + array[idx] + "\"" + ( ", " if idx < len(array)-1 else ""), xrange(0,len(array)) ) + ["}"] )
+      if len(index) == 1:
+        return "".join( ["{"] + map( lambda idx: "\"" + array[idx][index[0]] + "\"" + ( ", " if idx < len(array)-1 else ""), xrange(0,len(array)) ) + ["}"] )
+
+    lower_bound_string = "string lower[{0}] = {1};".format( len(self.iterators), write_array(self.bounds, 0 ) )
+    upper_bound_string = "string upper[{0}] = {1};".format( len(self.iterators), write_array(self.bounds, 1 ) )
     are_there_symbolics = len(self.symbols) > 0
-    symbolic_string = "string symbolics[{0}] = {1};".format( len(self.symbols), "".join( ["{"] + map( lambda idx: "\"" + self.symbols[idx] + "\"" + ( ", " if idx < len(self.symbols)-1 else ""), xrange(0,len(self.symbols)) ) + ["}"] )) \
-              if are_there_symbolics else "// No Symbolics";
+    print "here"
+    symbolic_string = "string symbolics[{0}] = {1};".format( len(self.symbols), write_array( self.symbols ) ) if are_there_symbolics else "// No Symbolics"
     chain_append_string = "{0}.append( LoopNest( RectangularDomain({1}) ) );".format( chain_name, "".join( ["lower, upper, {0}".format(len(self.iterators)), (", symbolics, {0}".format(len(self.symbols))) if are_there_symbolics else "" ] ) )
 
     return "\t" + "\n\t".join( [lower_bound_string, upper_bound_string, symbolic_string, chain_append_string] )
@@ -56,7 +66,7 @@ class RegressionTest:
     string += "\nTransformations:\n" + "\n".join(self.schedules)
     return string
 
-  def dependency_generation( self ):
+  def dependency_code_generator_generation( self ):
     injection_text = self.dependencies.generate_code()
 
     with open( self.path + "/" + "codegen_template.cpp", 'r' ) as file:
@@ -68,7 +78,7 @@ class RegressionTest:
     with open( self.path + "/graph_generator.cpp", 'w' ) as file:
       file.write( full_text )
 
-  def code_generator_generation( self ):
+  def chain_code_generator_generation( self ):
     loop_chain_name = "chain";
     loop_chain_decl_text = [ "LoopChain {0};".format( loop_chain_name ) ]
     nest_texts = map( lambda nest: "{{\n{0}\n\t}}".format( nest.generate_code(loop_chain_name) ), self.chain )
@@ -86,7 +96,16 @@ class RegressionTest:
     with open( self.path + "/code_generator.cpp", 'w' ) as file:
       file.write( full_text )
 
-  def code_generator_run( self ):
+  def dependency_code_generator_build( self ):
+    pass
+
+  def chain_code_generator_build( self ):
+    pass
+
+  def dependency_code_generator_run( self ):
+    pass
+
+  def chain_code_generator_run( self ):
     pass
 
   def setup( self ):
@@ -115,8 +134,8 @@ class RegressionTest:
   def run( self ):
     self.setup()
 
-    self.dependency_generation()
-    self.code_generator_generation( )
+    self.dependency_code_generator_generation()
+    self.chain_code_generator_generation( )
     #self.teardown()
 
 
@@ -124,14 +143,9 @@ class Tester:
   def __init__(self, list_of_tests ):
     self.tests = list_of_tests
 
-
-
   def run(self):
     for test in self.tests:
       test.run()
-
-
-
 
 def parse_test_file( file_name ):
   test_name_regex = re.compile(r"test name\s*:\s*(?P<name>.+)\s*")
