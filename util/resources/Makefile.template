@@ -1,24 +1,10 @@
 PROJECT_DIR=$(PWD)/..
 include $(PROJECT_DIR)/Makefile
 
-CODEGEN_BINARY=CODEGEN_BINARY_STAMP
-OUTPUT_FILE=OUTPUT_FILE_STAMP
-TEST_BINARY=TEST_BINARY_STAMP
+TEST_BINARIES = code_generator \
+								graph_generator \
+								test
 
-tool: $(CODEGEN_BINARY)
-
-test: $(TEST_BINARY)
-
-$(CODEGEN_BINARY): $(EXE) $(CODEGEN_BINARY).cpp
+$(TEST_BINARIES): %: $(EXE) %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $@.cpp -o $@.o
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(LIB) $@.o $(EXE) -L$(LIB) -lisl -o $@
-
-$(TEST_BINARY): $(EXE) $(TEST_BINARY).cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $@.cpp -o $@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(LIB) $@.o $(EXE) -L$(LIB) -lisl -o $@
-
-clean-generated:
-	- rm *.o $(CODEGEN_BINARY) $(TEST_BINARY) \
-	     $(CODEGEN_BINARY).cpp $(TEST_BINARY).cpp \
-			 $(OUTPUT_FILE) \
-			 Makefile

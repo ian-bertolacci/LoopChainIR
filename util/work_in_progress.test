@@ -1,19 +1,18 @@
-test name: wip test
-control:
-for( int i = 1; i <= 10; i += 1 ){
-  statement( i );
-}
-for( int i = 1; i <= 20; i += 1 ){
-  statement( i );
-}
-for( int i = 0; i <= N; i += 1 ){
-  for( int j = 0; j <= M; j += 1 ){
-    statement( i, j );
-  }
-}
-:end
-generate:
+test name: wip_test
+
+loop chain:
 (i){1..10}
 (i){1..20}
 (i,j){0..N,0..M}
+:end
+
+schedule:
+original
+shift
+fuse
+:end
+
+dependencies:
+[N]->{[0,i,0]->[1,j,0] : j=i and 1<=i<=N and 1 <=j<=N}
+[N]->{[0,i,0]->[1,j,0] : j-1=i and 1<=i<=N and 1 <=j<=N}
 :end
