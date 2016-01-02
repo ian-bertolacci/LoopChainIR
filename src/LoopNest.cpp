@@ -10,7 +10,7 @@ loop nest.
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#include "LoopNest.h"
+#include "LoopNest.hpp"
 
 LoopNest::LoopNest( RectangularDomain loop_bounds ): bounds( loop_bounds ){
 

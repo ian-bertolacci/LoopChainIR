@@ -9,12 +9,12 @@ Generate a simple sequential, non-parallel schedule from a LoopChain.
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#ifndef DEFAULT_SEQUENTIAL_SCHEDULE_H
-#define DEFAULT_SEQUENTIAL_SCHEDULE_H
+#ifndef DEFAULT_SEQUENTIAL_SCHEDULE_HPP
+#define DEFAULT_SEQUENTIAL_SCHEDULE_HPP
 
-#include "LoopChain.h"
-#include "all_isl.h"
-#include "util.h"
+#include "LoopChain.hpp"
+#include "all_isl.hpp"
+#include "util.hpp"
 
 #include <string>
 #include <vector>

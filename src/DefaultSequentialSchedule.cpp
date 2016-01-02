@@ -9,7 +9,7 @@ Generate a simple sequential, non-parallel schedule from a LoopChain.
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#include "DefaultSequentialSchedule.h"
+#include "DefaultSequentialSchedule.hpp"
 
 DefaultSequentialSchedule::DefaultSequentialSchedule( LoopChain& chain){
   this->chain = chain;
