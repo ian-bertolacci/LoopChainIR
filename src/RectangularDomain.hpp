@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file RectangularDomain.h
+\file RectangularDomain.hpp
 \autors Ian J. Bertolacci
 
 \purpose

@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file LoopChain.h
+\file LoopChain.hpp
 \autors Ian J. Bertolacci
 
 \purpose

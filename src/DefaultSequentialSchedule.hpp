@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file DefaultSequentialSchedule.h
+\file DefaultSequentialSchedule.hpp
 \autors Ian J. Bertolacci
 
 \purpose
