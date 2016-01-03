@@ -1,28 +1,72 @@
 #include <vector>
+#include <tuple>
+#include <map>
+#include <set>
 #include <string>
-#include "util.h"
+#include <iostream>
 using namespace std;
+
+template< class Tuple_Type >
+class Graph {
+private:
+  map< Tuple_Type, set<Tuple_Type> > graph;
+  map< Tuple_Type, bool > marked;
+
+public:
+  Graph(){ }
+
+  bool isIn( Tuple_Type node ){
+    return graph.count( node ) > 0;
+  }
+
+  void insert_node( Tuple_Type node ){
+    graph.insert( pair<Tuple_Type, set<Tuple_Type> >( node, set<Tuple_Type>() ) );
+    marked.insert( pair<Tuple_Type, bool>( node, false ) );
+  }
+
+  void connect( Tuple_Type first, Tuple_Type second ){
+    if( !isIn( first ) ){
+      insert_node( first );
+    }
+
+    if( !isIn( second ) ){
+      insert_node( second );
+    }
+
+    graph[ second ].insert( first );
+  }
+
+  void mark( Tuple_Type node ){
+    this->marked[ node ] = true;
+  }
+
+  bool isMarked( Tuple_Type node ){
+    return isIn( node ) && this->marked( node );
+  }
+
+  bool isSatisfied( Tuple_Type node ){
+    set< Tuple_Type > deps = graph[ node ];
+    bool satisfied = true;
+
+    for( auto it = deps.begin(); it != deps.end(); ++it ){
+      satisfied &= marked[ *it ];
+
+      if( !satisfied ) break;
+    }
+    return satisfied;
+  }
+};
+
 
 /*****************************************************************************/
 /********** BEGIN INJECTED CODE FROM BOUNDS CHOOSER **************************/
-BOUNDS_CODE_STAMP
+//BOUNDS_CODE_STAMP
 /********** END OF INJECTED CODE FROM BOUNDS CHOOSER *************************/
 /*****************************************************************************/
 /*****************************************************************************/
-vector<string> test_generated(){
-  vector<string> output;
-  {
-/*****************************************************************************/
-/********** BEGIN INJECTED CODE FROM CODE GENERATOR **************************/
-GENERATED_CODE_STAMP
-/********** END OF INJECTED CODE FROM CODE GENERATOR *************************/
-/*****************************************************************************/
-  }
-  return output;
-}
 
-vector<string> test_comparison(){
-  vector<string> output;
+int main( ){
+  Graph< tuple< TUPLE_TYPE_STAMP > > graph;
   {
 /*****************************************************************************/
 /********** BEGIN INJECTED CODE FROM HUMAN COMPARISON ************************/
@@ -30,39 +74,35 @@ COMPARISON_CODE_STAMP
 /********** END OF INJECTED CODE FROM HUMAN COMPARISON ***********************/
 /*****************************************************************************/
   }
-  return output;
-}
 
-int main( ){
-  vector<string> generated_iterations = test_generated();
-  vector<string> comparison_iterations = test_comparison();
-  /*
-  assertWithException( generated_iterations.size() == comparison_iterations.size(),
-                       "Codes produce unequal number of iterations.\n" <<
-                       "Generated: " << generated_iterations.size() << "\n" <<
-                       "Comparison: " << comparison_iterations.size() << "\n"
-                     );
-  */
-  if( generated_iterations.size() != comparison_iterations.size() ){
-    return (generated_iterations.size() > comparison_iterations.size())? 111 : 112;
+  int code = 0;
+  {
+/*****************************************************************************/
+/********** BEGIN INJECTED CODE FROM CODE GENERATOR **************************/
+GENERATED_CODE_STAMP
+/********** END OF INJECTED CODE FROM CODE GENERATOR *************************/
+/*****************************************************************************/
   }
 
-  int count = 1;
-  for( vector<string>::iterator gen_iter = generated_iterations.begin(),
-                                comp_iter = comparison_iterations.begin();
-       gen_iter != generated_iterations.end() &&
-       comp_iter != comparison_iterations.end();
-       ++gen_iter,
-       ++comp_iter
-    ){
-    if( *gen_iter != *comp_iter ) return 113;
-    /*
-    assertWithException( *gen_iter == *comp_iter,
-      "Iteration #" << count << " is different!\n" <<
-      "Generated: " << *gen_iter << "\n" <<
-      "Comparison: " << *comp_iter << "\n" );
-    */
+  int exit_code;
+
+  switch( code ){
+    case 0:{
+      // Test successful
+      exit_code = 0;
+      break;
+    }
+    case -1:{
+      // Test unsuccessful
+      exit_code = -1;
+      break;
+    }
+    default:{
+      // Undefined exit code;
+      exit_code = -9999;
+      break;
+    }
   }
 
-  return 0;
+  return exit_code;
 }

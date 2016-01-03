@@ -2,11 +2,11 @@
 #include <iostream>
 #include <string>
 
-#include "all_isl.h"
-#include "LoopChain.h"
-#include "LoopNest.h"
-#include "RectangularDomain.h"
-#include "DefaultSequentialSchedule.h"
+#include "all_isl.hpp"
+#include "LoopChain.hpp"
+#include "LoopNest.hpp"
+#include "RectangularDomain.hpp"
+#include "DefaultSequentialSchedule.hpp"
 
 using namespace std;
 
