@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file all_isl.h
+\file all_isl.hpp
 \autors Ian J. Bertolacci
 
 \purpose
@@ -10,8 +10,8 @@ This header brings them all together, in a simpler package.
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#ifndef ALL_ISL_H
-#define ALL_ISL_H
+#ifndef ALL_ISL_HPP
+#define ALL_ISL_HPP
 #include <isl/aff.h>
 #include <isl/aff_type.h>
 #include <isl/arg.h>

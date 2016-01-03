@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file RectangularDomain.h
+\file RectangularDomain.hpp
 \autors Ian J. Bertolacci
 
 \purpose
@@ -12,8 +12,8 @@ expression that gives that bound. For example the bounds 0 <= x <= N+M would be
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#ifndef RECTANGULAR_DOMAIN_H
-#define RECTANGULAR_DOMAIN_H
+#ifndef RECTANGULAR_DOMAIN_HPP
+#define RECTANGULAR_DOMAIN_HPP
 
 #include <string>
 #include <vector>

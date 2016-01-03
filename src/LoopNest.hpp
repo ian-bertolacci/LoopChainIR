@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file LoopNest.h
+\file LoopNest.hpp
 \autors Ian J. Bertolacci
 
 \purpose
@@ -10,10 +10,10 @@ loop nest.
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#ifndef LOOPNEST_H
-#define LOOPNEST_H
+#ifndef LOOPNEST_HPP
+#define LOOPNEST_HPP
 
-#include "RectangularDomain.h"
+#include "RectangularDomain.hpp"
 
 class LoopNest{
 private:

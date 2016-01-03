@@ -52,19 +52,19 @@ $(EXE): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
 # Building the Ojbect Files
-$(BIN)/RectangularDomain.o: $(SRC)/RectangularDomain.h $(SRC)/RectangularDomain.cpp
+$(BIN)/RectangularDomain.o: $(SRC)/RectangularDomain.hpp $(SRC)/RectangularDomain.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/RectangularDomain.cpp -c -o $@
 
-$(BIN)/LoopChain.o: $(SRC)/LoopChain.h $(SRC)/LoopChain.cpp
+$(BIN)/LoopChain.o: $(SRC)/LoopChain.hpp $(SRC)/LoopChain.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/LoopChain.cpp -c -o $@
 
-$(BIN)/LoopNest.o: $(SRC)/LoopNest.h $(SRC)/LoopNest.cpp
+$(BIN)/LoopNest.o: $(SRC)/LoopNest.hpp $(SRC)/LoopNest.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/LoopNest.cpp -c -o $@
 
-$(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.h $(SRC)/DefaultSequentialSchedule.cpp
+$(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.hpp $(SRC)/DefaultSequentialSchedule.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/DefaultSequentialSchedule.cpp -c -o $@
 
-$(BIN)/util.o: $(SRC)/util.h $(SRC)/util.cpp
+$(BIN)/util.o: $(SRC)/util.hpp $(SRC)/util.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/util.cpp -c -o $@
 
 # Testing

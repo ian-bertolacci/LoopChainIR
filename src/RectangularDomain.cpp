@@ -12,8 +12,8 @@ expression that gives that bound. For example the bounds 0 <= x <= N+M would be
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#include "RectangularDomain.h"
-#include "util.h"
+#include "RectangularDomain.hpp"
+#include "util.hpp"
 
 RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions ){
   assertWithException( input_lower_bounds != NULL, "Lower bounds array cannot be null" );

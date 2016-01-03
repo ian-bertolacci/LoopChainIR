@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file LoopChain.h
+\file LoopChain.hpp
 \autors Ian J. Bertolacci
 
 \purpose
@@ -9,10 +9,10 @@ Contains an ordered sequence of loop nests.
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#ifndef LOOPCHAIN_H
-#define LOOPCHAIN_H
+#ifndef LOOPCHAIN_HPP
+#define LOOPCHAIN_HPP
 
-#include "LoopNest.h"
+#include "LoopNest.hpp"
 
 class LoopChain {
 private:

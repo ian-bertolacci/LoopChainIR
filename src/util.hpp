@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file util.h
+\file util.hpp
 \autors Ian J. Bertolacci
 
 \purpose
@@ -8,8 +8,8 @@ Contains a number of utility fuctions.
 \copyright
 Copyright 2015 Colorado State University
 *******************************************************************************/
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef UTIL_HPP
+#define UTIL_HPP
 
 #include <sstream>
 #include <stdexcept>
