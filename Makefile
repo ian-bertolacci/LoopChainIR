@@ -25,8 +25,8 @@ MAKE_JOBS=2
 
 # Compiler and flags
 CXX=g++
-CXXFLAGS += -g -Wall -Wextra -pthread
-CPPFLAGS += -isystem $(INC)
+CXXFLAGS += -g -Wall -Wextra -Werror -pthread
+CPPFLAGS += --std=c++11 -isystem $(INC)
 
 # Test Variables
 GTEST_DIR=$(THIRD_PARTY_INSTALL)/gtest
