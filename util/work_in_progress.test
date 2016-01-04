@@ -13,6 +13,6 @@ fuse
 :end
 
 dependencies:
-[N]->{[0,i,0]->[1,j,0] : j=i and 1<=i<=N and 1 <=j<=N}
-[N]->{[0,i,0]->[1,j,0] : j-1=i and 1<=i<=N and 1 <=j<=N}
+[N]->{[0,i,0,0,0]->[1,j,0,0,0] : j=i and 1<=i<=N and 1 <=j<=N}
+[N]->{[0,i,0,0,0]->[1,j,0,0,0] : j-1=i and 1<=i<=N and 1 <=j<=N}
 :end

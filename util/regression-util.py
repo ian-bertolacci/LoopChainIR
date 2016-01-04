@@ -53,13 +53,13 @@ class NestSpecification:
     lower_bound_string = "string lower[{0}] = {1};".format( len(self.iterators), write_array(self.bounds, 0 ) )
     upper_bound_string = "string upper[{0}] = {1};".format( len(self.iterators), write_array(self.bounds, 1 ) )
     are_there_symbolics = len(self.symbols) > 0
-    print "here"
     symbolic_string = "string symbolics[{0}] = {1};".format( len(self.symbols), write_array( self.symbols ) ) if are_there_symbolics else "// No Symbolics"
     chain_append_string = "{0}.append( LoopNest( RectangularDomain({1}) ) );".format( chain_name, "".join( ["lower, upper, {0}".format(len(self.iterators)), (", symbolics, {0}".format(len(self.symbols))) if are_there_symbolics else "" ] ) )
 
     return "\t" + "\n\t".join( [lower_bound_string, upper_bound_string, symbolic_string, chain_append_string] )
 
-
+  def __str__( self ):
+    return "({0}){{{1}}}".format( ",".join(self.iterators), ",".join( map( lambda bound:bound[0]+".."+bound[1], self.bounds) ) )
 
 class DependencySpecification:
   def __init__(self, dependency_list):
@@ -183,14 +183,28 @@ class RegressionTest:
     with open( self.path + "/test_template.cpp", 'r' ) as file:
       template_text = file.read()
 
-    transformed_text = template_text
+    self.test_iterators_length = 2*self.determine_iterators_length()+1
 
+    transformed_text = template_text
     transformed_text = transformed_text.replace( "COMPARISON_CODE_STAMP", self.dependency_code_transform( ) )
     transformed_text = transformed_text.replace( "GENERATED_CODE_STAMP", self.chain_code_transform() )
     transformed_text = transformed_text.replace( "TUPLE_TYPE_STAMP", ",".join(["int"]*self.test_iterators_length))
 
     with open( self.path + "/test.cpp", 'w' ) as file:
       file.write( transformed_text )
+
+
+  def determine_iterators_length( self ):
+    with open( self.path + "/generated_chain_output.cpp", 'r' ) as file:
+      generated_text = file.read()
+
+      max_length = -1
+
+      for stmt_num in xrange( len(self.chain) ):
+        stmt_rx = re.compile( r"statement_{0}\((?P<iterators>.*?)\);".format( stmt_num ) )
+        max_length = max( max_length, len(stmt_rx.search( generated_text ).group('iterators').split(',')) )
+
+    return max_length
 
 
   def dependency_code_transform( self ):
@@ -211,12 +225,12 @@ class RegressionTest:
       length = len(iterators)/2
       if length_check == -1:
         length_check = length
+      elif length != self.test_iterators_length:
+        raise Exception( "Provided iterator tuples must conform to the length of the longest iterator tuple! is {0} but should be {1}".format(length, self.test_iterators_length) )
       elif length_check != length:
-        raise Exception( "Unequal lengths in previous graph tuple: {0} vs {1}".format( length, length_check) )
+        raise Exception( "Unequal lengths in previous graph tuple: is {0} but was {1}".format( length, length_check) )
 
       transformed_text = transformed_text.replace( match.group(0), "graph.connect( make_tuple({0}), make_tuple({1}) );".format( ",".join(iterators[:length]), ",".join(iterators[length:]) ) )
-
-    self.test_iterators_length = length_check
 
     return transformed_text
 
@@ -225,15 +239,38 @@ class RegressionTest:
     with open( self.path + "/generated_chain_output.cpp", 'r' ) as file:
       generated_text = file.read()
 
-    with open( self.path + "/test_template.cpp", 'r' ) as file:
-      template_text = file.read()
+    transformed_text = generated_text
 
-    for stmt_num in xrange(len( self.chain) ):
+    for stmt_num in xrange( len(self.chain) ):
       stmt_rx = re.compile( r"statement_{0}\((?P<iterators>.*?)\);".format( stmt_num ) )
+      nest = self.chain[stmt_num]
+      depth = len(nest.iterators)
 
-      #TODO
+      stmt_iterators = map( lambda a: a.strip(), stmt_rx.search( transformed_text ).group('iterators').split(',') )
 
-    return "CODE GOES HERE!!"
+      full_iterators = "{0},{1}".format( stmt_num, stmt_iterators[0] )
+
+      for d in xrange( 1, depth ):
+        full_iterators += ",0,{0}".format( stmt_iterators[d] )
+      full_iterators += ",0"*(self.test_iterators_length-depth*2)
+
+      iteration_text = ("\n" + ("\t"*(depth+1))).join(
+      [
+        "{",
+        "auto iter = make_tuple({0});".format( full_iterators ),
+        "if( graph.isSatisfied( iter ) ){",
+        "\tgraph.mark( iter );",
+        "} else {",
+        "\tcode = -1;",
+        "\tbreak;",
+        "}",
+        "}"
+      ]
+      )
+
+      generated_text = stmt_rx.sub( iteration_text, generated_text )
+
+    return generated_text
 
 
   def setup( self ):
@@ -274,8 +311,6 @@ class RegressionTest:
     self.chain_code_generator_run()
 
     self.generate_test_code();
-    self.dependency_code_transform()
-    #self.chain_code_transform()
 
 
     #self.teardown()
