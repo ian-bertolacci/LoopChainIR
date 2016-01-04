@@ -1,9 +1,30 @@
-import re, random, string, subprocess, os, shutil, tempfile
+import sys, re, random, string, subprocess, os, shutil, tempfile
 from datetime import date, datetime
 
 resources_path = "./resources"
+FNULL = open(os.devnull, 'w')
 
-class TestException( Exception ):
+class TestFailureException( Exception ):
+  def __init__(self, message):
+    self.message = message
+
+
+  def __str__(self):
+    return reptr( self.message )
+
+
+
+class TestUserMalformedException( Exception ):
+  def __init__(self, message):
+    self.message = message
+
+
+  def __str__(self):
+    return reptr( self.message )
+
+
+
+class TestDevMalformedException( Exception ):
   def __init__(self, message):
     self.message = message
 
@@ -44,7 +65,7 @@ class NestSpecification:
     def write_array( array, index=[] ):
       if not isinstance( index, list ):
         index=[index]
-      print index
+
       if len(index) == 0:
         return "".join( ["{"] + map( lambda idx: "\"" + array[idx] + "\"" + ( ", " if idx < len(array)-1 else ""), xrange(0,len(array)) ) + ["}"] )
       if len(index) == 1:
@@ -56,7 +77,7 @@ class NestSpecification:
     symbolic_string = "string symbolics[{0}] = {1};".format( len(self.symbols), write_array( self.symbols ) ) if are_there_symbolics else "// No Symbolics"
     chain_append_string = "{0}.append( LoopNest( RectangularDomain({1}) ) );".format( chain_name, "".join( ["lower, upper, {0}".format(len(self.iterators)), (", symbolics, {0}".format(len(self.symbols))) if are_there_symbolics else "" ] ) )
 
-    return "\t" + "\n\t".join( [lower_bound_string, upper_bound_string, symbolic_string, chain_append_string] )
+    return "  " + "\n  ".join( [lower_bound_string, upper_bound_string, symbolic_string, chain_append_string] )
 
   def __str__( self ):
     return "({0}){{{1}}}".format( ",".join(self.iterators), ",".join( map( lambda bound:bound[0]+".."+bound[1], self.bounds) ) )
@@ -97,7 +118,7 @@ class RegressionTest:
     for (nest,loop) in zip(self.chain, xrange(len(self.chain))):
       string += "loop: {0}\n".format( loop )
       for d in xrange(nest.dimensions):
-        string += "\t{0}: {1} in {2}..{3}\n".format(d, nest.iterators[d], nest.bounds[d][0], nest.bounds[d][1] )
+        string += "  {0}: {1} in {2}..{3}\n".format(d, nest.iterators[d], nest.bounds[d][0], nest.bounds[d][1] )
     string += "\nDependency:\n" + "".join(self.dependencies) + "\n"
     string += "\nTransformations:\n" + "\n".join(self.schedules)
     return string
@@ -119,17 +140,15 @@ class RegressionTest:
   def chain_code_generator_generation( self ):
     loop_chain_name = "chain";
     loop_chain_decl_text = [ "LoopChain {0};".format( loop_chain_name ) ]
-    nest_texts = map( lambda nest: "{{\n{0}\n\t}}".format( nest.generate_code(loop_chain_name) ), self.chain )
+    nest_texts = map( lambda nest: "{{\n{0}\n  }}".format( nest.generate_code(loop_chain_name) ), self.chain )
     scheduleing_texts = [ "DefaultSequentialSchedule schedule({0});".format( loop_chain_name ), "writeScheduledCode(schedule, \"generated_chain_output.cpp\");" ]
-    injection_text = "\t" + "\n\t".join( loop_chain_decl_text + nest_texts + scheduleing_texts )
+    injection_text = "  " + "\n  ".join( loop_chain_decl_text + nest_texts + scheduleing_texts )
 
     with open( self.path + "/codegen_template.cpp", 'r' ) as file:
       full_text = file.read()
 
     full_text = full_text.replace( "GENERATED_GENERATOR_CODE_STAMP", "\n" + injection_text )
     full_text = full_text.replace( "GENERATED_MAIN_CODE_STAMP", "generateChainCode();" )
-
-    print full_text
 
     with open( self.path + "/code_generator.cpp", 'w' ) as file:
       file.write( full_text )
@@ -138,57 +157,58 @@ class RegressionTest:
   def dependency_code_generator_build( self ):
     self.dirstack.pushd( self.path )
 
-    exit_code = subprocess.call( ["make graph_generator"], shell=True )
+    exit_code = subprocess.call( ["make graph_generator"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
 
     self.dirstack.popd()
 
     if exit_code != 0 :
-      raise TestException( "Failed to build graph_generator!")
+      raise TestFailureException( "Failed to build graph_generator!" )
 
 
   def chain_code_generator_build( self ):
     self.dirstack.pushd( self.path )
 
-    exit_code = subprocess.call( ["make code_generator"], shell=True )
+    exit_code = subprocess.call( ["make code_generator"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
 
     self.dirstack.popd()
 
     if exit_code != 0 :
-      raise TestException( "Failed to build code_generator!")
+      raise TestFailureException( "Failed to build code_generator!" )
 
 
   def dependency_code_generator_run( self ):
     self.dirstack.pushd( self.path )
 
-    exit_code = subprocess.call( ["./graph_generator"], shell=True )
+    exit_code = subprocess.call( ["./graph_generator"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
 
     self.dirstack.popd()
 
     if exit_code != 0 :
-      raise TestException( "Failed to run code_generator!")
+      raise TestFailureException( "Failed to run graph_generator!" )
 
 
   def chain_code_generator_run( self ):
     self.dirstack.pushd( self.path )
 
-    exit_code = subprocess.call( ["./code_generator"], shell=True )
+    exit_code = subprocess.call( ["./code_generator"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
 
     self.dirstack.popd()
 
     if exit_code != 0 :
-      raise TestException( "Failed to run code_generator!")
+      raise TestFailureException( "Failed to run code_generator!" )
 
 
   def generate_test_code( self ):
     with open( self.path + "/test_template.cpp", 'r' ) as file:
       template_text = file.read()
 
-    self.test_iterators_length = 2*self.determine_iterators_length()+1
+    self.test_iterators_length = self.determine_iterators_length()
 
     transformed_text = template_text
+    transformed_text = transformed_text.replace( "BOUNDS_CODE_STAMP", self.bounds_generation() )
     transformed_text = transformed_text.replace( "COMPARISON_CODE_STAMP", self.dependency_code_transform( ) )
     transformed_text = transformed_text.replace( "GENERATED_CODE_STAMP", self.chain_code_transform() )
-    transformed_text = transformed_text.replace( "TUPLE_TYPE_STAMP", ",".join(["int"]*self.test_iterators_length))
+    transformed_text = transformed_text.replace( "TUPLE_TYPE_STAMP", ",".join(["int"]*self.test_iterators_length) )
 
     with open( self.path + "/test.cpp", 'w' ) as file:
       file.write( transformed_text )
@@ -204,7 +224,7 @@ class RegressionTest:
         stmt_rx = re.compile( r"statement_{0}\((?P<iterators>.*?)\);".format( stmt_num ) )
         max_length = max( max_length, len(stmt_rx.search( generated_text ).group('iterators').split(',')) )
 
-    return max_length
+    return 2* max_length+1
 
 
   def dependency_code_transform( self ):
@@ -216,19 +236,18 @@ class RegressionTest:
     graph_rx = re.compile( "GRAPH_MACRO\((?P<iterators>.*?)\);");
 
     for match in graph_rx.finditer( generated_text ):
-      print match.group(0);
       iterators = re.split( "\s*,\s*", match.group("iterators") );
 
       if len(iterators) % 2 != 0 :
-        raise Exception( "Odd iterators in graph macro: {0}".format(match.group(0) ) )
+        raise TestUserMalformedException( "Odd iterators in graph macro: {0}".format(match.group(0) ) )
 
       length = len(iterators)/2
       if length_check == -1:
         length_check = length
       elif length != self.test_iterators_length:
-        raise Exception( "Provided iterator tuples must conform to the length of the longest iterator tuple! is {0} but should be {1}".format(length, self.test_iterators_length) )
+        raise TestUserMalformedException( "Provided iterator tuples must conform to the length of the longest iterator tuple! is {0} but should be {1}".format(length, self.test_iterators_length) )
       elif length_check != length:
-        raise Exception( "Unequal lengths in previous graph tuple: is {0} but was {1}".format( length, length_check) )
+        raise TestUserMalformedException( "Unequal lengths in previous graph tuple: is {0} but was {1}".format( length, length_check) )
 
       transformed_text = transformed_text.replace( match.group(0), "graph.connect( make_tuple({0}), make_tuple({1}) );".format( ",".join(iterators[:length]), ",".join(iterators[length:]) ) )
 
@@ -254,15 +273,15 @@ class RegressionTest:
         full_iterators += ",0,{0}".format( stmt_iterators[d] )
       full_iterators += ",0"*(self.test_iterators_length-depth*2)
 
-      iteration_text = ("\n" + ("\t"*(depth+1))).join(
+      iteration_text = ("\n" + ("  "*(depth+1))).join(
       [
         "{",
         "auto iter = make_tuple({0});".format( full_iterators ),
         "if( graph.isSatisfied( iter ) ){",
-        "\tgraph.mark( iter );",
+        "  graph.mark( iter );",
         "} else {",
-        "\tcode = -1;",
-        "\tbreak;",
+        "  code = -1;",
+        "  break;",
         "}",
         "}"
       ]
@@ -271,6 +290,33 @@ class RegressionTest:
       generated_text = stmt_rx.sub( iteration_text, generated_text )
 
     return generated_text
+
+
+  def bounds_generation( self ):
+    symbols = reduce( lambda a,b: a + b,  [ nest.symbols for nest in self.chain] )
+    return "\n".join( map( lambda sym: "#define {0} 10".format(sym), symbols ) )
+
+
+  def build_test( self ):
+      self.dirstack.pushd( self.path )
+
+      exit_code = subprocess.call( ["make test"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
+
+      self.dirstack.popd()
+
+      if exit_code != 0 :
+        raise TestDevMalformedException( "Failed to build test!")
+
+
+  def run_test( self ):
+      self.dirstack.pushd( self.path )
+
+      exit_code = subprocess.call( ["./test"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
+
+      self.dirstack.popd()
+
+      if exit_code != 0 :
+        raise TestFailureException( "test exited with non-zero exit code! {0}".format( exit_code) )
 
 
   def setup( self ):
@@ -301,117 +347,153 @@ class RegressionTest:
   def run( self ):
     self.setup()
 
-    self.dependency_code_generator_generation()
-    self.chain_code_generator_generation( )
+    try:
+      self.dependency_code_generator_generation()
+      self.chain_code_generator_generation( )
 
-    self.dependency_code_generator_build()
-    self.dependency_code_generator_run()
+      self.dependency_code_generator_build()
+      self.dependency_code_generator_run()
 
-    self.chain_code_generator_build()
-    self.chain_code_generator_run()
+      self.chain_code_generator_build()
+      self.chain_code_generator_run()
 
-    self.generate_test_code();
+      self.generate_test_code()
 
+      self.build_test()
+      self.run_test()
 
-    #self.teardown()
-
-
-class Tester:
-  def __init__(self, list_of_tests ):
-    self.tests = list_of_tests
+    finally:
+      self.teardown()
 
 
-  def run(self):
+
+class TestRunner:
+  def __init__( self, list_of_test_file_names ):
+    self.test_file_names = list_of_test_file_names
+
+
+  def parse_tests( self ):
+    print "[Parsing Files]"
+
+    self.tests = []
+    for test_file in self.test_file_names:
+      print "[{0}]............".format(test_file),
+
+      try:
+        self.tests.append( self.parse_test_file(test_file) )
+        print "done."
+      except TestUserMalformedException as expt:
+        print "FAILED!\nTest malformed (user error):\n{0}".format( expt )
+      except TestDevMalformedException as expt:
+        print "FAILED!\nDeveloperError. Please report:\n{0}".format( expt )
+
+  def run_tests( self ):
+    print "[Running Tests]"
+
     for test in self.tests:
-      test.run()
+        print "[{0}]............".format(test.name),
+
+        try:
+          test.run()
+          print "pass."
+        except TestFailureException as expt:
+          print "FAILED!\n{0}".format( expt )
 
 
+  def run( self ):
+    self.parse_tests()
+    self.run_tests()
 
-def parse_test_file( file_name ):
-  test_name_rx = re.compile(r"test name\s*:\s*(?P<name>.+)\s*")
 
-  tool_generate_rx = re.compile( r"loop chain\s*:\s*(?P<code>(?:.|\s)+?)\s*:end" )
-  tool_loop_nest_rx = re.compile( r"\(\s*(?P<iterators>([a-zA-Z][a-zA-Z0-9]*)((\s*,\s*)([a-zA-Z][a-zA-Z0-9]*))*)\s*\)\s*\{\s*(?P<bounds>(\-?[a-zA-Z0-9]+\s*\.\.\s*\-?[a-zA-Z0-9]+)(\s*,\s*\-?[a-zA-Z0-9]+\s*\.\.\s*\-?[a-zA-Z0-9]+)*)\s*\}")
-  tool_iterators_rx = re.compile( r"(?P<iterator>[a-zA-Z][a-zA-Z0-9]*)" )
-  tool_bounds_rx = re.compile( r"(?P<lower_bound>\-?[a-zA-Z0-9]+)\.\.(?P<upper_bound>\-?[a-zA-Z0-9]+)" )
+  def parse_test_file( self, file_name ):
+    test_name_rx = re.compile(r"test name\s*:\s*(?P<name>.+)\s*")
 
-  dependency_code_rx = re.compile( r"dependencies\:(?P<code>(?:.|\s)+?)\:end" )
-  schedule_rx = re.compile( r"schedule\:(?P<schedules>(?:.|\s)+?)\:end")
-  symbol_rx = re.compile( r"[a-zA-Z][a-zA-Z0-9]*" )
+    tool_generate_rx = re.compile( r"loop chain\s*:\s*(?P<code>(?:.|\s)+?)\s*:end" )
+    tool_loop_nest_rx = re.compile( r"\(\s*(?P<iterators>([a-zA-Z][a-zA-Z0-9]*)((\s*,\s*)([a-zA-Z][a-zA-Z0-9]*))*)\s*\)\s*\{\s*(?P<bounds>(\-?[a-zA-Z0-9]+\s*\.\.\s*\-?[a-zA-Z0-9]+)(\s*,\s*\-?[a-zA-Z0-9]+\s*\.\.\s*\-?[a-zA-Z0-9]+)*)\s*\}")
+    tool_iterators_rx = re.compile( r"(?P<iterator>[a-zA-Z][a-zA-Z0-9]*)" )
+    tool_bounds_rx = re.compile( r"(?P<lower_bound>\-?[a-zA-Z0-9]+)\.\.(?P<upper_bound>\-?[a-zA-Z0-9]+)" )
 
-  test_file = open( file_name, "r" ).read()
+    dependency_code_rx = re.compile( r"dependencies\:(?P<code>(?:.|\s)+?)\:end" )
+    schedule_rx = re.compile( r"schedule\:(?P<schedules>(?:.|\s)+?)\:end")
+    symbol_rx = re.compile( r"[a-zA-Z][a-zA-Z0-9]*" )
 
-  name_match = test_name_rx.match( test_file )
-  if name_match == None:
-    raise Exception( "No test name!" )
-  else:
-    get_name = test_name_rx.match( test_file ).group("name")
-    test_name = re.sub( "\s+", "_", test_name_rx.match( test_file ).group("name") )
-    if get_name != test_name:
-      print "Warning: test name may not contain white-space.\nTest renamed: \"{0}\"".format( test_name )
+    test_file = open( file_name, "r" ).read()
 
-  # Capture code generator code
-  gen_code_groups = tool_generate_rx.findall( test_file )
-  # Ensure only one tool code group exists
-  if len(gen_code_groups) < 1:
-    raise Exception("No loop chain delclarations.")
-  elif len(gen_code_groups) > 1:
-    raise Exception("Multiple loop chains delclarations.")
-  gen_code = gen_code_groups[0]
+    name_match = test_name_rx.match( test_file )
+    if name_match == None:
+      raise TestUserMalformedException( "No test name!" )
+    else:
+      get_name = test_name_rx.match( test_file ).group("name")
+      test_name = re.sub( "\s+", "_", test_name_rx.match( test_file ).group("name") )
+      if get_name != test_name:
+        print "Warning: test name may not contain white-space.\nTest renamed: \"{0}\"".format( test_name )
 
-  # Break apart gen specification
-  chain_spec = []
-  for nest in tool_loop_nest_rx.finditer( gen_code ):
+    # Capture code generator code
+    gen_code_groups = tool_generate_rx.findall( test_file )
+    # Ensure only one tool code group exists
+    if len(gen_code_groups) < 1:
+      raise TestUserMalformedException("No loop chain delclarations.")
+    elif len(gen_code_groups) > 1:
+      raise TestUserMalformedException("Multiple loop chains delclarations.")
+    gen_code = gen_code_groups[0]
 
-    iterators_list = tool_iterators_rx.findall( nest.group("iterators") )
-    # Map out the bounds into pairs
-    bounds_list = map( lambda match: ( match.group("lower_bound"), match.group("upper_bound") ) ,
-               tool_bounds_rx.finditer( nest.group("bounds") ) )
+    # Break apart gen specification
+    chain_spec = []
+    for nest in tool_loop_nest_rx.finditer( gen_code ):
 
-    if len( iterators_list ) != len( bounds_list ):
-      raise Exception( "Number of iterators different from number of bounds.")
+      iterators_list = tool_iterators_rx.findall( nest.group("iterators") )
+      # Map out the bounds into pairs
+      bounds_list = map( lambda match: ( match.group("lower_bound"), match.group("upper_bound") ) ,
+                 tool_bounds_rx.finditer( nest.group("bounds") ) )
 
-    symbolics = [ upper for (upper, lower) in bounds_list if symbol_rx.match( upper ) ] + \
-          [ lower for (upper, lower) in bounds_list if symbol_rx.match( lower ) ]
+      if len( iterators_list ) != len( bounds_list ):
+        raise TestUserMalformedException( "Number of iterators different from number of bounds.")
 
-    chain_spec.append( NestSpecification( iterators_list, bounds_list, symbolics ) )
+      symbolics = [ upper for (upper, lower) in bounds_list if symbol_rx.match( upper ) ] + \
+            [ lower for (upper, lower) in bounds_list if symbol_rx.match( lower ) ]
 
-  if len( chain_spec ) < 1:
-    raise Exception("No loop nests specified.")
+      chain_spec.append( NestSpecification( iterators_list, bounds_list, symbolics ) )
 
-  # Capture dependency code
-  dep_code_groups = dependency_code_rx.findall( test_file )
+    if len( chain_spec ) < 1:
+      raise TestUserMalformedException("No loop nests specified.")
 
-  # Ensure only one dependency group exists
-  if len(dep_code_groups) < 1:
-    raise Exception("No loop dependency delclarations.")
-  elif len(dep_code_groups) > 1:
-    raise Exception("Multiple dependency delclarations.")
+    # Capture dependency code
+    dep_code_groups = dependency_code_rx.findall( test_file )
 
-  dep_list = dep_code_groups[0].strip().split("\n")
-  if len(dep_list) < 1 or \
-     len(dep_list) == 1 and dep_list[0] == "":
-    raise Exception( "No dependencies listed" )
-  dependencies = DependencySpecification(dep_list)
+    # Ensure only one dependency group exists
+    if len(dep_code_groups) < 1:
+      raise TestUserMalformedException("No loop dependency delclarations.")
+    elif len(dep_code_groups) > 1:
+      raise TestUserMalformedException("Multiple dependency delclarations.")
 
-  # Capture dependency code
-  sched_list_groups = schedule_rx.findall( test_file )
+    dep_list = dep_code_groups[0].strip().split("\n")
+    if len(dep_list) < 1 or \
+       len(dep_list) == 1 and dep_list[0] == "":
+      raise TestUserMalformedException( "No dependencies listed" )
+    dependencies = DependencySpecification(dep_list)
 
-  # Ensure only one dependency group exists
-  if len(sched_list_groups) < 1:
-    raise Exception("No schedule delclarations.")
-  elif len(sched_list_groups) > 1:
-    raise Exception("Multiple schedule delclarations.")
+    # Capture dependency code
+    sched_list_groups = schedule_rx.findall( test_file )
 
-  schedule_list = sched_list_groups[0].strip().split("\n")
+    # Ensure only one dependency group exists
+    if len(sched_list_groups) < 1:
+      raise TestUserMalformedException("No schedule delclarations.")
+    elif len(sched_list_groups) > 1:
+      raise TestUserMalformedException("Multiple schedule delclarations.")
 
-  if len(schedule_list) < 1 or \
-     len(schedule_list) == 1 and schedule_list[0] == "":
-    raise Exception( "No schedules listed" )
+    schedule_list = sched_list_groups[0].strip().split("\n")
 
-  return RegressionTest( test_name, chain_spec, dependencies, schedule_list )
+    if len(schedule_list) < 1 or \
+       len(schedule_list) == 1 and schedule_list[0] == "":
+      raise TestUserMalformedException( "No schedules listed" )
+
+    return RegressionTest( test_name, chain_spec, dependencies, schedule_list )
+
+
 
 if __name__ == "__main__":
-  test_files = ["./work_in_progress.test"]
-  tester = Tester( map( parse_test_file, test_files ) )
-  tester.run()
+  if len(sys.argv) <= 1:
+    print "usage: python {0} <test file 1> <test file 2> ...".format( sys.argv[0] )
+    exit(-1)
+
+  (TestRunner( sys.argv[1:] )).run()
