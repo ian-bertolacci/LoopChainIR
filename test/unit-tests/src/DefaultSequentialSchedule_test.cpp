@@ -10,7 +10,7 @@ Copyright 2015 Colorado State University
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "DefaultSequentialSchedule.h"
+#include "DefaultSequentialSchedule.hpp"
 #include <iostream>
 #include <utility>
 
