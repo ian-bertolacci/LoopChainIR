@@ -2,54 +2,61 @@ import sys, re, random, string, subprocess, os, shutil, tempfile
 from datetime import date, datetime
 
 resources_path = "./resources"
-FNULL = open(os.devnull, 'w')
 
 class TestFailureException( Exception ):
-  def __init__(self, message):
+  def __init__( self, message, log_file = None ):
     self.message = message
+    if log_file:
+      log_file.write( "TestFailureException: {0}\n".format( message ) )
 
 
-  def __str__(self):
-    return reptr( self.message )
+  def __str__( self ):
+    return repr( self.message )
 
 
 
 class TestUserMalformedException( Exception ):
-  def __init__(self, message):
+  def __init__( self, message, log_file = None ):
     self.message = message
+    if log_file:
+      log_file.write( "TestUserMalformedException: {0}\n".format( message ) )
 
-
-  def __str__(self):
-    return reptr( self.message )
+  def __str__( self ):
+    return repr( self.message )
 
 
 
 class TestDevMalformedException( Exception ):
-  def __init__(self, message):
+  def __init__( self, message, log_file = None ):
     self.message = message
+    if log_file:
+      log_file.write( "TestDevMalformedException: {0}\n".format( message ) )
 
-
-  def __str__(self):
-    return reptr( self.message )
+  def __str__( self ):
+    return repr( self.message )
 
 
 
 class DirectoryStack:
-  def __init__( self ):
+  def __init__( self, stdout = sys.stdout ):
     self.stack = []
-
+    self.stdout = stdout
 
   def pushd( self, path ):
     self.stack.append( os.getcwd() )
+    self.print_stack()
     os.chdir( path )
 
 
   def popd( self ):
     if len( self.stack ) > 0:
       os.chdir( self.stack.pop() )
+      self.print_stack()
     else:
-      print "Directory stack empty"
+      self.stdout.write( "popd: Directory stack empty\n" );
 
+  def print_stack( self ):
+    self.stdout.write( " ".join( self.stack + [os.getcwd()] ) + "\n" )
 
 
 class NestSpecification:
@@ -105,13 +112,14 @@ class DependencySpecification:
 
 
 class RegressionTest:
-  def __init__( self, name, chain_of_nests, depedency_specification, schedule_list ):
+  def __init__( self, name, test_dir, chain_of_nests, depedency_specification, schedule_list ):
     self.name = name
     self.chain = chain_of_nests
+    self.directory = test_dir
     self.schedules = schedule_list
     self.dependencies = depedency_specification
-    self.dirstack = DirectoryStack()
-
+    self.log = tempfile.SpooledTemporaryFile()
+    self.dirstack = DirectoryStack( self.log )
 
   def __str__( self ):
     string = "Chain:\n"
@@ -124,7 +132,34 @@ class RegressionTest:
     return string
 
 
+  def write_log( self, message ):
+    self.log.write( message + "\n" )
+    self.log.flush()
+
+
+  def read_log( self ):
+    self.log.seek(0)
+    return "".join( [line for line in self.log] )
+
+
+  def makefile_path_transformation( self ):
+    self.write_log( "[Replacing PROJECT_DIR_PATH_STAMP]" )
+
+    with open( self.path + "/Makefile", 'r' ) as file:
+      full_text = file.read()
+
+    relative_path = os.path.relpath( ".", self.path )
+    full_text = full_text.replace( "PROJECT_DIR_PATH_STAMP",  relative_path)
+
+    self.write_log( "PROJECT_DIR_PATH_STAMP replaced with {0}".format( relative_path ) )
+
+    with open( self.path + "/Makefile", 'w' ) as file:
+      file.write( full_text )
+
+
   def dependency_code_generator_generation( self ):
+    self.write_log( "[Generating Dependency Code Generator]")
+
     injection_text = self.dependencies.generate_code()
 
     with open( self.path + "/" + "codegen_template.cpp", 'r' ) as file:
@@ -133,11 +168,15 @@ class RegressionTest:
     full_text = full_text.replace( "GENERATED_GRAPH_CODE_LIST_STAMP", "\n" + injection_text )
     full_text = full_text.replace( "GENERATED_MAIN_CODE_STAMP", "generateGraphCode();" )
 
+    self.write_log( "Generated Code:\n{0}".format( full_text ) )
+
     with open( self.path + "/graph_generator.cpp", 'w' ) as file:
       file.write( full_text )
 
 
   def chain_code_generator_generation( self ):
+    self.write_log( "[Generating Chain Code Generator]" )
+
     loop_chain_name = "chain";
     loop_chain_decl_text = [ "LoopChain {0};".format( loop_chain_name ) ]
     nest_texts = map( lambda nest: "{{\n{0}\n  }}".format( nest.generate_code(loop_chain_name) ), self.chain )
@@ -150,55 +189,67 @@ class RegressionTest:
     full_text = full_text.replace( "GENERATED_GENERATOR_CODE_STAMP", "\n" + injection_text )
     full_text = full_text.replace( "GENERATED_MAIN_CODE_STAMP", "generateChainCode();" )
 
+    self.write_log( "Generated Code:\n{0}".format( full_text ) )
+
     with open( self.path + "/code_generator.cpp", 'w' ) as file:
       file.write( full_text )
 
 
   def dependency_code_generator_build( self ):
+    self.write_log( "[Building Dependency Code Generator]" )
+
     self.dirstack.pushd( self.path )
 
-    exit_code = subprocess.call( ["make graph_generator"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
+    exit_code = subprocess.call( ["make graph_generator"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
 
     self.dirstack.popd()
 
     if exit_code != 0 :
-      raise TestFailureException( "Failed to build graph_generator!" )
+      raise TestFailureException( "Failed to build graph_generator!", self.log )
 
 
   def chain_code_generator_build( self ):
+    self.write_log( "[Building Chain Code Generator]")
+
     self.dirstack.pushd( self.path )
 
-    exit_code = subprocess.call( ["make code_generator"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
+    exit_code = subprocess.call( ["make code_generator"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
 
     self.dirstack.popd()
 
     if exit_code != 0 :
-      raise TestFailureException( "Failed to build code_generator!" )
+      raise TestFailureException( "Failed to build code_generator!", self.log )
 
 
   def dependency_code_generator_run( self ):
+    self.write_log( "[Running Dependency Code Generator]" )
+
     self.dirstack.pushd( self.path )
 
-    exit_code = subprocess.call( ["./graph_generator"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
+    exit_code = subprocess.call( ["./graph_generator"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
 
     self.dirstack.popd()
 
     if exit_code != 0 :
-      raise TestFailureException( "Failed to run graph_generator!" )
+      raise TestFailureException( "Failed to run graph_generator!", self.log )
 
 
   def chain_code_generator_run( self ):
+    self.write_log("[Running Chain Code Generator]")
+
     self.dirstack.pushd( self.path )
 
-    exit_code = subprocess.call( ["./code_generator"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
+    exit_code = subprocess.call( ["./code_generator"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
 
     self.dirstack.popd()
 
     if exit_code != 0 :
-      raise TestFailureException( "Failed to run code_generator!" )
+      raise TestFailureException( "Failed to run code_generator!", self.log )
 
 
   def generate_test_code( self ):
+    self.write_log( "[Generating Test Code]" )
+
     with open( self.path + "/test_template.cpp", 'r' ) as file:
       template_text = file.read()
 
@@ -210,11 +261,15 @@ class RegressionTest:
     transformed_text = transformed_text.replace( "GENERATED_CODE_STAMP", self.chain_code_transform() )
     transformed_text = transformed_text.replace( "TUPLE_TYPE_STAMP", ",".join(["int"]*self.test_iterators_length) )
 
+    self.write_log( "Generated Code:\n{0}".format(transformed_text) )
+
     with open( self.path + "/test.cpp", 'w' ) as file:
       file.write( transformed_text )
 
 
   def determine_iterators_length( self ):
+    self.write_log( "[Determining full iterators length]" )
+
     with open( self.path + "/generated_chain_output.cpp", 'r' ) as file:
       generated_text = file.read()
 
@@ -228,6 +283,8 @@ class RegressionTest:
 
 
   def dependency_code_transform( self ):
+    self.write_log( "[Transforming Dependency Code]" )
+
     with open( self.path + "/graph_output.cpp", 'r' ) as file:
       generated_text = file.read()
 
@@ -239,15 +296,15 @@ class RegressionTest:
       iterators = re.split( "\s*,\s*", match.group("iterators") );
 
       if len(iterators) % 2 != 0 :
-        raise TestUserMalformedException( "Odd iterators in graph macro: {0}".format(match.group(0) ) )
+        raise TestUserMalformedException( "Odd iterators in graph macro: {0}".format(match.group(0) ), self.log )
 
       length = len(iterators)/2
       if length_check == -1:
         length_check = length
       elif length != self.test_iterators_length:
-        raise TestUserMalformedException( "Provided iterator tuples must conform to the length of the longest iterator tuple! is {0} but should be {1}".format(length, self.test_iterators_length) )
+        raise TestUserMalformedException( "Provided iterator tuples must conform to the length of the longest iterator tuple! is {0} but should be {1}".format(length, self.test_iterators_length), self.log )
       elif length_check != length:
-        raise TestUserMalformedException( "Unequal lengths in previous graph tuple: is {0} but was {1}".format( length, length_check) )
+        raise TestUserMalformedException( "Unequal lengths in previous graph tuple: is {0} but was {1}".format( length, length_check), self.log )
 
       transformed_text = transformed_text.replace( match.group(0), "graph.connect( make_tuple({0}), make_tuple({1}) );".format( ",".join(iterators[:length]), ",".join(iterators[length:]) ) )
 
@@ -255,6 +312,8 @@ class RegressionTest:
 
 
   def chain_code_transform( self ):
+    self.write_log( "[Transforming Chain Code]" )
+
     with open( self.path + "/generated_chain_output.cpp", 'r' ) as file:
       generated_text = file.read()
 
@@ -273,6 +332,8 @@ class RegressionTest:
         full_iterators += ",0,{0}".format( stmt_iterators[d] )
       full_iterators += ",0"*(self.test_iterators_length-depth*2)
 
+      get_string = lambda tuple: " << \", \" << ".join( map( lambda i: "get<{0}>({1})".format(i, tuple), xrange(self.test_iterators_length) ) )
+
       iteration_text = ("\n" + ("  "*(depth+1))).join(
       [
         "{",
@@ -281,7 +342,12 @@ class RegressionTest:
         "  graph.mark( iter );",
         "} else {",
         "  code = -1;",
-        "  break;",
+        "  cout << \"FAILED: (\" << {0} << \")\" << endl;".format( get_string("iter") ),
+        "  cout << \"Dependencies:\" << endl;",
+        "  for( auto dep : graph.getDependencies( iter ) ){",
+        "    cout << (graph.isSatisfied(dep)? \"Satisfied\" : \"UNSATISFIED\" ) << \" (\" << {0} << \")\" << endl;".format( get_string("dep") ),
+        "  }",
+        "  return code;",
         "}",
         "}"
       ]
@@ -298,30 +364,34 @@ class RegressionTest:
 
 
   def build_test( self ):
-      self.dirstack.pushd( self.path )
+    self.write_log( "[Building Test]" )
 
-      exit_code = subprocess.call( ["make test"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
+    self.dirstack.pushd( self.path )
 
-      self.dirstack.popd()
+    exit_code = subprocess.call( ["make test"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
 
-      if exit_code != 0 :
-        raise TestDevMalformedException( "Failed to build test!")
+    self.dirstack.popd()
+
+    if exit_code != 0 :
+      raise TestDevMalformedException( "Failed to build test!", self.log )
 
 
   def run_test( self ):
-      self.dirstack.pushd( self.path )
+    self.write_log( "[Running Test]" )
 
-      exit_code = subprocess.call( ["./test"], shell=True, stdout=FNULL, stderr=subprocess.STDOUT )
+    self.dirstack.pushd( self.path )
 
-      self.dirstack.popd()
+    exit_code = subprocess.call( ["./test"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
 
-      if exit_code != 0 :
-        raise TestFailureException( "test exited with non-zero exit code! {0}".format( exit_code) )
+    self.dirstack.popd()
+
+    if exit_code != 0 :
+      raise TestFailureException( "Test exited with non-zero exit code! {0}".format( exit_code), self.log )
 
 
   def setup( self ):
     files = ["codegen_template.cpp", "Makefile", "test_template.cpp"]
-    self.path = "./{0}_test_dir".format(self.name)
+    self.path = "{0}/{1}_test_dir".format( self.directory, self.name )
 
     # preemptively delete old test workspaces
     try:
@@ -348,6 +418,8 @@ class RegressionTest:
     self.setup()
 
     try:
+      self.makefile_path_transformation()
+
       self.dependency_code_generator_generation()
       self.chain_code_generator_generation( )
 
@@ -382,10 +454,10 @@ class TestRunner:
       try:
         self.tests.append( self.parse_test_file(test_file) )
         print "done."
-      except TestUserMalformedException as expt:
-        print "FAILED!\nTest malformed (user error):\n{0}".format( expt )
-      except TestDevMalformedException as expt:
-        print "FAILED!\nDeveloperError. Please report:\n{0}".format( expt )
+      except TestUserMalformedException as excpt:
+        print "FAILED!\nTest malformed (user error):\n{0}".format( excpt )
+      except TestDevMalformedException as excpt:
+        print "FAILED!\nDeveloperError. Please report:\n{0}".format( excpt )
 
   def run_tests( self ):
     print "[Running Tests]"
@@ -396,8 +468,13 @@ class TestRunner:
         try:
           test.run()
           print "pass."
-        except TestFailureException as expt:
-          print "FAILED!\n{0}".format( expt )
+          #print "Log Output:{0}".format( test.read_log() )
+        except TestFailureException as excpt:
+          print "FAILED!\n{0}\n\nLog Output:\n{1}\n".format( excpt, test.read_log() )
+        except TestDevMalformedException as excpt:
+          print "FAILED!\nDeveloper Error. Please report:\n{0}\nLog output:\n{1}".format( excpt, test.read_log() )
+        except TestUserMalformedException as excpt:
+          print "FAILED!\nTest is malformed. This is a user error:\n{0}\nLog output:\n{1}".format( excpt, test.read_log() )
 
 
   def run( self ):
@@ -419,6 +496,7 @@ class TestRunner:
 
     test_file = open( file_name, "r" ).read()
 
+    # Extract test name
     name_match = test_name_rx.match( test_file )
     if name_match == None:
       raise TestUserMalformedException( "No test name!" )
@@ -427,6 +505,9 @@ class TestRunner:
       test_name = re.sub( "\s+", "_", test_name_rx.match( test_file ).group("name") )
       if get_name != test_name:
         print "Warning: test name may not contain white-space.\nTest renamed: \"{0}\"".format( test_name )
+
+    # Determine test dir
+    test_dir = os.path.dirname( file_name )
 
     # Capture code generator code
     gen_code_groups = tool_generate_rx.findall( test_file )
@@ -487,7 +568,7 @@ class TestRunner:
        len(schedule_list) == 1 and schedule_list[0] == "":
       raise TestUserMalformedException( "No schedules listed" )
 
-    return RegressionTest( test_name, chain_spec, dependencies, schedule_list )
+    return RegressionTest( test_name, test_dir, chain_spec, dependencies, schedule_list )
 
 
 
@@ -495,5 +576,7 @@ if __name__ == "__main__":
   if len(sys.argv) <= 1:
     print "usage: python {0} <test file 1> <test file 2> ...".format( sys.argv[0] )
     exit(-1)
+
+  resources_path = os.path.dirname( sys.argv[0] ) + "/resources"
 
   (TestRunner( sys.argv[1:] )).run()

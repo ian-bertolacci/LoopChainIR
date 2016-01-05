@@ -55,6 +55,11 @@ public:
     }
     return satisfied;
   }
+
+  set< Tuple_Type > getDependencies( Tuple_Type node ){
+    return this->graph[node];
+  }
+
 };
 
 
