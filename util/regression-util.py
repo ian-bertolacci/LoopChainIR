@@ -1,8 +1,39 @@
 import sys, re, random, string, subprocess, os, shutil, tempfile
 from datetime import date, datetime
 
-resources_path = "./resources"
+'''
+class TestFailureException( Exception ):
+  Purpose:
+    Exception raised when a RegressionTest fails naturally (not due to a
+    malformed test or because of software failure).
 
+  Member Functions:
+    __init__( message, log_file = None ):
+      Purpose:
+        Constructor.
+
+      Parameters:
+        message:
+          Reason for exception.
+
+        log_file:
+          (optional, defaults to None) Log file to write exception message to.
+
+    __str__( ):
+      Purpose:
+        Function called during str( obj ).
+        Produces string representation for printing.
+
+      Returns:
+        str of self.message
+
+  Member Variables:
+    message:
+      Reason for exception.
+
+    log_file:
+      Log file to write exception message to. May be None.
+'''
 class TestFailureException( Exception ):
   def __init__( self, message, log_file = None ):
     self.message = message
@@ -15,6 +46,83 @@ class TestFailureException( Exception ):
 
 
 
+'''
+class TestMalformedException( Exception ):
+  Purpose:
+    Exception raised when a RegressionTest fails because test was broken, but
+    it is unknown if malformation was because of user or software error..
+
+  Member Functions:
+    __init__( message, log_file = None ):
+      Purpose:
+        Constructor.
+
+      Parameters:
+        message:
+          Reason for exception.
+
+        log_file:
+          (optional, defaults to None) Log file to write exception message to.
+
+    __str__( ):
+      Purpose:
+        Function called during str( obj ).
+        Produces string representation for printing.
+
+      Returns:
+        str of self.message
+
+  Member Variables:
+    message:
+      Reason for exception.
+
+    log_file:
+      Log file to write exception message to. May be None.
+'''
+class TestMalformedException( Exception ):
+  def __init__( self, message, log_file = None ):
+    self.message = message
+    if log_file:
+      log_file.write( "TestUserMalformedException: {0}\n".format( message ) )
+
+  def __str__( self ):
+    return repr( self.message )
+
+
+
+'''
+class TestUserMalformedException( Exception ):
+  Purpose:
+    Exception raised when a RegressionTest fails because test was broken by the
+    user.
+
+  Member Functions:
+    __init__( message, log_file = None ):
+      Purpose:
+        Constructor.
+
+      Parameters:
+        message:
+          Reason for exception.
+
+        log_file:
+          (optional, defaults to None) Log file to write exception message to.
+
+    __str__( ):
+      Purpose:
+        Function called during str( obj ).
+        Produces string representation for printing.
+
+      Returns:
+        str of self.message
+
+  Member Variables:
+    message:
+      Reason for exception.
+
+    log_file:
+      Log file to write exception message to. May be None.
+'''
 class TestUserMalformedException( Exception ):
   def __init__( self, message, log_file = None ):
     self.message = message
@@ -26,6 +134,39 @@ class TestUserMalformedException( Exception ):
 
 
 
+'''
+class TestDevMalformedException( Exception ):
+  Purpose:
+    Exception raised when a RegressionTest fails because test was broken by the
+    software.
+
+  Member Functions:
+    __init__( message, log_file = None ):
+      Purpose:
+        Constructor.
+
+      Parameters:
+        message:
+          Reason for exception.
+
+        log_file:
+          (optional, defaults to None) Log file to write exception message to.
+
+    __str__( ):
+      Purpose:
+        Function called during str( obj ).
+        Produces string representation for printing.
+
+      Returns:
+        str of self.message
+
+  Member Variables:
+    message:
+      Reason for exception.
+
+    log_file:
+      Log file to write exception message to. May be None.
+'''
 class TestDevMalformedException( Exception ):
   def __init__( self, message, log_file = None ):
     self.message = message
@@ -37,6 +178,45 @@ class TestDevMalformedException( Exception ):
 
 
 
+'''
+class DirectoryStack:
+  Purpose:
+    Emulate pushd and popd bash commands
+
+  Member Functions:
+    __init__( stdout = sys.stdout ):
+      Purpose:
+        Constructor.
+
+      Parameters:
+        stdout:
+          (optional, defaults to sys.stdout) file/stream to print stack state
+          to.
+
+    pushd( path ):
+      Purpose:
+        push pwd onto self.stack, chdir to directory specified in path.
+
+      Parameters:
+        path:
+          full or relative path to directory.
+
+    popd( ):
+      Purpose:
+        pop a directory from self.stack, chdir to that location.
+        If stack is empty, prints error message and does not chdir.
+
+    print_stacK( ):
+      Purpose:
+        print the current state of the stack to self.stdout
+
+  Member Variables:
+    stack:
+      list of directories, behaves as stack.
+
+    stdout:
+      file/stream to print stack state to.
+'''
 class DirectoryStack:
   def __init__( self, stdout = sys.stdout ):
     self.stack = []
@@ -59,6 +239,64 @@ class DirectoryStack:
     self.stdout.write( " ".join( self.stack + [os.getcwd()] ) + "\n" )
 
 
+
+'''
+class NestSpecification:
+  Purpose:
+    Encapsulates a loop nest and produces LoopChainIR API C++ code.
+
+  Member Functions:
+    __init__( ):
+      Purpose:
+        Constructor.
+
+      Parameters:
+        list_of_iterators:
+          List of iterator symbols as str-able objects. Typically str objects.
+
+        list_of_bound_pairs:
+          List of bound tuples (low, high) for each dimension of the nest as
+          str-able ojects. Typically int or str ojbects.
+
+        list_of_symbols:
+          List of symbolics present in the bounds list as str-able objects.
+          Typically str objects.
+
+    generate_code( chain_name = "chain" ):
+      Purpose:
+        Generates LoopChainIR API C++ code that generates the specified loop
+        nest.
+
+      Returns:
+        Genreated code as str-able object. Typically str objects.
+
+      Paremeters:
+        chain_name:
+          (optional, defaults to "chain" ) string naming the C++ symbol of the
+          LoopChain object nest will be appended to.
+
+    __str__( ):
+      Purpose:
+        Returns the condensed domain representation of the loop nest.
+
+      Returns:
+        str object representation of the loop nest.
+
+  Member Variables:
+    iterators:
+      List of iterator symbols as str-able objects. Typically str objects.
+
+    bounds:
+      Lists of bound tuples (low, high) for each dimension of the nest as
+      str-able ojects. Typically int() or str ojbects.
+
+    symbols:
+      List of symbolics present in the bounds list as str-able objects.
+      Typically str objects().
+
+    dimensions:
+      depth of loop nest (equivalent to len(iterators) )
+'''
 class NestSpecification:
   def __init__(self, list_of_iterators, list_of_bound_pairs, list_of_symbols ):
     self.iterators = list_of_iterators
@@ -89,6 +327,47 @@ class NestSpecification:
   def __str__( self ):
     return "({0}){{{1}}}".format( ",".join(self.iterators), ",".join( map( lambda bound:bound[0]+".."+bound[1], self.bounds) ) )
 
+
+
+'''
+class DependencySpecification:
+  Purpose:
+    Encapulates the a test's valid iteration schedule and produces ISL API C
+    code pproducing dependency pairs.
+
+  Member Functions:
+    __init__( dependency_list ):
+      Purpose:
+        Constructor.
+
+      Parameters:
+        dependency_list:
+          list of str-able objects that conform to ISCC representation of a
+          dependency relation.
+          e.g.: [N]->{[0,i,0]->[1,i,0] : 1 <= i <= N}
+          Dependencies must be full-form iterations
+          i.e.: [loop nest, iterator, (loop nest, iterator,)* statement]
+
+    generate_code( ):
+      Purpose:
+        Generates ISL API C code that produces loop nests to produces all pairs
+        of dependencies.
+        e.g. A dependency [0,i,0]->[1,j,0] will be concatenated to [0,i,0,1,j,0]
+        for the purpose of code generation and are broken apart in later code
+        transformation passes on the dependency tester code.
+
+      Returns:
+        str-able ISL API code that produces loop nests to produces all pairs of
+        dependencies.
+
+  Member Variables:
+    dependencies:
+      list of str-able objects that conform to ISCC representation of a
+      dependency relation.
+      e.g.: [N]->{[0,i,0]->[1,i,0] : 1 <= i <= N}
+      Dependencies must be full-form iterations
+      i.e.: [loop nest, iterator, (loop nest, iterator,)* statement]
+'''
 class DependencySpecification:
   def __init__(self, dependency_list):
     self.dependencies = dependency_list
@@ -111,6 +390,73 @@ class DependencySpecification:
 
 
 
+'''
+class RegressionTest:
+  Purpose:
+    Encapulates a loop chains regression test's many representations, and test
+    properties.
+
+  Member Functions:
+    __init__( name, test_dir, chain_of_nests, depedency_specification,
+              schedule_list ):
+      Purpose:
+        Constructor.
+
+      Parameters:
+        name:
+          name of the test. Typically str object.
+
+        test_dir:
+          path to directory where generated test files and binaries will be
+          placed.
+
+        chain_of_nests:
+          ordered list of NestSpecification objects representing a loop chain.
+          In the chain chain_of_nests[i] is immediately before
+          chain_of_nests[i+1].
+
+        depedency_specification:
+          DependencySpecification object that specifes the valid iteration order
+          for any transformation of the loop chain.
+
+        schedule_list:
+          (currently In-Op) ordered list of schedules to transform the loop
+          chain by.
+
+    __str__( ):
+      Purpose:
+        print out terse representation of the list in a simmilar manner to the
+        original text of the test.
+
+      Returns:
+        str object representing the regression test.
+
+  Member Variables:
+    name:
+      name of the test. Typically str object.
+
+    chain:
+      ordered list of NestSpecification objects representing a loop chain.
+      In the chain chain_of_nests[i] is immediately before chain_of_nests[i+1].
+
+    directory:
+      directory where test file producing this RegressionTest lives.
+
+    schedules:
+      (currently In-Op) ordered list of schedules to transform the loop chain
+      by.
+
+    dependencies:
+      DependencySpecification object that specifes the valid iteration order for
+      any transformation of the loop chain.
+
+    log:
+      log file for the test.
+
+    dirstack:
+      DirectoryStack object for the test, given self.log as stdout
+
+'''
 class RegressionTest:
   def __init__( self, name, test_dir, chain_of_nests, depedency_specification, schedule_list ):
     self.name = name
@@ -118,8 +464,275 @@ class RegressionTest:
     self.directory = test_dir
     self.schedules = schedule_list
     self.dependencies = depedency_specification
+
+  def __str__( self ):
+    string = "Chain:\n"
+    for (nest,loop) in zip(self.chain, xrange(len(self.chain))):
+      string += "loop: {0}\n".format( loop )
+      for d in xrange(nest.dimensions):
+        string += "  {0}: {1} in {2}..{3}\n".format(d, nest.iterators[d], nest.bounds[d][0], nest.bounds[d][1] )
+    string += "\nDependency:\n" + "".join(self.dependencies) + "\n"
+    string += "\nTransformations:\n" + "\n".join(self.schedules)
+    return string
+
+
+
+'''
+class RegressionTest:
+  Purpose:
+    Encapulates a loop chains regression test's many representations, test
+    properties, and is the mechanism that runs the many different components of
+    the test, including code generation, building, and the running of the test
+    itself.
+
+  Member Functions:
+    __init__( static_test, resources_path):
+      Purpose:
+        Constructor.
+
+      Parameters:
+        static_test:
+          A RegressionTest object.
+
+        resources_path:
+          The absolute or relative path (relative to the script execution
+          directory), to the resources directory containing the test template
+          files Makefile, codegen_template.cpp, and test_template.cpp
+
+    __str__( ):
+      Purpose:
+        print out terse representation of the list in a simmilar manner to the
+        original text of the test.
+
+      Returns:
+        str object representing the regression test.
+
+    write_log( message ):
+      Purpose:
+        Write message to self.log file. File is flushed after write.
+
+    read_log( ):
+      Purpose:
+        Returns string of the entire log file. File is is same postion as start
+        of method call.
+
+      Returns:
+        string of the entire log file.
+
+    makefile_path_transformation( ):
+      Purpose:
+        Replace PROJECT_DIR_PATH_STAMP in the test Makefile to point to the
+        projects Makefile (LoopChainIR/Makefile) relative to self.path and
+        writes the resulting code to self.path/Makefile.
+
+    dependency_code_generator_generation( ):
+      Purpose:
+        Produce the dependency code generator generator. Gets generated ISL API
+        C code from self.dependencies DependencySpecification object and injects
+        it into codegen_template.cpp in place of GENERATED_GRAPH_CODE_LIST_STAMP
+        and replaces GENERATED_MAIN_CODE_STAMP with the generateGraphCode() call
+        that executes that code, and writes the resulting code to
+        self.path/graph_generator.cpp.
+
+    chain_code_generator_generation( ):
+      Purpose:
+        Produce the LoopChainIR API code generator code. Gets the genreated
+        LoopChainIR API C++ code from the NestSpecification objects in
+        self.chain and injects it into codegen_template.cpp in place of
+        GENERATED_GENERATOR_CODE_STAMP and replaces GENERATED_MAIN_CODE_STAMP
+        with the generateChainCode() call that executes that code, and writes
+        the resulting code to self.path/chain_generator.cpp.
+
+    dependency_code_generator_build( ):
+      Purpose:
+        Build the binary graph_generator that produces the dependency testing
+        code by calling the test's Makefile for graph_generator.
+
+      Exceptions:
+        If build process exits with non-zero status (indicating a failed build)
+        a TestFailureException is raised.
+
+    chain_code_generator_build( ):
+      Purpose:
+        Build the binary chain_generator that produces the loop chain code by
+        calling the test's Makefile for chain_generator.
+
+      Exceptions:
+        If build process exits with non-zero exit code
+        (indicating a failed build) a TestFailureException is raised.
+
+    dependency_code_generator_run( ):
+      Purpose:
+        Executes graph_generator to generate the dependency testing code, which
+        is writen to self.path/graph_output.cpp.
+
+      Exceptions:
+        If process exits with non-zero exit code (indicating some failure,
+        either of the executable or the system), TestFailureException is raised.
+
+    dependency_code_generator_run( ):
+      Purpose:
+        Executes chain_generator to generate the loop chain code, which is
+        writen to self.path/generated_chain_output.cpp.
+
+      Exceptions:
+        If process exits with non-zero exit code (indicating some failure,
+        either of the executable or the system), TestFailureException is raised.
+
+    generate_test_code( ):
+      Purpose:
+        Call code transformation functions on the dependency testing code
+        ( dependency_code_transform() ), the loop_chain code
+        ( chain_code_transform() ), calls the bounds defintion producer
+        ( bounds_generation() ), produces the templated tuple type for the Graph
+        object, and injects the resulting code into test_template.cpp in palace
+        of COMPARISON_CODE_STAMP, GENERATED_CODE_STAMP, BOUNDS_CODE_STAMP, and
+        TUPLE_TYPE_STAMP. The resulting code is writen to self.path/test.cpp.
+
+    determine_iterators_length( ):
+      Purpose:
+        Determine the maximum length all the full form iteration tuples both to
+        specify the templated tuple type and to lengthen any shorter tuples.
+
+      Returns: the maximum length of all iteration tuples as int object.
+
+
+    dependency_code_transform( ):
+      Purpose:
+        Transform the generated graph_output.cpp dependency testing code,
+        specifically the GRAPH_MACRO macro, into code that connects the two
+        iterations in the dependency graph: graph.connect( a, b ), s.t. {a->b}
+
+      Returns: the transformed code as a str object.
+
+    chain_code_transform( ):
+      Purpose:
+        Transforms the gerenated generated_chain_output.cpp loop chain code into
+        code that checks and marks iterations and their dependencies:
+        GENERATED_FOR_LOOP_EXPRESSION
+        { // Create the loop's scope
+        // Create a tuple object from the iteration expression
+        auto iter = make_tuple( GENERATED_ITERATION_EXPRESSION );
+        // Determine if the iterations dependendcies are satisfied.
+        // Iteration's dependencies are satisfied.
+        if( graph.isSatisfied( iter ) ){
+          // Mark iteration as satisfied.
+          graph.mark( iter );
+        }
+        // Iteration's dependencies are NOT satisfied.
+        else {
+          // Set exit code to failure
+          code = -1;
+          // Print offending iteration
+          cout << "FAILED: (" << get<0>(iter) << get<1>(iter) << ... << ")"
+               << endl;
+          // Print the iterations that it is dependent on, and their state.
+          cout << Dependencies: << endl;
+          for( auto dep : graph.getDependencies( iter ) ){
+            // Print the dependency iteration and if it is satisfied.
+            cout << (graph.isSatisfied(dep)? "Satisfied" : "UNSATISFIED" )
+                 << " (" << get<0>(dep) << get<1>(dep) << ...  << ")\" << endl;
+          }
+          // Exit program, returning the exit code.
+          return code;
+        }
+        }
+
+      Returns:
+        the transformed code as a str object
+
+    bounds_generation( ):
+      Purpose:
+        Produce #define macros for the symbolic bounds.
+        Currently sets each bound to the constant 10
+
+      Returns:
+        the generated code as a str object
+
+    build_test( ):
+      Purpose:
+        Build the binary test that comprises the regression test by calling the
+        test's Makefile for test.
+
+      Exceptions:
+        If build process exits with non-zero exit code (indicating a failed
+        build) a TestDevMalformedException is raised.
+
+    run_test( ):
+      Purpose:
+        Executes test.
+
+      Exceptions:
+        If process exits with non-zero exit code (indicating some failure,
+        either of the executable or the system), TestFailureException is raised.
+
+    setup( ):
+      Purpose:
+        Construct test environment by creating test directory (self.path) and
+        moving resource files to that directory. Will preemptively delete
+        existing directories of the same name.
+
+    teardown( ):
+      Purpose:
+        Deconstruct test enviroment by removing test directory (self.path).
+
+    run( ):
+      Purpose:
+        Main execution process of the regression test. Calls all methods
+        necessary for the construction of the test, and calls setup/teardown
+        methods for the test environment.
+        teardown method is always called, even in cases of exceptions.
+
+  Member Variables:
+    name:
+      name of the test. Typically str object.
+
+    chain:
+      ordered list of NestSpecification objects representing a loop chain.
+      In the chain chain_of_nests[i] is immediately before chain_of_nests[i+1].
+
+    directory:
+      directory where test file producing this RegressionTest lives.
+
+    schedules:
+      (currently In-Op) ordered list of schedules to transform the loop chain
+      by.
+
+    dependencies:
+      DependencySpecification object that specifes the valid iteration order for
+      any transformation of the loop chain.
+
+    log:
+      log file for the test.
+
+    dirstack:
+      DirectoryStack object for the test, given self.log as stdout
+
+    path:
+      the path to the direcory containing the test files and binaries.
+      Constructed as self.directory/self.name"_test_dir"
+
+    resources_path:
+      The absolute or relative path (relative to the script execution
+      directory), to the resources directory containing the test template files
+      Makefile, codegen_template.cpp, and test_template.cpp
+'''
+class ExecutableRegressionTest( RegressionTest ):
+  def __init__( self, static_test, resources_path ):
+    # Copy members from the static test
+    self.name = static_test.name
+    self.chain = static_test.chain
+    self.directory = static_test.directory
+    self.schedules = static_test.schedules
+    self.dependencies = static_test.dependencies
+
+    self.resources_path = resources_path
+
+    # Creat runtime/dynamic members
     self.log = tempfile.SpooledTemporaryFile()
     self.dirstack = DirectoryStack( self.log )
+    self.path = "{0}/{1}_test_dir".format( self.directory, self.name )
+
 
   def __str__( self ):
     string = "Chain:\n"
@@ -391,7 +1004,6 @@ class RegressionTest:
 
   def setup( self ):
     files = ["codegen_template.cpp", "Makefile", "test_template.cpp"]
-    self.path = "{0}/{1}_test_dir".format( self.directory, self.name )
 
     # preemptively delete old test workspaces
     try:
@@ -405,7 +1017,7 @@ class RegressionTest:
       return lambda file: path + sep + file
 
     map( shutil.copyfile,
-       map(create_full_path(resources_path), files ),
+       map(create_full_path(self.resources_path), files ),
        map(create_full_path(self.path), files ),
       )
 
@@ -421,7 +1033,7 @@ class RegressionTest:
       self.makefile_path_transformation()
 
       self.dependency_code_generator_generation()
-      self.chain_code_generator_generation( )
+      self.chain_code_generator_generation()
 
       self.dependency_code_generator_build()
       self.dependency_code_generator_run()
@@ -435,12 +1047,59 @@ class RegressionTest:
       self.run_test()
 
     finally:
-      self.teardown()
+      #self.teardown()
+      pass
 
 
 
+'''
 class TestRunner:
-  def __init__( self, list_of_test_file_names ):
+  Purpose:
+    Takes a list of test file names, parses them, tests them. Does not halt on
+    the failure of one test (or its parsing).
+
+  Member Functions:
+    __init__( list_of_test_file_names ):
+      Purpose:
+        Constructor
+
+      Parameters:
+        list_of_test_file_names:
+          list of paths that point to test files.
+
+    parse_tests( ):
+      Purpose:
+        Parse all test files, insert the resulting RegressionTest into
+        self.tests, and print pass/fail status of parsing.
+        Does not halt when parsing a test fails.
+
+    run_tests( ):
+      Purpose:
+        Run each RegressionTest in self.tests and print pass/failure status of
+        test.
+        Does not halt when a test fails.
+
+    run( ):
+      Purpose:
+        Entry point for users.
+        Runs parse_test then run_tests
+
+    parse_test_file( file_name ):
+      Purpose:
+        Parse test file and produce a RegressionTest object.
+
+
+  Member Variables:
+    test_file_names:
+      List of paths to test files.
+
+    tests:
+      list of RegressionTest objects produced by parsing test files in
+      parse_tests.
+'''
+class TestRunner:
+  def __init__( self, resources_path, list_of_test_file_names ):
+    self.resources_path = resources_path
     self.test_file_names = list_of_test_file_names
 
 
@@ -452,7 +1111,7 @@ class TestRunner:
       print "[{0}]............".format(test_file),
 
       try:
-        self.tests.append( self.parse_test_file(test_file) )
+        self.tests.append( ExecutableRegressionTest( static_test = self.parse_test_file(test_file), resources_path = self.resources_path ) )
         print "done."
       except TestUserMalformedException as excpt:
         print "FAILED!\nTest malformed (user error):\n{0}".format( excpt )
@@ -579,4 +1238,4 @@ if __name__ == "__main__":
 
   resources_path = os.path.dirname( sys.argv[0] ) + "/resources"
 
-  (TestRunner( sys.argv[1:] )).run()
+  (TestRunner( resources_path = resources_path, list_of_test_file_names = sys.argv[1:] )).run()
