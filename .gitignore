@@ -31,6 +31,9 @@
 # Debug files
 *.dSYM/
 
+# Doxygen output
+doxygen/
+
 # Third-Party Builds
 third-party/install/
 third-party/build/
