@@ -11,3 +11,7 @@ original
 dependencies:
 [N]->{[0,i,0] -> [0,i+1,0] : 1 <= i <= N }
 :end
+
+new ordering:
+[N]->{[0,i,0] -> [0,i+1,0] : 1 <= i <= N }
+:end

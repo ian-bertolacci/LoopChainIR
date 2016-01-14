@@ -507,20 +507,24 @@ class RegressionTest:
       DependencySpecification object that specifes the valid iteration order for
       any transformation of the loop chain.
 
+    transformation_dependencies:
+      DependencySpecification object that specifies the valid iteratior order
+      for the given list of transformations (self.schedule_list).
+
     log:
       log file for the test.
 
     dirstack:
       DirectoryStack object for the test, given self.log as stdout
-
 '''
 class RegressionTest:
-  def __init__( self, name, test_dir, chain_of_nests, depedency_specification, schedule_list ):
+  def __init__( self, name, test_dir, chain_of_nests, depedency_specification, transformation_dependency_specification, schedule_list ):
     self.name = name
     self.chain = chain_of_nests
     self.directory = test_dir
     self.schedules = schedule_list
     self.dependencies = depedency_specification
+    self.transformation_dependencies = transformation_dependency_specification
 
   def __str__( self ):
     string = "Chain:\n"
@@ -793,7 +797,7 @@ class ExecutableRegressionTest( RegressionTest ):
     # Creat runtime/dynamic members
     self.log = tempfile.SpooledTemporaryFile()
     self.dirstack = DirectoryStack( self.log )
-    self.path = "{0}/{1}_test_dir".format( self.directory, self.name )
+    self.path = "{0}/{1}.dir".format( self.directory, self.name )
 
 
   def __str__( self ):
@@ -1318,10 +1322,113 @@ class TestRunner:
         Entry point for users.
         Runs parse_test then run_tests
 
+    parse_name( file_text ):
+      Purpose:
+        Parse out the test name from the test's text
+
+      Returns:
+        the name of the test as a string. May be modified to replace whitespace
+        with underscores
+
+      Exceptions:
+        TestUserMalformedException:
+          If the test doesnt have a name, a TestUserMalformedException is raised.
+
+      Parameters:
+        file_text:
+          The text of the test file.
+
+    parse_chain_specification( file_text ):
+      Purpose:
+        Parse the terse loop chain specifications and construct an ordered list
+        of NestSpecification objects.
+
+      Returns:
+        A list of NestSpecification objects, ordered by their order in the text.
+
+      Exceptions:
+        TestUserMalformedException:
+          If there is not exactly one chain specification block
+          (i.e. loop chain: .* :end), or if no loop nests are speficied,
+          or if the number of iterators in a nest spefication is different from
+          the number of bounds (e.g. (i){1..1,2..2}),
+          a TestUserMalformedException is raised.
+
+      Parameters:
+        file_text:
+          The text of the test file.
+
+    parse_dependencies_specification( file_text ):
+      Purpose:
+        Parse out the ISCC code representing the test's loop dependencies for
+        generating dependency testing code.
+
+      Returns:
+        A DependencySpecification object.
+
+      Exceptions:
+        TestUserMalformedException:
+          If there is not exactly one dependency specification block
+          (i.e. valid dependencies: .* :end), or no dependecy code is specified,
+          a TestUserMalformedException is raised.
+
+      Parameters:
+        file_text:
+          The text of the test file.
+
+    parse_transformation_validity_specification( file_text ):
+      Purpose:
+        Parse out the ISCC code representing the test's loop dependencies for
+        ensuring correct transformation.
+
+      Returns:
+        A DependencySpecification object.
+
+      Exceptions:
+        TestUserMalformedException:
+          If there is not exactly one dependency specification block
+          (i.e. transformation dependencies: .* :end), or no dependecy code is
+          specified, a TestUserMalformedException is raised.
+
+      Parameters:
+        file_text:
+          The text of the test file.
+
+    parse_schedules( file_text ):
+      Pupose:
+        Capture the list of schedule transformations.
+
+      Returns:
+        List of strings naming transformations to be applied, orderd by their
+        order in the text.
+
+      Exceptions:
+        TestUserMalformedException:
+          if there is not exactly one schedule block (i.e. schedule: .* :end),
+          or no schedules are speficied, a TestUserMalformedException is raised.
+
+      Parameters:
+        file_text:
+          The text of the test file.
+
+    parse_exemplar_code( file_text ):
+      Purpose:
+        Parse exemplar code for src-to-src transormer tool, if there is any.
+
+      Returns:
+        String containing exemplar code.
+
+      Parameters:
+        file_text:
+          The text of the test file.
+
     parse_test_file( file_name ):
       Purpose:
-        Parse test file and produce a RegressionTest object.
+        Parse test file and produce a RegressionTest object by calling the
+        various parse_.*( file_text ) procedures.
 
+      Returns:
+        RegressionTest object
 
   Member Variables:
     test_file_names:
@@ -1392,9 +1499,7 @@ class TestRunner:
     self.run_tests()
 
 
-  def parse_test_file( self, file_name ):
-    # The regular expression used to parse the file
-
+  def parse_name( self, file_text ):
     '''
     test_name_rx:
       Expression:
@@ -1409,6 +1514,27 @@ class TestRunner:
     '''
     test_name_rx = re.compile(r"test name\s*:\s*(?P<name>.+)\s*")
 
+    # Capture test name
+    name_match = test_name_rx.match( file_text )
+
+    # Name not speficied, malformed test
+    if name_match == None:
+      raise TestUserMalformedException( "No test name!" )
+
+    # Captured name
+    else:
+      get_name = name_match.group("name")
+      # Replace any white-space with the underscore character
+      test_name = re.sub( "\s+", "_", get_name )
+      # Warn user if name changed.
+      # TODO integrate into a log
+      if get_name != test_name:
+        print "Warning: test name may not contain white-space.\nTest renamed: \"{0}\"".format( test_name )
+
+    return test_name
+
+
+  def parse_chain_specification( self, file_text ):
     '''
     tool_generate_rx:
       Expression:
@@ -1470,35 +1596,8 @@ class TestRunner:
           The upper bound of the range
     '''
     tool_bounds_rx = re.compile( r"(?P<lower_bound>\-?[a-zA-Z0-9]+)\.\.(?P<upper_bound>\-?[a-zA-Z0-9]+)" )
-
-
-    '''
-    dependency_code_rx:
-      Expression:
-        dependencies\:(?P<code>(?:.|\s)+?)\:end
-
-      Purpose:
-        Capture the depenency code
-
-      Captures:
-        code:
-          The dependency testing code ISCC expression
-    '''
-    dependency_code_rx = re.compile( r"dependencies\:(?P<code>(?:.|\s)+?)\:end" )
-
-    '''
-    schedule_rx:
-      Expression:
-        schedule\:(?P<schedules>(?:.|\s)+?)\:end
-
-      Purpose:
-        Capture the scheduling information.
-
-      Captures:
-        schedules:
-          Ordered list of scheduling functions to apply
-    '''
-    schedule_rx = re.compile( r"schedule\:(?P<schedules>(?:.|\s)+?)\:end")
+    # Capture code generator code
+    gen_code_groups = tool_generate_rx.findall( file_text )
 
     '''
     symbol_rx:
@@ -1509,31 +1608,6 @@ class TestRunner:
         General regex for identifiers
     '''
     symbol_rx = re.compile( r"[a-zA-Z][a-zA-Z0-9]*" )
-
-    test_file = open( file_name, "r" ).read()
-
-    # Capture test name
-    name_match = test_name_rx.match( test_file )
-
-    # Name not speficied, malformed test
-    if name_match == None:
-      raise TestUserMalformedException( "No test name!" )
-
-    # Captured name
-    else:
-      get_name = test_name_rx.match( test_file ).group("name")
-      # Replace any white-space with the underscore character
-      test_name = re.sub( "\s+", "_", test_name_rx.match( test_file ).group("name") )
-      # Warn user if name changed.
-      # TODO integrate into log
-      if get_name != test_name:
-        print "Warning: test name may not contain white-space.\nTest renamed: \"{0}\"".format( test_name )
-
-    # Determine the test files parent directory
-    test_dir = os.path.dirname( file_name )
-
-    # Capture code generator code
-    gen_code_groups = tool_generate_rx.findall( test_file )
 
     # Ensure exactly one tool code group exists
     if len(gen_code_groups) < 1:
@@ -1571,8 +1645,26 @@ class TestRunner:
     if len( chain_spec ) < 1:
       raise TestUserMalformedException("No loop nests specified.")
 
+    return chain_spec
+
+
+  def parse_dependencies_specification( self, file_text ):
+    '''
+    dependency_code_rx:
+      Expression:
+        dependencies\:(?P<code>(?:.|\s)+?)\:end
+
+      Purpose:
+        Capture the depenency code
+
+      Captures:
+        code:
+          The dependency testing code ISCC expression
+    '''
+    dependency_code_rx = re.compile( r"dependencies\:(?P<code>(?:.|\s)+?)\:end" )
+
     # Capture dependency code
-    dep_code_groups = dependency_code_rx.findall( test_file )
+    dep_code_groups = dependency_code_rx.findall( file_text )
 
     # Ensure exactly one dependency group exists
     if len(dep_code_groups) < 1:
@@ -1590,8 +1682,63 @@ class TestRunner:
       raise TestUserMalformedException( "No dependencies listed" )
     dependencies = DependencySpecification(dep_list)
 
+    return dependencies
+
+
+  def parse_transformation_validity_specification( self, file_text ):
+    '''
+    dependency_code_rx:
+      Expression:
+        new ordering\:(?P<code>(?:.|\s)+?)\:end
+
+      Purpose:
+        Capture the depenency code
+
+      Captures:
+        code:
+          The dependency testing code ISCC expression
+    '''
+    dependency_code_rx = re.compile( r"new ordering\:(?P<code>(?:.|\s)+?)\:end" )
+
+    # Capture dependency code
+    dep_code_groups = dependency_code_rx.findall( file_text )
+
+    # Ensure exactly one dependency group exists
+    if len(dep_code_groups) < 1:
+      raise TestUserMalformedException("No transformation dependency delclarations.")
+    elif len(dep_code_groups) > 1:
+      raise TestUserMalformedException("Multiple transformation dependency delclarations.")
+
+    # Split each ISCC expression by newlines
+    # TODO can we make this safer? Its possible that expressions will overflow
+    # a line for the purpose of readability
+    dep_list = dep_code_groups[0].strip().split("\n")
+
+    # Check that at least 1 dependency is listed
+    if len(dep_list) < 1 or len(dep_list) == 1 and dep_list[0] == "":
+      raise TestUserMalformedException( "No transformation dependencies listed" )
+    dependencies = DependencySpecification(dep_list)
+
+    return dependencies
+
+
+  def parse_schedules( self, file_text ):
+    '''
+    schedule_rx:
+      Expression:
+        schedule\:(?P<schedules>(?:.|\s)+?)\:end
+
+      Purpose:
+        Capture the scheduling information.
+
+      Captures:
+        schedules:
+          Ordered list of scheduling functions to apply
+    '''
+    schedule_rx = re.compile( r"schedule\:(?P<schedules>(?:.|\s)+?)\:end")
+
     # Capture scheduling list
-    sched_list_groups = schedule_rx.findall( test_file )
+    sched_list_groups = schedule_rx.findall( file_text )
 
     # Ensure only one schedule group exists
     if len(sched_list_groups) < 1:
@@ -1607,8 +1754,53 @@ class TestRunner:
        len(schedule_list) == 1 and schedule_list[0] == "":
       raise TestUserMalformedException( "No schedules listed" )
 
+    return schedule_list
+
+
+  def parse_exemplar_code( self, file_text ):
+    '''
+    exemplar_rx:
+      Expression:
+        exemplar code\:(?P<code>(?:.|\s)+?)\:end
+
+      Purpose:
+        Captures the exemplare code for tool (not API) testing.
+    '''
+    exemplar_rx = re.compile( r"exemplar code\:(?P<code>(?:.|\s)+?)\:end" )
+
+    # Capture code body
+    match = exemplar_rx.search( file_text )
+
+    return None if match == None else match.group("code")
+
+
+  def parse_test_file( self, file_name ):
+    # Get test text
+    with open( file_name, "r" ) as file:
+      test_text = file.read()
+
+    # Get the test name
+    test_name = self.parse_name( test_text )
+
+    # Determine the test files parent directory
+    test_dir = os.path.dirname( file_name )
+
+    # Get the list of NestSpecification
+    chain_spec = self.parse_chain_specification( test_text )
+
+    # Get the list of ISCC dependency speficiation texts for validity
+    # verification
+    valid_dependencies = self.parse_dependencies_specification( test_text )
+
+    # Get the list of ISCC dependency speficiation texts for transformation
+    # verification
+    trans_dependencies = self.parse_transformation_validity_specification( test_text )
+
+    # Get the list of transformations
+    schedule_list = self.parse_schedules( test_text )
+
     # Form and return static RegressionTest
-    return RegressionTest( test_name, test_dir, chain_spec, dependencies, schedule_list )
+    return RegressionTest( test_name, test_dir, chain_spec, valid_dependencies, trans_dependencies, schedule_list )
 
 
 
