@@ -17,6 +17,8 @@ THIRD_PARTY_SRC=$(THIRD_PARTY)/source
 THIRD_PARTY_BUILD=$(THIRD_PARTY)/build
 THIRD_PARTY_INSTALL=$(THIRD_PARTY)/install
 
+DOC_PATH = $(PROJECT_DIR)/doxygen
+
 LIB=$(THIRD_PARTY_INSTALL)/lib
 INC=$(THIRD_PARTY_INSTALL)/include
 
@@ -94,8 +96,15 @@ $(UNIT_TEST_BIN)/gtest.a : $(UNIT_TEST_BIN)/gtest-all.o
 $(UNIT_TEST_BIN)/gtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)/gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
+# Building documentation
+doc: documentation
+documentation:
+	doxygen
+
 # Initialize the project and install third-party materials
-initialize: nuke
+init: initialize
+
+initialize: clean-all
 	mkdir $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 	mkdir $(LIB)
 	mkdir $(INC)
@@ -117,6 +126,9 @@ initialize: nuke
 neat:
 	- rm $(BIN)/*.o
 
+clean-doc:
+	- rm -rf $(DOC_PATH)
+
 clean-third-party:
 	- rm -rf $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 
@@ -127,4 +139,5 @@ clean-test:
 clean: clean-test
 	- rm $(BIN)/*
 
-nuke: clean-third-party clean
+
+clean-all: clean-third-party clean

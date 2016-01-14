@@ -1,13 +1,13 @@
-/*******************************************************************************
+/*! ****************************************************************************
 \file all_isl.hpp
 \autors Ian J. Bertolacci
 
-\purpose
+\brief
 ISL has many headers, which have many depenencies.
 This header brings them all together, in a simpler package.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2016 Colorado State University
 *******************************************************************************/
 
 #ifndef ALL_ISL_HPP
