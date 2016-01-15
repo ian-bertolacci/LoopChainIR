@@ -3,14 +3,13 @@ PROJECT_DIR ?= $(PWD)
 
 BIN=$(PROJECT_DIR)/bin
 SRC=$(PROJECT_DIR)/src
+UTIL=$(PROJECT_DIR)/util
 
 TEST=$(PROJECT_DIR)/test
 UNIT_TEST_DIR=$(TEST)/unit-tests
 UNIT_TEST_BIN=$(UNIT_TEST_DIR)/bin
 UNIT_TEST_SRC=$(UNIT_TEST_DIR)/src
 REG_TEST_DIR=$(TEST)/regression-tests
-REG_TEST_BIN=$(REG_TEST_DIR)/bin
-REG_TEST_SRC=$(REG_TEST_DIR)/src
 
 THIRD_PARTY=$(PROJECT_DIR)/third-party
 THIRD_PARTY_SRC=$(THIRD_PARTY)/source
@@ -37,6 +36,7 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 UNIT_TESTS = RectangularDomain_test LoopNest_test LoopChain_test DefaultSequentialSchedule_test
+REG_TESTS = $(shell ls $(REG_TEST_DIR)/*.test )
 
 # Project object files and executable
 OBJS = $(BIN)/RectangularDomain.o \
@@ -75,6 +75,7 @@ all-tests: unit-tests regression-tests
 unit-tests: $(UNIT_TESTS)
 
 regression-tests:
+	python $(UTIL)/regression-util.py $(REG_TESTS)
 
 $(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(EXE)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
@@ -134,10 +135,8 @@ clean-third-party:
 
 clean-test:
 	- rm $(UNIT_TEST_BIN)/*
-	- rm $(REG_TEST_BIN)/*
 
 clean: clean-test
 	- rm $(BIN)/*
-
 
 clean-all: clean-third-party clean

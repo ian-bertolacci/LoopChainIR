@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys, re, random, string, subprocess, os, shutil, tempfile
 from datetime import date, datetime
 
@@ -570,9 +571,16 @@ class ExecutableRegressionTest:
       Returns:
         str object representing the regression test.
 
-    write_log( message ):
+    write_log( message, end ):
       Purpose:
-        Write message to self.log file. File is flushed after write.
+        Write a message to the log file_path
+
+      Parameters:
+        message:
+          Write message to self.log file. File is flushed after write.
+
+        end:
+          (Optional defaults to "\n") what string to end the line with.
 
     read_log( ):
       Purpose:
@@ -658,7 +666,6 @@ class ExecutableRegressionTest:
         specify the templated tuple type and to lengthen any shorter tuples.
 
       Returns: the maximum length of all iteration tuples as int object.
-
 
     dependency_code_transform( ):
       Purpose:
@@ -784,7 +791,7 @@ class ExecutableRegressionTest:
       Set in generate_test_code()
 '''
 class ExecutableRegressionTest( RegressionTest ):
-  def __init__( self, static_test, resources_path ):
+  def __init__( self, static_test, resources_path, log_file = None ):
     # Copy members from the static test
     self.name = static_test.name
     self.chain = static_test.chain
@@ -795,7 +802,7 @@ class ExecutableRegressionTest( RegressionTest ):
     self.resources_path = resources_path
 
     # Creat runtime/dynamic members
-    self.log = tempfile.SpooledTemporaryFile()
+    self.log = tempfile.SpooledTemporaryFile() if log_file == None else log_file
     self.dirstack = DirectoryStack( self.log )
     self.path = "{0}/{1}.dir".format( self.directory, self.name )
 
@@ -811,8 +818,8 @@ class ExecutableRegressionTest( RegressionTest ):
     return string
 
 
-  def write_log( self, message ):
-    self.log.write( message + "\n" )
+  def write_log( self, message, end = "\n" ):
+    self.log.write( message + end )
     self.log.flush()
 
 
@@ -1305,22 +1312,10 @@ class TestRunner:
         list_of_test_file_names:
           list of paths that point to test files.
 
-    parse_tests( ):
-      Purpose:
-        Parse all test files, insert the resulting RegressionTest into
-        self.tests, and print pass/fail status of parsing.
-        Does not halt when parsing a test fails.
-
-    run_tests( ):
-      Purpose:
-        Run each RegressionTest in self.tests and print pass/failure status of
-        test.
-        Does not halt when a test fails.
-
     run( ):
       Purpose:
-        Entry point for users.
-        Runs parse_test then run_tests
+        Entry point.
+        Parse then run the test.
 
     parse_name( file_text ):
       Purpose:
@@ -1376,10 +1371,10 @@ class TestRunner:
         file_text:
           The text of the test file.
 
-    parse_transformation_validity_specification( file_text ):
+    parse_ordering_specification( file_text ):
       Purpose:
         Parse out the ISCC code representing the test's loop dependencies for
-        ensuring correct transformation.
+        ensuring correct ordering by the transformation.
 
       Returns:
         A DependencySpecification object.
@@ -1430,76 +1425,142 @@ class TestRunner:
       Returns:
         RegressionTest object
 
+    write_log( message, end ):
+      Purpose:
+        Write a message to the log file_path
+
+      Parameters:
+        message:
+          Write message to self.log file. File is flushed after write.
+
+        end:
+          (Optional defaults to "\n") what string to end the line with.
+
+    read_log( ):
+      Purpose:
+        Returns string of the entire log file. File is is same postion as start
+        of method call.
+
+      Returns:
+        string of the entire log file.
+
+    write_log_to_file( path ):
+      Purpose:
+        Write the logfile to the specified file_name
+
+      Parameters:
+        path:
+          Location where file is to be written (includes file name).
+
+    dump_log( ):
+      Purpose:
+        Write the logfile to the path self.log_file_path
+
+
   Member Variables:
-    test_file_names:
-      List of paths to test files.
+    file_path:
+      Path to test file
 
-    tests:
-      list of RegressionTest objects produced by parsing test files in
-      parse_tests.
+    base_name:
+      Name of the file, without leading path, such that
+      self.parent_dir/self.base_name == self.file_path
+
+    parent_dir:
+      Path to directory containing the test file, such that
+      self.parent_dir/self.base_name == self.file_path
+
+    log:
+      Log file for the test.
+
+    log_file_path:
+      Path that dump_log will write write_log_to_file( ) on if it is called.
+
+    resources_path:
+      The absolute or relative path (relative to the script execution
+      directory), to the resources directory containing the test template files
+      Makefile, codegen_template.cpp, and test_template.cpp
 '''
-class TestRunner:
-  def __init__( self, resources_path, list_of_test_file_names ):
+class TestSuit:
+  def __init__( self, file_path, resources_path ):
     self.resources_path = resources_path
-    self.test_file_names = list_of_test_file_names
+    self.file_path = file_path
+    self.basename = os.path.basename( self.file_path )
+    self.parent_dir = os.path.dirname( self.file_path )
+    self.log = tempfile.SpooledTemporaryFile()
+    self.log_file_path = "{0}/{1}.log".format( self.parent_dir, self.basename )
 
 
-  def parse_tests( self ):
-    print "[Parsing Files]"
-
-    # The list of ExecutableRegressionTest objects that will be executed
-    self.tests = []
-
-    # Attempt to parse each file, construct from the static RegressionTest the
-    # dynamic ExecutableRegressionTest, and append it to self.tests
-    for test_file in self.test_file_names:
-      print "[{0}]............".format(test_file),
-
-      try:
-        # Attempt to parse and construct test
-        self.tests.append( ExecutableRegressionTest( static_test = self.parse_test_file(test_file), resources_path = self.resources_path ) )
-        print "done."
-
-      # Could not parse: User malfomred test
-      except TestUserMalformedException as excpt:
-        print "FAILED!\nTest malformed (user error):\n{0}".format( excpt )
-
-      # Could not parse: Software error
-      except TestDevMalformedException as excpt:
-        print "FAILED!\nSoftware Error. Please report:\n{0}".format( excpt )
+  def write_log( self, message, end = "\n" ):
+    self.log.write( message + end )
+    self.log.flush()
 
 
-  def run_tests( self ):
-    print "[Running Tests]"
+  def read_log( self ):
+    self.log.seek(0)
+    return "".join( [line for line in self.log] )
 
-    # Run each test
-    for test in self.tests:
-        print "[{0}]............".format(test.name),
 
-        try:
-          test.run()
-          print "pass."
-          #print "Log Output:{0}".format( test.read_log() )
+  def write_log_to_file( self, path ):
+    self.write_log( "[Writing log to file {0}]".format( path ) )
+    with open( path, 'w' ) as file:
+      file.write( self.read_log() )
 
-        # Test Failed: Failed regression test
-        except TestFailureException as excpt:
-          print "FAILED!\n{0}\n\nLog Output:\n{1}\n".format( excpt, test.read_log() )
 
-        # Test Failed: User malformed test
-        except TestUserMalformedException as excpt:
-          print "FAILED!\nTest is malformed. This is a user error:\n{0}\nLog output:\n{1}".format( excpt, test.read_log() )
-
-        # Test Failed: Software error
-        except TestDevMalformedException as excpt:
-          print "FAILED!\nSoftware Error. Please report:\n{0}\nLog output:\n{1}".format( excpt, test.read_log() )
+  def dump_log( self ):
+    self.write_log_to_file( self.log_file_path )
 
 
   def run( self ):
-    self.parse_tests()
-    self.run_tests()
+    # Attempt to parse each file, construct from the static RegressionTest the
+    # dynamic ExecutableRegressionTest, and append it to self.tests
+
+    print( "Parsing {0}{1}".format( self.basename, "."*10 ), end = "" )
+
+    # parse the test
+    try:
+      # Attempt to parse and construct test
+      executable_test = ExecutableRegressionTest( static_test = self.parse_test_file(self.file_path ), resources_path = self.resources_path, log_file = self.log )
+      print( "DONE" )
+
+    # Could not parse: User malfomred test
+    except TestUserMalformedException as excpt:
+      print( "FAILED!\nTest is malformed. This is a user error:\n{0}\nSee log file {1}".format( excpt, self.log_file_path ) )
+      self.dump_log()
+      return
+
+    # Could not parse: Software error
+    except TestDevMalformedException as excpt:
+      print( "FAILED!\nSoftware Error. Please report:\n{0}\nInclude log file {1}".format( excpt, self.log_file_path ) )
+      self.dump_log()
+      return
+
+    # Run the test
+    try:
+      print( "Running {0}{1}".format( executable_test.name, "."*10 ), end = "" )
+      executable_test.run()
+      print( "SUCCESS" )
+
+    # Test Failed: Failed regression test
+    except TestFailureException as excpt:
+      print( "FAILED!\n{0}\nSee log file {1}".format( excpt, self.log_file_path ) )
+      return
+
+    # Test Failed: User malformed test
+    except TestUserMalformedException as excpt:
+      print( "FAILED!\nTest is malformed. This is a user error:\n{0}\nSee log file {1}".format( excpt, self.log_file_path ) )
+      self.dump_log()
+      return
+
+    # Could not parse: Software error
+    except TestDevMalformedException as excpt:
+      print( "FAILED!\nSoftware Error. Please report:\n{0}\nInclude log file {1}".format( excpt, self.log_file_path ) )
+      self.dump_log()
+      return
 
 
   def parse_name( self, file_text ):
+    self.write_log("[Parsing name]")
+
     '''
     test_name_rx:
       Expression:
@@ -1519,7 +1580,7 @@ class TestRunner:
 
     # Name not speficied, malformed test
     if name_match == None:
-      raise TestUserMalformedException( "No test name!" )
+      raise TestUserMalformedException( "No test name!", log_file )
 
     # Captured name
     else:
@@ -1527,14 +1588,15 @@ class TestRunner:
       # Replace any white-space with the underscore character
       test_name = re.sub( "\s+", "_", get_name )
       # Warn user if name changed.
-      # TODO integrate into a log
       if get_name != test_name:
-        print "Warning: test name may not contain white-space.\nTest renamed: \"{0}\"".format( test_name )
+        self.write_log( "Warning: test name may not contain white-space.\nTest renamed: \"{0}\"".format( test_name ) )
 
     return test_name
 
 
   def parse_chain_specification( self, file_text ):
+    self.write_log("[Parsing chain specification]")
+
     '''
     tool_generate_rx:
       Expression:
@@ -1611,9 +1673,9 @@ class TestRunner:
 
     # Ensure exactly one tool code group exists
     if len(gen_code_groups) < 1:
-      raise TestUserMalformedException("No loop chain delclarations.")
+      raise TestUserMalformedException("No loop chain delclarations.", self.log )
     elif len(gen_code_groups) > 1:
-      raise TestUserMalformedException("Multiple loop chains delclarations.")
+      raise TestUserMalformedException("Multiple loop chains delclarations.", self.log )
 
     gen_code = gen_code_groups[0]
 
@@ -1633,7 +1695,7 @@ class TestRunner:
       # Check that there are the same number of iterators as ranges in the
       # domain
       if len( iterators_list ) != len( bounds_list ):
-        raise TestUserMalformedException( "Number of iterators different from number of bounds.")
+        raise TestUserMalformedException( "Number of iterators different from number of bounds.", self.log )
 
       # Find and collate the symbolic bounds
       symbolics = [ upper for (upper, lower) in bounds_list if symbol_rx.match( upper ) ] + [ lower for (upper, lower) in bounds_list if symbol_rx.match( lower ) ]
@@ -1643,12 +1705,14 @@ class TestRunner:
 
     # Chain must have one or more loop nest
     if len( chain_spec ) < 1:
-      raise TestUserMalformedException("No loop nests specified.")
+      raise TestUserMalformedException("No loop nests specified.", self.log )
 
     return chain_spec
 
 
   def parse_dependencies_specification( self, file_text ):
+    self.write_log( "[Parsing dependencies specification]")
+
     '''
     dependency_code_rx:
       Expression:
@@ -1668,9 +1732,9 @@ class TestRunner:
 
     # Ensure exactly one dependency group exists
     if len(dep_code_groups) < 1:
-      raise TestUserMalformedException("No loop dependency delclarations.")
+      raise TestUserMalformedException("No loop dependency delclarations.", self.log )
     elif len(dep_code_groups) > 1:
-      raise TestUserMalformedException("Multiple dependency delclarations.")
+      raise TestUserMalformedException("Multiple dependency delclarations.", self.log )
 
     # Split each ISCC expression by newlines
     # TODO can we make this safer? Its possible that expressions will overflow
@@ -1679,13 +1743,15 @@ class TestRunner:
 
     # Check that at least 1 dependency is listed
     if len(dep_list) < 1 or len(dep_list) == 1 and dep_list[0] == "":
-      raise TestUserMalformedException( "No dependencies listed" )
+      raise TestUserMalformedException( "No dependencies listed", self.log )
     dependencies = DependencySpecification(dep_list)
 
     return dependencies
 
 
-  def parse_transformation_validity_specification( self, file_text ):
+  def parse_ordering_specification( self, file_text ):
+    self.write_log( "[Parsing ordering specification]")
+
     '''
     dependency_code_rx:
       Expression:
@@ -1705,9 +1771,9 @@ class TestRunner:
 
     # Ensure exactly one dependency group exists
     if len(dep_code_groups) < 1:
-      raise TestUserMalformedException("No transformation dependency delclarations.")
+      raise TestUserMalformedException("No transformation dependency delclarations.", self.log )
     elif len(dep_code_groups) > 1:
-      raise TestUserMalformedException("Multiple transformation dependency delclarations.")
+      raise TestUserMalformedException("Multiple transformation dependency delclarations.", self.log )
 
     # Split each ISCC expression by newlines
     # TODO can we make this safer? Its possible that expressions will overflow
@@ -1716,13 +1782,15 @@ class TestRunner:
 
     # Check that at least 1 dependency is listed
     if len(dep_list) < 1 or len(dep_list) == 1 and dep_list[0] == "":
-      raise TestUserMalformedException( "No transformation dependencies listed" )
+      raise TestUserMalformedException( "No transformation dependencies listed", self.log )
     dependencies = DependencySpecification(dep_list)
 
     return dependencies
 
 
   def parse_schedules( self, file_text ):
+    self.write_log( "[Parsing schedules]" )
+
     '''
     schedule_rx:
       Expression:
@@ -1742,9 +1810,9 @@ class TestRunner:
 
     # Ensure only one schedule group exists
     if len(sched_list_groups) < 1:
-      raise TestUserMalformedException("No schedule delclarations.")
+      raise TestUserMalformedException("No schedule delclarations.", self.log )
     elif len(sched_list_groups) > 1:
-      raise TestUserMalformedException("Multiple schedule delclarations.")
+      raise TestUserMalformedException("Multiple schedule delclarations.", self.log )
 
     # Split by newline
     schedule_list = sched_list_groups[0].strip().split("\n")
@@ -1752,12 +1820,14 @@ class TestRunner:
     # Check at least one dependency is listed
     if len(schedule_list) < 1 or \
        len(schedule_list) == 1 and schedule_list[0] == "":
-      raise TestUserMalformedException( "No schedules listed" )
+      raise TestUserMalformedException( "No schedules listed", self.log )
 
     return schedule_list
 
 
   def parse_exemplar_code( self, file_text ):
+    self.write_log( "[Parsing exemplar code]" )
+
     '''
     exemplar_rx:
       Expression:
@@ -1775,6 +1845,8 @@ class TestRunner:
 
 
   def parse_test_file( self, file_name ):
+    self.write_log( "[Parsing file]" )
+
     # Get test text
     with open( file_name, "r" ) as file:
       test_text = file.read()
@@ -1794,21 +1866,60 @@ class TestRunner:
 
     # Get the list of ISCC dependency speficiation texts for transformation
     # verification
-    trans_dependencies = self.parse_transformation_validity_specification( test_text )
+    ordering_dependencies = self.parse_ordering_specification( test_text )
 
     # Get the list of transformations
     schedule_list = self.parse_schedules( test_text )
 
     # Form and return static RegressionTest
-    return RegressionTest( test_name, test_dir, chain_spec, valid_dependencies, trans_dependencies, schedule_list )
+    return RegressionTest( test_name, test_dir, chain_spec, valid_dependencies, ordering_dependencies, schedule_list )
 
 
+
+'''
+class TestRunner:
+  Purpose:
+    Runs multiple tests using TestSuit
+
+  Member Functions:
+    __init__( resources_path, list_of_test_file_paths ):
+      Purpose:
+        Constructor
+
+      Parameters:
+        resources_path:
+          Path to the resources directory.
+
+        list_of_test_file_paths:
+          list of paths to test Files
+
+    run( ):
+      Purpose:
+        Builds and runs a TestSuit from a file.
+
+  Member Variables:
+    resources_path:
+      Path to the resources directory.
+
+    files:
+      list of paths to test Files
+'''
+class TestRunner:
+  def __init__( self, resources_path, list_of_test_file_paths ):
+    self.resources_path = resources_path
+    self.files = list_of_test_file_paths
+
+  def run( self ):
+    print( "="*20 )
+    for file_name in self.files:
+      (TestSuit( resources_path = self.resources_path, file_path = file_name) ).run()
+      print( "="*20 )
 
 if __name__ == "__main__":
   if len(sys.argv) <= 1:
-    print "usage: python {0} <test file 1> <test file 2> ...".format( sys.argv[0] )
+    print( "usage: python {0} <test file 1> <test file 2> ...".format( sys.argv[0] ) )
     exit(-1)
 
   resources_path = os.path.dirname( sys.argv[0] ) + "/resources"
 
-  (TestRunner( resources_path = resources_path, list_of_test_file_names = sys.argv[1:] )).run()
+  (TestRunner( resources_path = resources_path, list_of_test_file_paths = sys.argv[1:] )).run()

@@ -40,5 +40,5 @@ third-party/build/
 
 # Test outputs
 test/unit-tests/bin/*
-test/regression-tests/bin/*
-test/regression-tests/sand-box/*
+test/regression-tests/*.dir
+test/regression-tests/*.log
