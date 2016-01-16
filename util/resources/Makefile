@@ -2,7 +2,8 @@ PROJECT_DIR=PROJECT_DIR_PATH_STAMP
 include $(PROJECT_DIR)/Makefile
 
 TEST_BINARIES = code_generator \
-								graph_generator \
+								raw_order_graph_generator \
+								new_order_graph_generator \
 								test
 
 $(TEST_BINARIES): %: $(EXE) %.cpp

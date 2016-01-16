@@ -41,7 +41,7 @@ public:
   }
 
   bool isMarked( Tuple_Type node ){
-    return isIn( node ) && this->marked( node );
+    return isIn( node ) && this->marked[ node ];
   }
 
   bool isSatisfied( Tuple_Type node ){
@@ -49,10 +49,15 @@ public:
     bool satisfied = true;
 
     for( auto it = deps.begin(); it != deps.end(); ++it ){
-      satisfied &= marked[ *it ];
+      Tuple_Type iteration = *it;
+      // Need to check marking and satisfaction.
+      // A dependant iteration may be satisfied on it's end, but is MUST be
+      // marked for the dependency to be satisfied.
+      satisfied &= isMarked( iteration )  && isSatisfied( iteration );
 
       if( !satisfied ) break;
     }
+
     return satisfied;
   }
 
@@ -71,12 +76,13 @@ BOUNDS_CODE_STAMP
 /*****************************************************************************/
 
 int main( ){
-  Graph< tuple< TUPLE_TYPE_STAMP > > graph;
+  Graph< tuple< TUPLE_TYPE_STAMP > > dependency_graph;
+  Graph< tuple< TUPLE_TYPE_STAMP > > new_order_graph;
   {
 /*****************************************************************************/
-/********** BEGIN INJECTED CODE FROM HUMAN COMPARISON ************************/
+/********** BEGIN INJECTED CODE FROM DEPENDENCIES GENERATORS *****************/
 COMPARISON_CODE_STAMP
-/********** END OF INJECTED CODE FROM HUMAN COMPARISON ***********************/
+/********** END INJECTED CODE FROM DEPENDENCIES GENERATORS *******************/
 /*****************************************************************************/
   }
 

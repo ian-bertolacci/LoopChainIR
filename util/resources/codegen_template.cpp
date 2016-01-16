@@ -49,7 +49,7 @@ void generateGraphCode(){
 /*****************************************************************************/
 /*****************************************************************************/
 
-  FILE* file = fopen( "graph_output.cpp", "w");
+  FILE* file = fopen( "GRAPH_CODEGEN_OUTPUT_NAME_STAMP", "w");
 
   for( vector<string>::iterator it = expressions.begin(); it != expressions.end(); ++it ){
     string expression = *it;

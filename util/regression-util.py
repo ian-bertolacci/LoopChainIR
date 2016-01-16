@@ -43,7 +43,7 @@ class TestFailureException( Exception ):
 
 
   def __str__( self ):
-    return repr( self.message )
+    return str( self.message )
 
 
 
@@ -87,7 +87,7 @@ class TestMalformedException( Exception ):
       log_file.write( "TestUserMalformedException: {0}\n".format( message ) )
 
   def __str__( self ):
-    return repr( self.message )
+    return str( self.message )
 
 
 
@@ -131,7 +131,7 @@ class TestUserMalformedException( Exception ):
       log_file.write( "TestUserMalformedException: {0}\n".format( message ) )
 
   def __str__( self ):
-    return repr( self.message )
+    return str( self.message )
 
 
 
@@ -175,7 +175,7 @@ class TestDevMalformedException( Exception ):
       log_file.write( "TestDevMalformedException: {0}\n".format( message ) )
 
   def __str__( self ):
-    return repr( self.message )
+    return str( self.message )
 
 
 
@@ -446,7 +446,8 @@ class DependencySpecification:
 
     return code
 
-
+  def __str__( self ):
+    return "\n".join( self.dependencies )
 
 '''
 class RegressionTest:
@@ -519,13 +520,13 @@ class RegressionTest:
       DirectoryStack object for the test, given self.log as stdout
 '''
 class RegressionTest:
-  def __init__( self, name, test_dir, chain_of_nests, depedency_specification, transformation_dependency_specification, schedule_list ):
+  def __init__( self, name, test_dir, chain_of_nests, depedency_specification, new_order_specification, schedule_list ):
     self.name = name
     self.chain = chain_of_nests
     self.directory = test_dir
     self.schedules = schedule_list
     self.dependencies = depedency_specification
-    self.transformation_dependencies = transformation_dependency_specification
+    self.transformation_dependencies = new_order_specification
 
   def __str__( self ):
     string = "Chain:\n"
@@ -533,8 +534,9 @@ class RegressionTest:
       string += "loop: {0}\n".format( loop )
       for d in xrange(nest.dimensions):
         string += "  {0}: {1} in {2}..{3}\n".format(d, nest.iterators[d], nest.bounds[d][0], nest.bounds[d][1] )
-    string += "\nDependency:\n" + "".join(self.dependencies) + "\n"
+    string += "\nDependency:\n" + str( self.dependencies ) + "\n"
     string += "\nTransformations:\n" + "\n".join(self.schedules)
+    string += "\nNew Order Dependencies:\n" + str(self.transformation_dependencies)
     return string
 
 
@@ -603,7 +605,7 @@ class ExecutableRegressionTest:
         it into codegen_template.cpp in place of GENERATED_GRAPH_CODE_LIST_STAMP
         and replaces GENERATED_MAIN_CODE_STAMP with the generateGraphCode() call
         that executes that code, and writes the resulting code to
-        self.path/graph_generator.cpp.
+        self.path/raw_order_graph_generator.cpp.
 
     chain_code_generator_generation( ):
       Purpose:
@@ -798,6 +800,7 @@ class ExecutableRegressionTest( RegressionTest ):
     self.directory = static_test.directory
     self.schedules = static_test.schedules
     self.dependencies = static_test.dependencies
+    self.transformation_dependencies = static_test.transformation_dependencies
 
     self.resources_path = resources_path
 
@@ -813,8 +816,9 @@ class ExecutableRegressionTest( RegressionTest ):
       string += "loop: {0}\n".format( loop )
       for d in xrange(nest.dimensions):
         string += "  {0}: {1} in {2}..{3}\n".format(d, nest.iterators[d], nest.bounds[d][0], nest.bounds[d][1] )
-    string += "\nDependency:\n" + "".join(self.dependencies) + "\n"
+    string += "\nDependency:\n" + str( self.dependencies ) + "\n"
     string += "\nTransformations:\n" + "\n".join(self.schedules)
+    string += "\nNew Order Dependencies:\n" + str(self.transformation_dependencies)
     return string
 
 
@@ -859,15 +863,42 @@ class ExecutableRegressionTest( RegressionTest ):
       full_text = file.read()
 
     # Inject the generated code in to codegen_template.cpp in place of
-    # GENERATED_GRAPH_CODE_LIST_STAMP and write the executor of the code
+    # GENERATED_GRAPH_CODE_LIST_STAMP, write raw_order_graph_output.cpp in place
+    # of GRAPH_CODEGEN_OUTPUT_NAME_STAMP, and write the executor of the code
     # ( generateGraphCode() ) into main() in place of GENERATED_MAIN_CODE_STAMP
     full_text = full_text.replace( "GENERATED_GRAPH_CODE_LIST_STAMP", "\n" + injection_text )
+    full_text = full_text.replace( "GRAPH_CODEGEN_OUTPUT_NAME_STAMP", "raw_order_graph_output.cpp" )
     full_text = full_text.replace( "GENERATED_MAIN_CODE_STAMP", "generateGraphCode();" )
 
     self.write_log( "Generated Code:\n{0}".format( full_text ) )
 
-    # Write code to self.path/graph_generator.cpp
-    with open( self.path + "/graph_generator.cpp", 'w' ) as file:
+    # Write code to self.path/raw_order_graph_generator.cpp
+    with open( self.path + "/raw_order_graph_generator.cpp", 'w' ) as file:
+      file.write( full_text )
+
+
+  def new_order_code_generator_generation( self ):
+    self.write_log( "[Generating New Order Dependencies Code Generator]")
+
+    # Generate the code for the dependnencies code generation.
+    injection_text = self.transformation_dependencies.generate_code()
+
+    # Read resouces file codegen_template.cpp
+    with open( self.resources_path + "/" + "codegen_template.cpp", 'r' ) as file:
+      full_text = file.read()
+
+    # Inject the generated code in to codegen_template.cpp in place of
+    # GENERATED_GRAPH_CODE_LIST_STAMP, write new_order_graph_output.cpp in place
+    # of GRAPH_CODEGEN_OUTPUT_NAME_STAMP, and write the executor of the code
+    # ( generateGraphCode() ) into main() in place of GENERATED_MAIN_CODE_STAMP
+    full_text = full_text.replace( "GENERATED_GRAPH_CODE_LIST_STAMP", "\n" + injection_text )
+    full_text = full_text.replace( "GRAPH_CODEGEN_OUTPUT_NAME_STAMP", "new_order_graph_output.cpp" )
+    full_text = full_text.replace( "GENERATED_MAIN_CODE_STAMP", "generateGraphCode();" )
+
+    self.write_log( "Generated Code:\n{0}".format( full_text ) )
+
+    # Write code to self.path/new_order_graph_generator.cpp
+    with open( self.path + "/new_order_graph_generator.cpp", 'w' ) as file:
       file.write( full_text )
 
 
@@ -916,7 +947,15 @@ class ExecutableRegressionTest( RegressionTest ):
 
     # Call 'make graph_generator' to build the executable graph_generator, which
     # is what generates the dependency testing code
-    exit_code = subprocess.call( ["make graph_generator"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
+    self.write_log( "[Calling make raw_order_graph_generator]")
+
+    process = subprocess.Popen( ["make", "raw_order_graph_generator"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    stdout, stderr = process.communicate()
+    exit_code = process.returncode
+
+    # Write output from call to the log.
+    self.write_log( stdout )
+    self.write_log( stderr )
 
     self.dirstack.popd()
 
@@ -925,7 +964,34 @@ class ExecutableRegressionTest( RegressionTest ):
     # Potentially a TestMalformedException, since it is a malformation of the
     # test but its source is unknown
     if exit_code != 0 :
-      raise TestFailureException( "Failed to build graph_generator!", self.log )
+      raise TestFailureException( "Failed to build raw_order_graph_generator!", self.log )
+
+
+  def new_order_code_generator_build( self ):
+    self.write_log( "[Building New Order Dependencies Code Generator]" )
+
+    self.dirstack.pushd( self.path )
+
+    # Call 'make graph_generator' to build the executable graph_generator, which
+    # is what generates the dependency testing code
+    self.write_log( "[Calling make new_order_graph_generator]")
+
+    process = subprocess.Popen( ["make", "new_order_graph_generator"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    stdout, stderr = process.communicate()
+    exit_code = process.returncode
+
+    # Write output from call to the log.
+    self.write_log( stdout )
+    self.write_log( stderr )
+
+    self.dirstack.popd()
+
+    # If make failed, error
+    # TODO this should be a different Exception.
+    # Potentially a TestMalformedException, since it is a malformation of the
+    # test but its source is unknown
+    if exit_code != 0 :
+      raise TestFailureException( "Failed to build new_order_graph_generator!", self.log )
 
 
   def chain_code_generator_build( self ):
@@ -935,7 +1001,15 @@ class ExecutableRegressionTest( RegressionTest ):
 
     # Call 'make code_generator' to build the executable code_generator, which
     # is what generates the loop chain code
-    exit_code = subprocess.call( ["make code_generator"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
+    self.write_log( "[Calling make code_generator]")
+
+    process = subprocess.Popen( ["make", "code_generator"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    stdout, stderr = process.communicate()
+    exit_code = process.returncode
+
+    # Write output from call to the log.
+    self.write_log( stdout )
+    self.write_log( stderr )
 
     self.dirstack.popd()
 
@@ -953,7 +1027,42 @@ class ExecutableRegressionTest( RegressionTest ):
 
     # Call './graph_generator', generating the dependency testing code, and
     # writing it to self.path/graph_output.cpp
-    exit_code = subprocess.call( ["./graph_generator"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
+    self.write_log( "[Calling ./raw_order_graph_generator]")
+
+    process = subprocess.Popen( ["./raw_order_graph_generator"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    stdout, stderr = process.communicate()
+    exit_code = process.returncode
+
+    # Write output from call to the log.
+    self.write_log( stdout )
+    self.write_log( stderr )
+
+    self.dirstack.popd()
+
+    # If make failed, error
+    # TODO this might need to be a different Exception.
+    # Potentially a TestMalformedException, since it is a malformation of the
+    # test but its source is unknown
+    if exit_code != 0 :
+      raise TestFailureException( "Failed to run graph_generator!", self.log )
+
+
+  def new_order_code_generator_run( self ):
+    self.write_log( "[Running New Order Dependencies Code Generator]" )
+
+    self.dirstack.pushd( self.path )
+
+    # Call './graph_generator', generating the dependency testing code, and
+    # writing it to self.path/graph_output.cpp
+    self.write_log( "[Calling ./new_order_graph_generator]" )
+
+    process = subprocess.Popen( ["./new_order_graph_generator"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    stdout, stderr = process.communicate()
+    exit_code = process.returncode
+
+    # Write output from call to the log.
+    self.write_log( stdout )
+    self.write_log( stderr )
 
     self.dirstack.popd()
 
@@ -972,7 +1081,15 @@ class ExecutableRegressionTest( RegressionTest ):
 
     # Call './code_generator', generating the loop chain code, and
     # writing it to self.path/generated_chain_output.cpp
-    exit_code = subprocess.call( ["./code_generator"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
+    self.write_log( "[Calling ./code_generator]" )
+
+    process = subprocess.Popen( ["./code_generator"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    stdout, stderr = process.communicate()
+    exit_code = process.returncode
+
+    # Write output from call to the log.
+    self.write_log( stdout )
+    self.write_log( stderr )
 
     self.dirstack.popd()
 
@@ -999,9 +1116,11 @@ class ExecutableRegressionTest( RegressionTest ):
     # BOUNDS_CODE_STAMP
     transformed_text = transformed_text.replace( "BOUNDS_CODE_STAMP", self.bounds_generation() )
 
-    # Generate, transform, and write the dependency tester graph code in place
-    # of COMPARISON_CODE_STAMP
-    transformed_text = transformed_text.replace( "COMPARISON_CODE_STAMP", self.dependency_code_transform( ) )
+    # Generate, transform, and write the dependency tester graph code, both the
+    # validation dependencies and the new order depencencies in place of
+    # COMPARISON_CODE_STAMP
+
+    transformed_text = transformed_text.replace( "COMPARISON_CODE_STAMP", self.dependency_code_transform( ) + "\n" + self.new_order_code_transform() )
 
     # Generate, transform, and write the test loop chain code in place of
     # GENERATED_CODE_STAMP
@@ -1058,7 +1177,7 @@ class ExecutableRegressionTest( RegressionTest ):
     self.write_log( "[Transforming Dependency Code]" )
 
     # Read the generated dependency testing code from self.path/graph_output.cpp
-    with open( self.path + "/graph_output.cpp", 'r' ) as file:
+    with open( self.path + "/raw_order_graph_output.cpp", 'r' ) as file:
       generated_text = file.read()
 
     transformed_text = generated_text
@@ -1098,7 +1217,56 @@ class ExecutableRegressionTest( RegressionTest ):
 
       # Replace the found macro with graph.connect(...) code.
       # Inserts graph.connect( make_tuple( first_half_tuple ), make_tuple( second_half_tuple ) )
-      transformed_text = transformed_text.replace( match.group(0), "graph.connect( make_tuple({0}), make_tuple({1}) );".format( ",".join(iterators[:length]), ",".join(iterators[length:]) ) )
+      transformed_text = transformed_text.replace( match.group(0), "dependency_graph.connect( make_tuple({0}), make_tuple({1}) );".format( ",".join(iterators[:length]), ",".join(iterators[length:]) ) )
+
+    return transformed_text
+
+
+  def new_order_code_transform( self ):
+    self.write_log( "[Transforming New Order Dependencies Code]" )
+
+    # Read the generated dependency testing code from self.path/graph_output.cpp
+    with open( self.path + "/new_order_graph_output.cpp", 'r' ) as file:
+      generated_text = file.read()
+
+    transformed_text = generated_text
+
+    # We are going to ensure that the user provided the correct lenght of full
+    # form iterators in their test specification. The lenght of all iterators
+    # should 1) all be equal to each other, 2) be equal to
+    # self.test_iterators_length, and 3) be even in parity when joined
+    length_check = -1;
+
+    # GRAPH_MACRO regex to find the statements being transformed.
+    graph_rx = re.compile( "GRAPH_MACRO\((?P<iterators>.*?)\);");
+
+    # Find each GRAPH_MACRO(...) statement
+    for match in graph_rx.finditer( generated_text ):
+      # Split iterators by ",", including the surrounding white-space, so that
+      # it does not end up in the elements of the list
+      iterators = re.split( "\s*,\s*", match.group("iterators") );
+
+      # Check parity (point 3 of the length check)
+      if len(iterators) % 2 != 0 :
+        raise TestUserMalformedException( "Odd iterators in graph macro: {0}".format(match.group(0) ), self.log )
+
+      length = len(iterators)/2
+
+      # First iterator checked
+      if length_check == -1:
+        length_check = length
+
+      # Failed point 2
+      elif length != self.test_iterators_length:
+        raise TestUserMalformedException( "Provided iterator tuples must conform to the length of the longest iterator tuple! is {0} but should be {1}".format(length, self.test_iterators_length), self.log )
+
+      # Failed point 1
+      elif length_check != length:
+        raise TestUserMalformedException( "Unequal lengths in previous graph tuple: is {0} but was {1}".format( length, length_check), self.log )
+
+      # Replace the found macro with graph.connect(...) code.
+      # Inserts graph.connect( make_tuple( first_half_tuple ), make_tuple( second_half_tuple ) )
+      transformed_text = transformed_text.replace( match.group(0), "new_order_graph.connect( make_tuple({0}), make_tuple({1}) );".format( ",".join(iterators[:length]), ",".join(iterators[length:]) ) )
 
     return transformed_text
 
@@ -1152,37 +1320,70 @@ class ExecutableRegressionTest( RegressionTest ):
           A string for producing ostream ouput of a tuple
 
         Parameters:
-          tuple: the C++ symbol of the tuple object
+          tuple:
+            the C++ symbol of the tuple object
       '''
       def get_string( tuple ):
         return " << \", \" << ".join( map( lambda i: "get<{0}>({1})".format(i, tuple), xrange(self.test_iterators_length) ) )
 
       iteration_text = ("\n" + ("  "*(depth+1))).join(
       [
-         # Create the loop's scope
+        # Create the loop's scope
         "{",
         # Create a tuple object from the iteration expression
         "auto iter = make_tuple({0});".format( full_iterators ),
+        "// Checking raw order dependencies",
+        # Create Dependencies check scope
+        "{",
         # Determine if the iterations dependendcies are satisfied.
-        "if( graph.isSatisfied( iter ) ){",
+        "  if( dependency_graph.isSatisfied( iter ) ){",
         # Mark iteration as satisfied.
-        "  graph.mark( iter );",
-        "}",
-        # Iteration's dependencies are NOT satisfied.
-        "else {",
-        # Set exit code to failure
-        "  code = -1;",
-        # Print offending iteration
-        "  cout << \"FAILED: (\" << {0} << \")\" << endl;".format( get_string("iter") ),
-        # Print the iterations that it is dependent on, and their state.
-        "  cout << \"Dependencies:\" << endl;",
-        "  for( auto dep : graph.getDependencies( iter ) ){",
-        # Print the dependency iteration and if it is satisfied.
-        "    cout << (graph.isSatisfied(dep)? \"Satisfied\" : \"UNSATISFIED\" ) << \" (\" << {0} << \")\" << endl;".format( get_string("dep") ),
+        "    dependency_graph.mark( iter );",
         "  }",
+        # Iteration's dependencies are NOT satisfied.
+        "  else {",
+        # Set exit code to failure
+        "    code = -1;",
+        # Print offending iteration
+        "    cout << \"RAW ORDER FAILURE: (\" << {0} << \")\" << endl;".format( get_string("iter") ),
+        # Print the iterations that it is dependent on, and their state.
+        "    cout << \"Dependencies:\" << endl;",
+        "    for( auto dep : dependency_graph.getDependencies( iter ) ){",
+        # Print the dependency iteration and if it is satisfied.
+        "      cout << \"(\" << {0} << \") \" << (dependency_graph.isMarked(dep)? \"Marked\" : \"UNMARKED\" ) << \" \" << (dependency_graph.isSatisfied(dep)? \"Satisfied\" : \"UNSATISFIED\" ) << endl;".format( get_string("dep") ),
+        "    }",
         # Exit program, returning the exit code.
-        "  return code;",
+        "    return code;",
+        "  }",
+        # End raw order dependencies scope.
         "}",
+
+        "// Checking new order dependencies",
+        # Create new order dependencies scope.
+        "{",
+        # Determine if the iterations dependendcies are satisfied.
+        "  if( new_order_graph.isSatisfied( iter ) ){",
+        # Mark iteration as satisfied.
+        "    new_order_graph.mark( iter );",
+        "  }",
+        # Iteration's dependencies are NOT satisfied.
+        "  else {",
+        # Set exit code to failure
+        "    code = -1;",
+        # Print offending iteration
+        "    cout << \"NEW ORDER FAILURE: (\" << {0} << \")\" << endl;".format( get_string("iter") ),
+        # Print the iterations that it is dependent on, and their state.
+        "    cout << \"Dependencies:\" << endl;",
+        "    for( auto dep : new_order_graph.getDependencies( iter ) ){",
+        # Print the dependency iteration and if it is marked.
+        "      cout << \"(\" << {0} << \") \" << (dependency_graph.isMarked(dep)? \"Marked\" : \"UNMARKED\" ) << \" \" << (dependency_graph.isSatisfied(dep)? \"Satisfied\" : \"UNSATISFIED\" ) << endl;".format( get_string("dep") ),
+        "    }",
+        # Exit program, returning the exit code.
+        "    return code;",
+        "  }",
+        # End new order dependencies scope.
+        "}",
+        # End loop scope
         "}"
       ]
       )
@@ -1209,7 +1410,15 @@ class ExecutableRegressionTest( RegressionTest ):
 
     # Call 'make test' to build the executable test, which
     # is the final test of the whole regression test process
-    exit_code = subprocess.call( ["make test"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
+    self.write_log( "[Calling make test]" )
+
+    process = subprocess.Popen( ["make", "test"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    stdout, stderr = process.communicate()
+    exit_code = process.returncode
+
+    # Write output from call to the log.
+    self.write_log( stdout )
+    self.write_log( stderr )
 
     self.dirstack.popd()
 
@@ -1230,7 +1439,15 @@ class ExecutableRegressionTest( RegressionTest ):
     # Call './test', running the test of the generated loop chain and its
     # transformations. Will print error information if an error occurs, which
     # is captured in the log file self.log
-    exit_code = subprocess.call( ["./test"], shell=True, stdout=self.log, stderr=subprocess.STDOUT )
+    self.write_log( "[Calling ./test]")
+
+    process = subprocess.Popen( ["./test"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    stdout, stderr = process.communicate()
+    exit_code = process.returncode
+
+    # Write output from call to the log.
+    self.write_log( stdout )
+    self.write_log( stderr )
 
     self.dirstack.popd()
 
@@ -1238,7 +1455,7 @@ class ExecutableRegressionTest( RegressionTest ):
     # Note: this is, infact, a TestFailureException because the API has failed.
     # Though it may be possible that there is a test malformation/software error
     if exit_code != 0 :
-      raise TestFailureException( "Test exited with non-zero exit code! {0}".format( exit_code), self.log )
+      raise TestFailureException( "Test exited with non-zero exit code! {0}\nOutput:\n{1}".format( exit_code, stdout), self.log )
 
 
   def setup( self ):
@@ -1266,15 +1483,21 @@ class ExecutableRegressionTest( RegressionTest ):
       # Create test makefile
       self.makefile_path_transformation()
 
-      # Create graph_generator.cpp
+      # Create raw_order_graph_generator.cpp
       self.dependency_code_generator_generation()
+      # Create new_order_graph_generator.cpp
+      self.new_order_code_generator_generation()
       # Create code_generator.cpp
       self.chain_code_generator_generation()
 
-      # Build graph_generator
+      # Build raw_order_graph_generator
       self.dependency_code_generator_build()
-      # Run graph_generator, producing graph_output.cpp
+      # Build new_order_graph_generator
+      self.new_order_code_generator_build()
+      # Run raw_order_graph_generator, producing raw_order_graph_output.cpp
       self.dependency_code_generator_run()
+      # Run new_order_graph_generator, producing new_order_graph_output.cpp
+      self.new_order_code_generator_run()
 
       # Build code_generator
       self.chain_code_generator_build()
@@ -1521,7 +1744,7 @@ class TestSuit:
       # Attempt to parse and construct test
       executable_test = ExecutableRegressionTest( static_test = self.parse_test_file(self.file_path ), resources_path = self.resources_path, log_file = self.log )
       print( "DONE" )
-
+      #print( executable_test )
     # Could not parse: User malfomred test
     except TestUserMalformedException as excpt:
       print( "FAILED!\nTest is malformed. This is a user error:\n{0}\nSee log file {1}".format( excpt, self.log_file_path ) )
@@ -1542,7 +1765,8 @@ class TestSuit:
 
     # Test Failed: Failed regression test
     except TestFailureException as excpt:
-      print( "FAILED!\n{0}\nSee log file {1}".format( excpt, self.log_file_path ) )
+      print( "FAILED!\n{0}\nSee log file {1}".format( str(excpt), self.log_file_path ) )
+      self.dump_log()
       return
 
     # Test Failed: User malformed test
