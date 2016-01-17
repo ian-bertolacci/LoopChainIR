@@ -36,7 +36,7 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 UNIT_TESTS = RectangularDomain_test LoopNest_test LoopChain_test DefaultSequentialSchedule_test
-REG_TESTS = $(shell ls $(REG_TEST_DIR)/*.test )
+REG_TESTS = one_loop.test two_loop.test two_loop_fuse.test
 
 # Project object files and executable
 OBJS = $(BIN)/RectangularDomain.o \
@@ -74,13 +74,15 @@ all-tests: unit-tests regression-tests
 
 unit-tests: $(UNIT_TESTS)
 
-regression-tests:
-	python $(UTIL)/regression-util.py $(REG_TESTS)
+regression-tests: $(REG_TESTS)
 
 $(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(EXE)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(LIB) -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
+
+$(REG_TESTS):
+	python $(UTIL)/regression-util.py $(REG_TEST_DIR)/$@
 
 #Building the Google Test framework
 $(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
@@ -139,4 +141,4 @@ clean-test:
 clean: clean-test
 	- rm $(BIN)/*
 
-clean-all: clean-third-party clean
+clean-all: clean-third-party clean clean-doc
