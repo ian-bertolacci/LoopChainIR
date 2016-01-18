@@ -50,10 +50,11 @@ public:
 
     for( auto it = deps.begin(); it != deps.end(); ++it ){
       Tuple_Type iteration = *it;
-      // Need to check marking and satisfaction.
+      // Need to check marking.
       // A dependant iteration may be satisfied on it's end, but is MUST be
       // marked for the dependency to be satisfied.
-      satisfied &= isMarked( iteration )  && isSatisfied( iteration );
+      // Satisfaction is not tested because it would be recursive.
+      satisfied &= isMarked( iteration );
 
       if( !satisfied ) break;
     }
