@@ -74,7 +74,7 @@ all-tests: unit-tests regression-tests
 
 unit-tests: $(UNIT_TESTS)
 
-regression-tests:
+regression-tests: $(EXE)
 	python $(UTIL)/regression-util.py $(addprefix $(REG_TEST_DIR)/,$(REG_TESTS))
 
 $(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(EXE)
@@ -82,7 +82,7 @@ $(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(EXE)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(LIB) -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
 
-$(REG_TESTS):
+$(REG_TESTS): $(EXE)
 	python $(UTIL)/regression-util.py $(REG_TEST_DIR)/$@
 
 #Building the Google Test framework
@@ -137,7 +137,7 @@ clean-third-party:
 	- rm -rf $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 
 clean-test:
-	- rm $(UNIT_TEST_BIN)/*
+	- rm $(UNIT_TEST_BIN)/* $(REG_TEST_DIR)/*.log $(REG_TEST_DIR)/*.dir
 
 clean: clean-test
 	- rm $(BIN)/*

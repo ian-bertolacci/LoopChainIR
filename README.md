@@ -19,47 +19,69 @@ To ensure that everything is in working order, run:
 ## Project Directory Structure
 * bin/ : Where all executables (including intermidiate \*.o and \*.a files)
 are compiled to. Known as $(BIN).
+
 * src/ : Where all the soures for the binary files live. Known as $(SRC).
+
 * test/ : Subdirectory for testing. Known as $(TEST)
+
   + regression-tests : Subdirectory for regression-test files. Known as $(REG_TEST_DIR)
+
   + unit-tests : Subdirectory for unit-test files. Known as $(UNIT_TEST_DIR)
+
     - bin/ : Where all executalbes (including intermidiate \*.o and \*.a files)
     _only_ realating to the unit tests are compiled to. Known as $(UNIT_TEST_BIN)
+
     - src/ : Where all the source for the unit tests live. Known as $(UNIT_TEST_SRC)
+
 * util/ : Where utility resources (such as scripts) live. Known as $(UTIL)
+
 * documentation/: Where doxygen outputs its files. Known as $(DOC_PATH)
+
 * third-party/ : Subdirectory for third-party materials, their source,
 their build directories, and their install directories. Known as $(THIRD_PARTY)
+
   + source/ : The original source distributions of third-party materials. Known
     as $(THIRD_PARTY_SRC)
+
   + build/: Where third-party materials are extracted to and built. Created
     after `make genesis`. Known as $(THIRD_PARTY_BUILD)
+
   + install/ : Where third-party materials are installed to. Created after
     `make genesis`. Known as $(THIRD_PARTY_INSTALL)
+
     - lib/ : Third-party libraries. Known as $(LIB)
+
     - include/ : Third-party headers. Known as $(INC)
 
 ## Make commands
 * `initialize` (or `init`): This is the first command that should be run when getting started
-  with the project. It builds and places all the third-party tools into good
-  organized places.
-* `all`: builds the LoopChainIR.a library
-* `all-tests`: performs `unit-tests` and `regression-tests`
+  with the project. It builds and places all the third-party tools into good organized places.
+
+* `all`: Builds the LoopChainIR.a library
+
+* `all-tests`: Performs `unit-tests` and `regression-tests`
+
 * `unit-tests`: Runs all unit tests specified by $(UNIT-TESTS)
+
 * `regression-tests`: Runs all regression tests specifed by $(REG_TESTS)
+
 * `documentation` (or `doc`): Runs doxygen, uses the local Doxyfile
-* `neat`: removes all \*.o files from $(BIN).
-* `clean-third-party`: removes (recursively, **forced**) $(THIRD_PARTY_INSTALL)
-  and $(THIRD_PARTY_BUILD).
-* `clean-test`: removes all files from $(TESTBIN)
+
+* `neat`: Removes all \*.o files from $(BIN).
+
+* `clean-third-party`: Removes (recursively, **forced**) $(THIRD_PARTY_INSTALL) and $(THIRD_PARTY_BUILD).
+
+* `clean-test`: Removes all files from $(UNIT_TEST_BIN), and \*.dir and \*.log files from $(REG_TEST_DIR)
+
 * `clean-doc`: Removes the $(DOC_PATH) directory
-* `clean`: performs `clean-test` and removes (recursively) all files under
+
+* `clean`: Performs `clean-test` and removes (recursively) all files under
   $(BIN).
-* `clean-all`: performs `clean`, `clean-third-party`, and clean-doc. Mimics a restored project
-  state.
+
+* `clean-all`: Performs `clean`, `clean-third-party`, and `clean-doc`. Mimics a restored project state.
 
 ## Testing
-Tests are run with
+A complete run of all tests (both regression and unit) is run with
 
 `make all-tests`
 
@@ -89,6 +111,10 @@ Tests are run with
 
 Or individually using the name of the test.
 
+If a test fails, it's log file is dropped next to the test file suffixed with '.log'.
+This can be useful to determine what failed, how to fix it, and in the case of a software error is useful to us.
+
+#### Regression Test Files
 A regression test has several sections:
 * `test name` : Name of the test. Perfers no white-space.
 
@@ -214,6 +240,29 @@ for( int i = 0; i < M; ++i ){
 }
 :end
 ```
+
+#### regression-util.py
+The regression-util.py script lives in $(UTIL) and is the driver behind the regression testing framework.
+
+To run a test (or list of tests) by hand, simply calls
+
+```
+python $(UTIL)/regression-util.py path/to/file.test path/to/file2.test
+```
+
+There are options for the script:
+* --save_env (or -se): Save the testing evironment after a test completes.
+  By default, test enviroments are erased when test completes, regardless of failure state.
+
+* --save_env_on_fail (or -sf): Save the testing environment after a test fails.
+  By default, test enviroments are erased when test completes, regardless of failure state.
+
+* --save_log (or -sl): Save the log file, even if test is successful.
+  By default, logs are only saved to file if a test fails.
+
+* --resources_path PATH (or -r): Give the script a path to $(UTIL)/resources.
+  By defalt, the script assumes that it lives in the same directory as the resources folder and will construct the path from its call.
+
 
 ## Third-Party materials
 Included with this project are several third-party materials under the

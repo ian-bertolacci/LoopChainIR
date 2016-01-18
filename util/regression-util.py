@@ -1525,13 +1525,13 @@ class ExecutableRegressionTest( RegressionTest ):
     # In case of exception, we still need to clean ourselves
     except Exception as expt:
       # Check the option
-      if self.test_options['delete_files_on_fail']:
+      if not( self.test_options['save_env_on_fail'] or self.test_options['save_env'] ):
         self.teardown()
 
       # Re-raise the exception
       raise expt
 
-    if self.test_options['delete_files_on_success']:
+    if not self.test_options['save_env']:
       self.teardown()
 
 
@@ -1781,7 +1781,7 @@ class TestSuit:
       executable_test.run()
       print( "SUCCESS" )
 
-      if self.test_options["save_log_on_success"]:
+      if self.test_options["save_log"]:
         self.dump_log()
 
     # Test Failed: Failed regression test
@@ -2261,21 +2261,21 @@ def main():
   parser = argparse.ArgumentParser( description="Regression testing utility for LoopChainIR" )
   # List of files
   parser.add_argument( "files", metavar="file", type=str, nargs="+", help="List of test files." )
-  # flag to save files if the test(s) succeed
-  parser.add_argument( "-ss", "--save_files_on_success", dest="delete_files_on_success", action='store_const', const=False, default=True )
-  # flag to save files if the test(s) fail
-  parser.add_argument( "-sf", "--save_files_on_fail", dest="delete_files_on_fail", action='store_const', const=False, default=True )
-  # flag to save log file even if test(s) pass
-  parser.add_argument( "-l", "--save_log_on_success", dest="save_log_on_success", action="store_const", const=True, default=False )
+  # Flag to save files if the test(s) succeed
+  parser.add_argument( "-se", "--save_env", dest="save_env", action='store_const', const=True, default=False )
+  # Flag to save files if the test(s) fail
+  parser.add_argument( "-sf", "--save_env_on_fail", dest="save_env_on_fail", action='store_const', const=True, default=False )
+  # Flag to save log file even if test(s) pass
+  parser.add_argument( "-sl", "--save_log", dest="save_log", action="store_const", const=True, default=False )
   # Sets path to $(UTIL)/resources
   parser.add_argument( "-r", "--resources_path", dest="resources_path", action="store", default= os.path.dirname( sys.argv[0] ) + "/resources" )
 
   args = parser.parse_args()
 
   options = TestOptions(
-    options = { "delete_files_on_success" : args.delete_files_on_success,
-                "delete_files_on_fail" : args.delete_files_on_fail,
-                "save_log_on_success" : args.save_log_on_success,
+    options = { "save_env" : args.save_env,
+                "save_env_on_fail" : args.save_env_on_fail,
+                "save_log" : args.save_log,
                 "resources_path" : args.resources_path,
                 "test_files" : args.files
               },
