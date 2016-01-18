@@ -6,7 +6,7 @@ loop chain execution schedule.
 The entire build process is controlled through the Makefile at the root of this
 project.
 
-After getting this repository (via git clone, zip download, carrier pidgeon,
+After getting this repository (via git clone, zip download, carrier pigeon,
 what have you ), run:
 
 `make initialize`
@@ -17,10 +17,10 @@ To ensure that everything is in working order, run:
 `make all-tests`
 
 ## Project Directory Structure
-* bin/ : Where all executables (including intermidiate \*.o and \*.a files)
+* bin/ : Where all executables (including intermediate \*.o and \*.a files)
 are compiled to. Known as $(BIN).
 
-* src/ : Where all the soures for the binary files live. Known as $(SRC).
+* src/ : Where all the sources for the binary files live. Known as $(SRC).
 
 * test/ : Subdirectory for testing. Known as $(TEST)
 
@@ -28,8 +28,8 @@ are compiled to. Known as $(BIN).
 
   + unit-tests : Subdirectory for unit-test files. Known as $(UNIT_TEST_DIR)
 
-    - bin/ : Where all executalbes (including intermidiate \*.o and \*.a files)
-    _only_ realating to the unit tests are compiled to. Known as $(UNIT_TEST_BIN)
+    - bin/ : Where all executables (including intermediate \*.o and \*.a files)
+    _only_ relating to the unit tests are compiled to. Known as $(UNIT_TEST_BIN)
 
     - src/ : Where all the source for the unit tests live. Known as $(UNIT_TEST_SRC)
 
@@ -63,7 +63,7 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
 
 * `unit-tests`: Runs all unit tests specified by $(UNIT-TESTS)
 
-* `regression-tests`: Runs all regression tests specifed by $(REG_TESTS)
+* `regression-tests`: Runs all regression tests specified by $(REG_TESTS)
 
 * `documentation` (or `doc`): Runs doxygen, uses the local Doxyfile
 
@@ -131,7 +131,7 @@ This can be useful to determine what failed, how to fix it, and in the case of a
 
 #### Regression Test Files
 A regression test has several sections:
-* `test name` : Name of the test. Perfers no white-space.
+* `test name` : Name of the test. Prefers no white-space.
 
 * `loop chain` : An ordered list of each loop nest, where each loop nest is expressed as a terse domain.
 
@@ -143,10 +143,10 @@ A regression test has several sections:
   (i,j){0..M-1,0..N-1}
   :end
   ```
-  The iterators (symbols in the parentheses) are comma seperated and can be any valid C variable symbol.
-  The bounds (expressions in the brackets) as comma seperated list of ranges.
+  The iterators (symbols in the parentheses) are comma separated and can be any valid C variable symbol.
+  The bounds (expressions in the brackets) as comma separated list of ranges.
   Each range is expressed `lower_bound .. upper_bound`, and bounds can contain simple expressions (using + - * / % operators and parentheses, no function calls)
-  The iterators and bounds are mached up by their index (i.e. the first iterator is bounded by the first range, and the second iterator by the second, and so on.)
+  The iterators and bounds are matched up by their index (i.e. the first iterator is bounded by the first range, and the second iterator by the second, and so on.)
 
 * `schedule` : (Currently InOp, since we only have the default schedule) An ordered list of transformations to be applied to the loop chain.
   Transformations occur in the order listed.
@@ -175,7 +175,7 @@ A regression test has several sections:
   The fourth line indicates that iteration i comes before iteration i+1 in the second loop.  
   The fifth line indicates that all iterations in the first loop come before any iterations in the second loop.
 
-  Please note that each dependency is treated by the framework as a seperate entity, and is split by newlines.
+  Please note that each dependency is treated by the framework as a separate entity, and is split by newlines.
   This means that a dependency expression currently cannot span multiple lines.
 
 * `new ordering` : The dependencies that _must_ be satisfied for the _particular_ transformation.
@@ -195,7 +195,7 @@ A regression test has several sections:
   ```
   The only change from the dependency code is the first line, which indicates that iteration i in the second loop comes before iteration i+1 in the first loop.
 
-* `exemplar` : (Optional) (Currently InOp) Actual original C/C++ code that should be tested by the source-to-source transformation tool (which doesnt exist yet).
+* `exemplar` : (Optional) (Currently InOp) Actual original C/C++ code that should be tested by the source-to-source transformation tool (which doesn't exist yet).
   Code Example:
   ```
   exemplar:
@@ -270,17 +270,17 @@ python $(UTIL)/regression-util.py path/to/file.test path/to/file2.test
 ```
 
 There are options for the script:
-* --save_env (or -se): Save the testing evironment after a test completes.
-  By default, test enviroments are erased when test completes, regardless of failure state.
+* --save_env (or -se): Save the testing environment after a test completes.
+  By default, test environments are erased when test completes, regardless of failure state.
 
 * --save_env_on_fail (or -sf): Save the testing environment after a test fails.
-  By default, test enviroments are erased when test completes, regardless of failure state.
+  By default, test environments are erased when test completes, regardless of failure state.
 
 * --save_log (or -sl): Save the log file, even if test is successful.
   By default, logs are only saved to file if a test fails.
 
 * --resources_path PATH (or -r): Give the script a path to $(UTIL)/resources.
-  By defalt, the script assumes that it lives in the same directory as the resources folder and will construct the path from its call.
+  By default, the script assumes that it lives in the same directory as the resources folder and will construct the path from its call.
 
 
 ## Third-Party materials
