@@ -74,7 +74,8 @@ all-tests: unit-tests regression-tests
 
 unit-tests: $(UNIT_TESTS)
 
-regression-tests: $(REG_TESTS)
+regression-tests:
+	python $(UTIL)/regression-util.py $(addprefix $(REG_TEST_DIR)/,$(REG_TESTS))
 
 $(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(EXE)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o

@@ -1,5 +1,5 @@
 from __future__ import print_function
-import sys, re, random, string, subprocess, os, shutil, tempfile
+import sys, re, random, string, subprocess, os, shutil, tempfile, argparse
 from datetime import date, datetime
 
 '''
@@ -552,7 +552,7 @@ class ExecutableRegressionTest:
     of the test itself.
 
   Member Functions:
-    __init__( static_test, resources_path):
+    __init__( static_test, test_options, log_file ):
       Purpose:
         Constructor.
 
@@ -560,10 +560,12 @@ class ExecutableRegressionTest:
         static_test:
           A RegressionTest object.
 
-        resources_path:
-          The absolute or relative path (relative to the script execution
-          directory), to the resources directory containing the test template
-          files Makefile, codegen_template.cpp, and test_template.cpp
+        test_options:
+          TestOptions object encapsulating all test options.
+
+        log_file:
+          (Optional, defaults to None)
+          The log file to write to. If None is provided, one is created.
 
     __str__( ):
       Purpose:
@@ -791,9 +793,12 @@ class ExecutableRegressionTest:
     test_iterators_length:
       The maximum length of the full form iterations.
       Set in generate_test_code()
+
+    test_options:
+      TestOptions object encapsulating all test options.
 '''
 class ExecutableRegressionTest( RegressionTest ):
-  def __init__( self, static_test, resources_path, log_file = None ):
+  def __init__( self, static_test, test_options, log_file = None ):
     # Copy members from the static test
     self.name = static_test.name
     self.chain = static_test.chain
@@ -802,7 +807,8 @@ class ExecutableRegressionTest( RegressionTest ):
     self.dependencies = static_test.dependencies
     self.transformation_dependencies = static_test.transformation_dependencies
 
-    self.resources_path = resources_path
+    self.resources_path = test_options["resources_path"]
+    self.test_options = test_options
 
     # Creat runtime/dynamic members
     self.log = tempfile.SpooledTemporaryFile() if log_file == None else log_file
@@ -816,6 +822,8 @@ class ExecutableRegressionTest( RegressionTest ):
       string += "loop: {0}\n".format( loop )
       for d in xrange(nest.dimensions):
         string += "  {0}: {1} in {2}..{3}\n".format(d, nest.iterators[d], nest.bounds[d][0], nest.bounds[d][1] )
+        string += "\nIterators: " + " ".join( nest.iterators[d] )
+    string += "\nSymbols: " + " ".join( nest.symbols )
     string += "\nDependency:\n" + str( self.dependencies ) + "\n"
     string += "\nTransformations:\n" + "\n".join(self.schedules)
     string += "\nNew Order Dependencies:\n" + str(self.transformation_dependencies)
@@ -1478,6 +1486,7 @@ class ExecutableRegressionTest( RegressionTest ):
   def run( self ):
     # Construct test environment
     self.setup()
+    failed = False;
 
     try:
       # Create test makefile
@@ -1513,27 +1522,37 @@ class ExecutableRegressionTest( RegressionTest ):
       # Run test
       self.run_test()
 
-    finally:
-      # Deconstruct test environemtn
-      #self.teardown()
-      pass
+    # In case of exception, we still need to clean ourselves
+    except Exception as expt:
+      # Check the option
+      if self.test_options['delete_files_on_fail']:
+        self.teardown()
+
+      # Re-raise the exception
+      raise expt
+
+    if self.test_options['delete_files_on_success']:
+      self.teardown()
 
 
 
 '''
-class TestRunner:
+class TestSuit:
   Purpose:
     Takes a list of test file names, parses them, tests them. Does not halt on
     the failure of one test (or its parsing).
 
   Member Functions:
-    __init__( list_of_test_file_names ):
+    __init__( file_path, test_options ):
       Purpose:
         Constructor
 
       Parameters:
-        list_of_test_file_names:
-          list of paths that point to test files.
+        file_path:
+          Path to the test file.
+
+        test_options:
+          TestOptions object encapsulating all test options.
 
     run( ):
       Purpose:
@@ -1698,19 +1717,18 @@ class TestRunner:
     log_file_path:
       Path that dump_log will write write_log_to_file( ) on if it is called.
 
-    resources_path:
-      The absolute or relative path (relative to the script execution
-      directory), to the resources directory containing the test template files
-      Makefile, codegen_template.cpp, and test_template.cpp
+    test_options:
+      TestOptions object encapsulating all test options.
 '''
 class TestSuit:
-  def __init__( self, file_path, resources_path ):
-    self.resources_path = resources_path
+  def __init__( self, file_path, test_options ):
     self.file_path = file_path
     self.basename = os.path.basename( self.file_path )
     self.parent_dir = os.path.dirname( self.file_path )
     self.log = tempfile.SpooledTemporaryFile()
     self.log_file_path = "{0}/{1}.log".format( self.parent_dir, self.basename )
+
+    self.test_options = test_options
 
 
   def write_log( self, message, end = "\n" ):
@@ -1742,9 +1760,9 @@ class TestSuit:
     # parse the test
     try:
       # Attempt to parse and construct test
-      executable_test = ExecutableRegressionTest( static_test = self.parse_test_file(self.file_path ), resources_path = self.resources_path, log_file = self.log )
+      executable_test = ExecutableRegressionTest( static_test = self.parse_test_file(self.file_path ), log_file = self.log, test_options = self.test_options )
       print( "DONE" )
-      #print( executable_test )
+
     # Could not parse: User malfomred test
     except TestUserMalformedException as excpt:
       print( "FAILED!\nTest is malformed. This is a user error:\n{0}\nSee log file {1}".format( excpt, self.log_file_path ) )
@@ -1762,6 +1780,9 @@ class TestSuit:
       print( "Running {0}{1}".format( executable_test.name, "."*10 ), end = "" )
       executable_test.run()
       print( "SUCCESS" )
+
+      if self.test_options["save_log_on_success"]:
+        self.dump_log()
 
     # Test Failed: Failed regression test
     except TestFailureException as excpt:
@@ -1822,49 +1843,14 @@ class TestSuit:
     self.write_log("[Parsing chain specification]")
 
     '''
-    tool_generate_rx:
+    symbol_rx:
       Expression:
-        loop chain\s*:\s*(?P<code>(?:.|\s)+?)\s*:end
+        [a-zA-Z][a-zA-Z0-9]*
 
       Purpose:
-        Find and capture the terse loop chain of domains expression
-
-      Captures:
-        code:
-          All the loop chain of domains expression code
+        General regex for identifiers
     '''
-    tool_generate_rx = re.compile( r"loop chain\s*:\s*(?P<code>(?:.|\s)+?)\s*:end" )
-
-    '''
-    tool_loop_nest_rx:
-      Expression:
-        \(\s*(?P<iterators>([a-zA-Z][a-zA-Z0-9]*)((\s*,\s*)([a-zA-Z][a-zA-Z0-9]*))*)\s*\)\s*\{\s*(?P<bounds>(\-?[a-zA-Z0-9]+\s*\.\.\s*\-?[a-zA-Z0-9]+)(\s*,\s*\-?[a-zA-Z0-9]+\s*\.\.\s*\-?[a-zA-Z0-9]+)*)\s*\}
-
-      Purpose:
-        Parse apart each component of the domain expression in the loop chain
-
-      Captures:
-        iterators:
-          The tuple of iterators
-
-        bounds:
-          The lis of bounds expressions
-    '''
-    tool_loop_nest_rx = re.compile( r"\(\s*(?P<iterators>([a-zA-Z][a-zA-Z0-9]*)((\s*,\s*)([a-zA-Z][a-zA-Z0-9]*))*)\s*\)\s*\{\s*(?P<bounds>(\-?[a-zA-Z0-9]+\s*\.\.\s*\-?[a-zA-Z0-9]+)(\s*,\s*\-?[a-zA-Z0-9]+\s*\.\.\s*\-?[a-zA-Z0-9]+)*)\s*\}")
-
-    '''
-    tool_iterators_rx:
-      Expression:
-        (?P<iterator>[a-zA-Z][a-zA-Z0-9]*)
-
-      Purpose:
-        Parse apart the iterator tuples
-
-      Captures:
-        iterator:
-          An individual iterator.
-    '''
-    tool_iterators_rx = re.compile( r"(?P<iterator>[a-zA-Z][a-zA-Z0-9]*)" )
+    symbol_rx = re.compile( r"(?P<symbol>[a-zA-Z_][a-zA-Z0-9_]*)" )
 
     '''
     tool_bounds_rx:
@@ -1881,19 +1867,45 @@ class TestSuit:
         upper_bound:
           The upper bound of the range
     '''
-    tool_bounds_rx = re.compile( r"(?P<lower_bound>\-?[a-zA-Z0-9]+)\.\.(?P<upper_bound>\-?[a-zA-Z0-9]+)" )
+    tool_bounds_rx = re.compile( r"\s*(?P<lower_bound>(?:[a-zA-Z0-9_\+\-\*\%\/\(\)])+)\s*\.\.\s*(?P<upper_bound>(?:[a-zA-Z0-9_\+\-\*\%\/\(\)])+)\s*" )
+
+    '''
+    tool_loop_nest_rx:
+      Expression:
+        #\(\s*(?P<iterators>([a-zA-Z][a-zA-Z0-9]*)((\s*,\s*)([a-zA-Z][a-zA-Z0-9]*))*)\s*\)\s*\{\s*(?P<bounds>(\-?[a-zA-Z0-9]+\s*\.\.\s*\-?[a-zA-Z0-9]+)(\s*,\s*\-?[a-zA-Z0-9]+\s*\.\.\s*\-?[a-zA-Z0-9]+)*)\s*\}
+
+        \(\s*(?P<iterators>([a-zA-Z][a-zA-Z0-9]*)((\s*,\s*)([a-zA-Z][a-zA-Z0-9]*))*)\s*\)\s*\{\s*(?P<bounds>((?:[a-zA-Z0-9]|[\+\-\*\%\/\(\)])+\s*\.\.\s*(?:[a-zA-Z0-9]|[\+\-\*\%\/\(\)])+)(\s*,\s*(?:[a-zA-Z0-9]|[\+\-\*\%\/\(\)])+\s*\.\.\s*(?:[a-zA-Z0-9]|[\+\-\*\%\/\(\)])+)*)\s*\}
+
+
+      Purpose:
+        Parse apart each component of the domain expression in the loop chain
+
+      Captures:
+        iterators:
+          The tuple of iterators
+
+        bounds:
+          The lis of bounds expressions
+    '''
+    tool_loop_nest_rx = re.compile( r"\(\s*(?P<iterators>([a-zA-Z_][a-zA-Z0-9_]*)((\s*,\s*)([a-zA-Z_][a-zA-Z0-9_]*))*)\s*\)\s*\{\s*(?P<bounds>((?:[a-zA-Z0-9_\+\-\*\%\/\(\)])+\s*\.\.\s*(?:[a-zA-Z0-9_\+\-\*\%\/\(\)])+)(\s*,\s*(?:[a-zA-Z0-9_\+\-\*\%\/\(\)])+\s*\.\.\s*(?:[a-zA-Z0-9_\+\-\*\%\/\(\)])+)*)\s*\}")
+
+    '''
+    tool_generate_rx:
+      Expression:
+        loop chain\s*:\s*(?P<code>(?:.|\s)+?)\s*:end
+
+      Purpose:
+        Find and capture the terse loop chain of domains expression
+
+      Captures:
+        code:
+          All the loop chain of domains expression code
+    '''
+    tool_generate_rx = re.compile( r"loop chain\s*:\s*(?P<code>(?:.|\s)+?)\s*:end" )
+
     # Capture code generator code
     gen_code_groups = tool_generate_rx.findall( file_text )
 
-    '''
-    symbol_rx:
-      Expression:
-        [a-zA-Z][a-zA-Z0-9]*
-
-      Purpose:
-        General regex for identifiers
-    '''
-    symbol_rx = re.compile( r"[a-zA-Z][a-zA-Z0-9]*" )
 
     # Ensure exactly one tool code group exists
     if len(gen_code_groups) < 1:
@@ -1909,7 +1921,7 @@ class TestSuit:
     # For each domain expression
     for nest in tool_loop_nest_rx.finditer( gen_code ):
       # Get the iterators
-      iterators_list = tool_iterators_rx.findall( nest.group("iterators") )
+      iterators_list = symbol_rx.findall( nest.group("iterators") )
 
       # Transform the bounds into a orderd list of pairs [ (lower, upper), ... ]
       # ordered by the depth of the loop
@@ -1922,7 +1934,10 @@ class TestSuit:
         raise TestUserMalformedException( "Number of iterators different from number of bounds.", self.log )
 
       # Find and collate the symbolic bounds
-      symbolics = [ upper for (upper, lower) in bounds_list if symbol_rx.match( upper ) ] + [ lower for (upper, lower) in bounds_list if symbol_rx.match( lower ) ]
+      symbolics = []
+      for (upper, lower) in bounds_list:
+        symbolics += symbol_rx.findall( upper )
+        symbolics += symbol_rx.findall( lower )
 
       # Create and append the new NestSpecification
       chain_spec.append( NestSpecification( iterators_list, bounds_list, symbolics ) )
@@ -2106,44 +2121,168 @@ class TestRunner:
     Runs multiple tests using TestSuit
 
   Member Functions:
-    __init__( resources_path, list_of_test_file_paths ):
+    __init__( test_options ):
       Purpose:
         Constructor
 
       Parameters:
-        resources_path:
-          Path to the resources directory.
-
-        list_of_test_file_paths:
-          list of paths to test Files
+        test_options:
+          TestOptions object encapsulating all test options.
 
     run( ):
       Purpose:
         Builds and runs a TestSuit from a file.
 
   Member Variables:
-    resources_path:
-      Path to the resources directory.
-
-    files:
-      list of paths to test Files
+    test_options:
+      TestOptions object encapsulating all test options.
 '''
 class TestRunner:
-  def __init__( self, resources_path, list_of_test_file_paths ):
-    self.resources_path = resources_path
-    self.files = list_of_test_file_paths
+  def __init__( self, test_options ):
+    self.test_options = test_options
 
   def run( self ):
     print( "="*20 )
-    for file_name in self.files:
-      (TestSuit( resources_path = self.resources_path, file_path = file_name) ).run()
+    for file_name in self.test_options["test_files"]:
+      (TestSuit( file_path = file_name, test_options = self.test_options ) ).run()
       print( "="*20 )
 
+
+
+'''
+class TestOptions:
+  Purpose:
+    Encapsulate all the options provided to the testing framework that can be
+    easily passed around to the various testing structures.
+
+  Member Functions:
+    __init__( options, lock_state ):
+      Purpose:
+        Constructor
+
+      Parameters:
+        options:
+          (Optional, defaults to {} )
+          The initial dictionary of options.
+          Must be a dictionary
+
+        lock_state:
+          (Optional, default is False)
+          Initial lock state of the object.
+          If True it begins locked, if False is begins unlocked.
+          A locked object cannot be unlocked.
+
+      Exceptions:
+        if options is not a dictionary an Exception is raised.
+        if lock_state is not a boolean an Exception is raised.
+
+    set( option, value ):
+      Purpose:
+        Set option to value in the options dictionary.
+
+      Exceptions:
+        if the object is locked an Exception is raised.
+
+      Parameters:
+        option:
+          The option that can be queried by other methods.
+          Can by anything, prefer strings.
+
+        value:
+          The value returned when the option is queried.
+          Can be anything, no preference.
+
+    query( option ):
+      Purpose:
+        Query the dictionary for option.
+
+      Exceptions:
+        if option is not in the dictionary an Exception is raised.
+
+      Parameters:
+        option:
+          The option that is being queried.
+
+      Returns:
+        The value that option was set to.
+
+    lock():
+      Purpose:
+        Permanetly lock the options to protect against accidental modification.
+
+    isLocked():
+      Purpose:
+        Check if the object is locked.
+
+      Returns:
+        True if the object is immutable (such as when lock() has been called),
+        False otherwise.
+'''
+class TestOptions:
+  def __init__( self, options = {}, lock_state = False ):
+    if not isinstance( options, dict ):
+      raise Exception( "options is not a dictionary type" )
+
+    if not isinstance( lock_state, bool ):
+      raise Exception( "lock_state is not a bool type")
+
+    self.options = options
+    self.locked = lock_state
+
+  def lock( self ):
+    self.locked = True
+
+  def isLocked( self ):
+    return self.locked
+
+  def check( self, option ):
+    if option not in self.options:
+      raise Exception( "No such option {0}.".format( option ) )
+
+    return self.options[ option ]
+
+  def __getitem__( self, option ):
+    return self.check( option )
+
+  def set( self, option, value ):
+    if self.isLocked():
+      raise Exception( "Cannot modify locked TestOptions object" )
+
+    self.options[ option ] = value
+
+'''
+main( ):
+  Purpose:
+    Application entry method.
+    Invoked on application run.
+'''
+def main():
+  # The arguments parser for the application
+  parser = argparse.ArgumentParser( description="Regression testing utility for LoopChainIR" )
+  # List of files
+  parser.add_argument( "files", metavar="file", type=str, nargs="+", help="List of test files." )
+  # flag to save files if the test(s) succeed
+  parser.add_argument( "-ss", "--save_files_on_success", dest="delete_files_on_success", action='store_const', const=False, default=True )
+  # flag to save files if the test(s) fail
+  parser.add_argument( "-sf", "--save_files_on_fail", dest="delete_files_on_fail", action='store_const', const=False, default=True )
+  # flag to save log file even if test(s) pass
+  parser.add_argument( "-l", "--save_log_on_success", dest="save_log_on_success", action="store_const", const=True, default=False )
+  # Sets path to $(UTIL)/resources
+  parser.add_argument( "-r", "--resources_path", dest="resources_path", action="store", default= os.path.dirname( sys.argv[0] ) + "/resources" )
+
+  args = parser.parse_args()
+
+  options = TestOptions(
+    options = { "delete_files_on_success" : args.delete_files_on_success,
+                "delete_files_on_fail" : args.delete_files_on_fail,
+                "save_log_on_success" : args.save_log_on_success,
+                "resources_path" : args.resources_path,
+                "test_files" : args.files
+              },
+    lock_state = True
+  )
+
+  (TestRunner( test_options = options ) ).run()
+
 if __name__ == "__main__":
-  if len(sys.argv) <= 1:
-    print( "usage: python {0} <test file 1> <test file 2> ...".format( sys.argv[0] ) )
-    exit(-1)
-
-  resources_path = os.path.dirname( sys.argv[0] ) + "/resources"
-
-  (TestRunner( resources_path = resources_path, list_of_test_file_paths = sys.argv[1:] )).run()
+  main()

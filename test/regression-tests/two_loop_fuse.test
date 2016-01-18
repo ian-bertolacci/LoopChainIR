@@ -1,14 +1,5 @@
 test name: two_loop_fuse
 
-exemplar:
-for( int i = 1; i <= N; i += 1 ){
-  B[i] = A[i] + A[i-1];
-}
-for( int i = 1; i <= M; i += 1 ){
-  B[i] = B[i] + B[i-1];
-}
-:end
-
 loop chain:
 (i){1..N}
 (i){1..M}
