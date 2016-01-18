@@ -16,8 +16,6 @@ To ensure that everything is in working order, run:
 
 `make all-tests`
 
-
-
 ## Project Directory Structure
 * bin/ : Where all executables (including intermidiate \*.o and \*.a files)
 are compiled to. Known as $(BIN).
@@ -99,14 +97,14 @@ A regression test has several sections:
   Example:
   ```
   loop chain:
-  (i){1..10}
-  (i){1..10}
-  (i,j){1..M,1..N}
+  (i){0..9}
+  (i){0..9}
+  (i,j){0..M-1,0..N-1}
   :end
   ```
   The iterators (symbols in the parentheses) are comma seperated and can be any valid C variable symbol.
   The bounds (expressions in the brackets) as comma seperated list of ranges.
-  Each range is expressed `lower_bound .. upper_bound`
+  Each range is expressed `lower_bound .. upper_bound`, and bounds can contain simple expressions (using + - * / % operators and parentheses, no function calls)
   The iterators and bounds are mached up by their index (i.e. the first iterator is bounded by the first range, and the second iterator by the second, and so on.)
 
 * `schedule` : (Currently InOp, since we only have the default schedule) An ordered list of transformations to be applied to the loop chain.
@@ -122,11 +120,11 @@ A regression test has several sections:
   Code Example, continuing with loop chain example:
   ```
   dependencies:
-  { [0,i,0,0,0] -> [0,i+1,0,0,0] : 1 <= i <= 10 }
-  { [1,i,0,0,0] -> [1,i+1,0,0,0] : 1 <= i <= 10 }
-  [N,M] -> { [2,i,0,j,0] -> [2,i,0,j+1,0] : 1 <= i <= M and 1 <= j <= N }
-  [N,M] -> { [2,i,0,j,0] -> [2,i+1,0,j,0] : 1 <= i <= M and 1 <= j <= N }
-  [N,M] -> { [0,i,0,0,0] -> [2,i',0,j,0] : 1 <= i <= 10 and 1 <= i <= M and 1 <= j <= N }
+  { [0,i,0,0,0] -> [0,i+1,0,0,0] : 0 <= i < 10 }
+  { [1,i,0,0,0] -> [1,i+1,0,0,0] : 0 <= i < 10 }
+  [N,M] -> { [2,i,0,j,0] -> [2,i,0,j+1,0] : 0 <= i < M and 0 <= j < N }
+  [N,M] -> { [2,i,0,j,0] -> [2,i+1,0,j,0] : 0 <= i < M and 0 <= j < N }
+  [N,M] -> { [0,i,0,0,0] -> [2,i',0,j,0] : 0 <= i < 10 and 0 <= i < M and 0 <= j < N }
   :end
   ```
   The first line indicates that iteration i comes before iteration i+1 in the first loop.
@@ -141,13 +139,13 @@ A regression test has several sections:
   Code Example, continuing with loop chain example, performing a loop fusion on the first two loops:
   ```
   new ordering:
-  { [1,i,0,0,0] -> [0,i+1,0,0,0] : 1 <= i <= 10}
+  { [1,i,0,0,0] -> [0,i+1,0,0,0] : 0 <= i < 10}
 
-  { [0,i,0,0,0] -> [0,i+1,0,0,0] : 1 <= i <= 10 }
-  { [1,i,0,0,0] -> [1,i+1,0,0,0] : 1 <= i <= 10 }
-  [N,M] -> { [1,i,0,j,0] -> [1,i,0,j+1,0] : 1 <= i <= M and 1 <= j <= N }
-  [N,M] -> { [1,i,0,j,0] -> [1,i+1,0,j,0] : 1 <= i <= M and 1 <= j <= N }
-  [N,M] -> { [0,i,0,0,0] -> [1,i',0,j,0] : 1 <= i <= 10 and 1 <= i <= M and 1 <= j <= N }
+  { [0,i,0,0,0] -> [0,i+1,0,0,0] : 0 <= i < 10 }
+  { [1,i,0,0,0] -> [1,i+1,0,0,0] : 0 <= i < 10 }
+  [N,M] -> { [1,i,0,j,0] -> [1,i,0,j+1,0] : 0 <= i < M and 0 <= j < N }
+  [N,M] -> { [1,i,0,j,0] -> [1,i+1,0,j,0] : 0 <= i < M and 0 <= j < N }
+  [N,M] -> { [0,i,0,0,0] -> [1,i',0,j,0] : 0 <= i < 10 and 0 <= i < M and 0 <= j < N }
   :end
   ```
   The only change from the dependency code is the first line, which indicates that iteration i in the second loop comes before iteration i+1 in the first loop.
@@ -156,15 +154,15 @@ A regression test has several sections:
   Code Example:
   ```
   exemplar:
-  for( int i = 1; i <= 10; i += 1 ){
-    something( i );
+  for( int i = 0; i < 10; i += 1 ){
+    A[i] = Static[i];
   }
-  for( int i = 1; i < 11; i++ ){
-    somethingElse( i );
+  for( int i = 0; i <= 9; i++ ){
+    B[i] = f( A[i] );
   }
-  for( int i = 1; i <= M; ++i ){
-    for( int j = 1; j <= N; j = j + 1 ){
-      yetAnotherThing( i, j );
+  for( int i = 0; i < M; ++i ){
+    for( int j = 0; j <= N-1; j = j + 1 ){
+      C[i,j] = A[i%10] / B[i%10];
     }
   }
   :end
@@ -175,17 +173,17 @@ The full test (using all the examples) would look something like this:
 test name: example_test
 
 loop chain:
-(i){1..10}
-(i){1..10}
-(i,j){1..M,1..N}
+(i){0..9}
+(i){0..9}
+(i,j){0..M-1,0..N-1}
 :end
 
 dependencies:
-{ [0,i,0,0,0] -> [0,i+1,0,0,0] : 1 <= i <= 10 }
-{ [1,i,0,0,0] -> [1,i+1,0,0,0] : 1 <= i <= 10 }
-[N,M] -> { [2,i,0,j,0] -> [2,i,0,j+1,0] : 1 <= i <= M and 1 <= j <= N }
-[N,M] -> { [2,i,0,j,0] -> [2,i+1,0,j,0] : 1 <= i <= M and 1 <= j <= N }
-[N,M] -> { [0,i,0,0,0] -> [2,i',0,j,0] : 1 <= i <= 10 and 1 <= i <= M and 1 <= j <= N }
+{ [0,i,0,0,0] -> [0,i+1,0,0,0] : 0 <= i < 10 }
+{ [1,i,0,0,0] -> [1,i+1,0,0,0] : 0 <= i < 10 }
+[N,M] -> { [2,i,0,j,0] -> [2,i,0,j+1,0] : 0 <= i < M and 0 <= j < N }
+[N,M] -> { [2,i,0,j,0] -> [2,i+1,0,j,0] : 0 <= i < M and 0 <= j < N }
+[N,M] -> { [0,i,0,0,0] -> [2,i',0,j,0] : 0 <= i < 10 and 0 <= i < M and 0 <= j < N }
 :end
 
 schedule:
@@ -193,27 +191,28 @@ fuse
 :end
 
 new ordering:
-{ [1,i,0,0,0] -> [0,i+1,0,0,0] : 1 <= i <= 10}
+{ [1,i,0,0,0] -> [0,i+1,0,0,0] : 0 <= i < 10}
 
-{ [0,i,0,0,0] -> [0,i+1,0,0,0] : 1 <= i <= 10 }
-{ [1,i,0,0,0] -> [1,i+1,0,0,0] : 1 <= i <= 10 }
-[N,M] -> { [1,i,0,j,0] -> [1,i,0,j+1,0] : 1 <= i <= M and 1 <= j <= N }
-[N,M] -> { [1,i,0,j,0] -> [1,i+1,0,j,0] : 1 <= i <= M and 1 <= j <= N }
-[N,M] -> { [0,i,0,0,0] -> [1,i',0,j,0] : 1 <= i <= 10 and 1 <= i <= M and 1 <= j <= N }
+{ [0,i,0,0,0] -> [0,i+1,0,0,0] : 0 <= i < 10 }
+{ [1,i,0,0,0] -> [1,i+1,0,0,0] : 0 <= i < 10 }
+[N,M] -> { [1,i,0,j,0] -> [1,i,0,j+1,0] : 0 <= i < M and 0 <= j < N }
+[N,M] -> { [1,i,0,j,0] -> [1,i+1,0,j,0] : 0 <= i < M and 0 <= j < N }
+[N,M] -> { [0,i,0,0,0] -> [1,i',0,j,0] : 0 <= i < 10 and 0 <= i < M and 0 <= j < N }
 :end
 
 exemplar:
-for( int i = 1; i <= 10; i += 1 ){
-  something( i );
+for( int i = 0; i < 10; i += 1 ){
+  A[i] = Static[i];
 }
-for( int i = 1; i < 11; i++ ){
-  somethingElse( i );
+for( int i = 0; i <= 9; i++ ){
+  B[i] = f( A[i] );
 }
-for( int i = 1; i <= M; ++i ){
-  for( int j = 1; j <= N; j = j + 1 ){
-    yetAnotherThing( i, j );
+for( int i = 0; i < M; ++i ){
+  for( int j = 0; j <= N-1; j = j + 1 ){
+    C[i,j] = A[i%10] / B[i%10];
   }
 }
+:end
 ```
 
 ## Third-Party materials
