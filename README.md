@@ -80,6 +80,21 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
 
 * `clean-all`: Performs `clean`, `clean-third-party`, and `clean-doc`. Mimics a restored project state.
 
+## Documentation
+The LoopChainIR API is documented using Doxygen.
+
+To generate the HTML documentation, run
+
+```
+make documentation
+```
+or
+```
+make doc
+```
+
+The output can be found at $(DOC)
+
 ## Testing
 A complete run of all tests (both regression and unit) is run with
 

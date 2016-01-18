@@ -36,7 +36,7 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 UNIT_TESTS = RectangularDomain_test LoopNest_test LoopChain_test DefaultSequentialSchedule_test
-REG_TESTS = one_loop.test two_loop.test one_nest.test two_nest.test mixed_nest.test two_loop_fuse.test example.test 
+REG_TESTS = one_loop.test two_loop.test one_nest.test two_nest.test mixed_nest.test two_loop_fuse.test example.test
 
 # Project object files and executable
 OBJS = $(BIN)/RectangularDomain.o \
@@ -102,7 +102,7 @@ $(UNIT_TEST_BIN)/gtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)/gt
 
 # Building documentation
 doc: documentation
-documentation:
+documentation: clean-doc
 	doxygen
 
 # Initialize the project and install third-party materials
