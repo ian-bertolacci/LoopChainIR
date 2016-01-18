@@ -1,0 +1,28 @@
+test name: one_nest_two_deep_original
+
+loop chain:
+(i){1..I}
+(k,l){1..K,1..L}
+:end
+
+schedule:
+original
+:end
+
+dependencies:
+[I]->{ [0,i,0,0,0] -> [0,i+1,0,0,0] : 1 <= i <= I }
+
+[K,L]->{ [1,k,0,l,0] -> [1,k+1,0,l',0] : 1 <= k <= K and 1 <= l <= L and  1 <= l' <= L}
+[K,L]->{ [1,k,0,l,0] -> [1,k,0,l+1,0] : 1 <= k <= K and  1 <= l <= L }
+
+[I,J,K,L]->{ [0,i,0,j,0] -> 1,k,0,l,0] : 1 <= k <= K and  1 <= l <= L and 1 <= i <= I and  1 <= j <= J}
+:end
+
+new ordering:
+[I]->{ [0,i,0,0,0] -> [0,i+1,0,0,0] : 1 <= i <= I }
+
+[K,L]->{ [1,k,0,l,0] -> [1,k+1,0,l',0] : 1 <= k <= K and 1 <= l <= L and  1 <= l' <= L}
+[K,L]->{ [1,k,0,l,0] -> [1,k,0,l+1,0] : 1 <= k <= K and  1 <= l <= L }
+
+[I,K,L]->{ [0,i,0,0,0] -> 1,k,0,l,0] : 1 <= k <= K and  1 <= l <= L and 1 <= i <= I}
+:end

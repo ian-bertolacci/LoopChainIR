@@ -36,7 +36,7 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 UNIT_TESTS = RectangularDomain_test LoopNest_test LoopChain_test DefaultSequentialSchedule_test
-REG_TESTS = one_loop.test two_loop.test two_loop_fuse.test
+REG_TESTS = one_loop.test two_loop.test one_nest.test two_nest.test mixed_nest.test two_loop_fuse.test example.test 
 
 # Project object files and executable
 OBJS = $(BIN)/RectangularDomain.o \
@@ -131,13 +131,13 @@ neat:
 	- rm $(BIN)/*.o
 
 clean-doc:
-	- rm -rf $(DOC_PATH)
+	- rm -r $(DOC_PATH)
 
 clean-third-party:
 	- rm -rf $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 
 clean-test:
-	- rm $(UNIT_TEST_BIN)/* $(REG_TEST_DIR)/*.log $(REG_TEST_DIR)/*.dir
+	- rm -r $(UNIT_TEST_BIN)/* $(REG_TEST_DIR)/*.log $(REG_TEST_DIR)/*.dir
 
 clean: clean-test
 	- rm $(BIN)/*
