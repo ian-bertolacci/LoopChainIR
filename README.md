@@ -69,11 +69,11 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
 
 * `neat`: Removes all \*.o files from $(BIN).
 
-* `clean-third-party`: Removes (recursively, **forced**) $(THIRD_PARTY_INSTALL) and $(THIRD_PARTY_BUILD).
+* `clean-third-party`: Removes (recursive, **forced**) $(THIRD_PARTY_INSTALL) and $(THIRD_PARTY_BUILD).
 
-* `clean-test`: Removes all files from $(UNIT_TEST_BIN), and \*.dir and \*.log files from $(REG_TEST_DIR)
+* `clean-test`: Removes (recursive) all files from $(UNIT_TEST_BIN), and \*.dir and \*.log files from $(REG_TEST_DIR)
 
-* `clean-doc`: Removes the $(DOC_PATH) directory
+* `clean-doc`: Removes (recursive) the $(DOC_PATH) directory
 
 * `clean`: Performs `clean-test` and removes (recursively) all files under
   $(BIN).
@@ -138,7 +138,8 @@ A regression test has several sections:
 
 * `dependencies` : The dependencies that _must_ be satisfied for _any_ transformation on the loop.
   These are used to ensure that a transformation produced a loop satisfying the dependencies of the original loop.
-  Each iteration must be expressed in full-form syntax `[loop nest, iterator, (loop nest, iterator,)* statement]`.
+  This is expressed in traditional [ISCC](http://compsys-tools.ens-lyon.fr/iscc/barvinok.pdf) syntax.
+  However, unlike in ISCC, each iteration must be expressed in full-form syntax `[loop nest, iterator, (loop nest, iterator,)* statement]`.
   Further, they must be padded so that all iterations are the same length
   For example, the statement 'inside' the first loop is expressed in full-form as `[0,i,0]`, since its the 0'th loop, has iteration i, and is the 0'th statement.
   With padding it becomes `[0,i,0,0,0]`
@@ -153,11 +154,14 @@ A regression test has several sections:
   [N,M] -> { [0,i,0,0,0] -> [2,i',0,j,0] : 0 <= i < 10 and 0 <= i < M and 0 <= j < N }
   :end
   ```
-  The first line indicates that iteration i comes before iteration i+1 in the first loop.
-  The second line indicates that iteration i comes before iteration i+1 in the second loop.
-  The third line indicates that iteration j comes before iteration j+1 in the third loop.
-  The fourth line indicates that iteration i comes before iteration i+1 in the second loop.
+  The first line indicates that iteration i comes before iteration i+1 in the first loop.  
+  The second line indicates that iteration i comes before iteration i+1 in the second loop.  
+  The third line indicates that iteration j comes before iteration j+1 in the third loop.  
+  The fourth line indicates that iteration i comes before iteration i+1 in the second loop.  
   The fifth line indicates that all iterations in the first loop come before any iterations in the second loop.
+
+  Please note that each dependency is treated by the framework as a seperate entity, and is split by newlines.
+  This means that a dependency expression currently cannot span multiple lines.
 
 * `new ordering` : The dependencies that _must_ be satisfied for the _particular_ transformation.
   This is written in the same way as the dependencies section.
