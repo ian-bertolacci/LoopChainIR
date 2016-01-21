@@ -1,4 +1,4 @@
-test name: one_nest_two_deep_original
+test name: two_nest_two_deep_original
 
 loop chain:
 (i,j){1..I,1..J}
