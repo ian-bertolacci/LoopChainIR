@@ -1,4 +1,4 @@
-test name: two_loop
+test name: 2N_1D
 
 loop chain:
 (i){1..M}

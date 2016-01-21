@@ -1,4 +1,4 @@
-test name: two_loop_fuse
+test name: 2N_1D_fuse
 
 loop chain:
 (i){1..N}

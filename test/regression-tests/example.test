@@ -1,4 +1,4 @@
-test name: example_test
+test name: example_3N_1D_1D_2D
 
 loop chain:
 (i){0..9}
