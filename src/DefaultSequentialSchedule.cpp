@@ -29,12 +29,17 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
   std::ostringstream map_string;
   map_string << "{";
 
+  RectangularDomain::size_type iterators_length = this->chain.maxDimension();
+
   for( LoopChain::size_type nest_idx = 0; nest_idx < this->chain.length(); nest_idx += 1 ){
     LoopNest& nest = this->chain.getNest( nest_idx );
     RectangularDomain& domain = nest.getDomain();
 
     // String of statement
     std::ostringstream statement_string;
+
+    /// String of padding for statement;
+    std::ostringstream padding_string;
 
     // String of symbolic bounds
     std::ostringstream symbolic_string;
@@ -67,22 +72,36 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
 
     }// for_each dimension
 
+    // Expand the iterator string if necessary
+    for( RectangularDomain::size_type dimension = domain.dimensions(); dimension < iterators_length; dimension += 1 ){
+      padding_string << ",0";
+    }
+
+    std::cout << "statement_string:\n" << statement_string.str() << "\n===================" << std::endl;
+
     // Create the full string representing an ISL Domain
     std::string domain_string = SSTR( "[" << symbolic_string.str() << "] -> {"
                                           << "statement_" << nest_idx << "[" << statement_string.str() << "] : "
                                           << inequalities_string.str() << "}"
                                     );
-
+    std::cout << domain_string << std::endl;
     // Construct actual ISL domain and append it.
     domains.push_back( isl_union_set_read_from_str(ctx, domain_string.c_str() ) );
 
+
+    std::string expanded_form = SSTR( "[" << nest_idx << "," << statement_string.str() << padding_string.str() << "]" );
+
     // Create the loop chain map string
     map_string << "statement_" << nest_idx << "[" << statement_string.str() << "]"
-               << " -> [" << nest_idx << "," << statement_string.str() << "]; ";
+               << " -> " << expanded_form << "; ";
 
   }// for_each nest
 
   map_string << "}";
+
+
+  std::cout << "map_string\n" << map_string.str() << "\n===================" << std::endl;
+
 
   // Union the domains together
   isl_union_set* full_domain = NULL;
@@ -97,6 +116,8 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
 
   // Create mapping and schedule
   isl_union_map* chain_map = isl_union_map_read_from_str(ctx, map_string.str().c_str() );
+
+  // Create schedule
   isl_union_map* schedule = isl_union_map_intersect_domain(chain_map, full_domain);
 
   // Create AST and print to output_file
