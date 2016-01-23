@@ -1,0 +1,21 @@
+test name: 1N_3D
+
+loop chain:
+(i,j,k){1..M,1..N,1..K}
+:end
+
+schedule:
+original
+:end
+
+dependencies:
+[M,N,K]->{ [0,i,0,j,0,k,0] -> [0,i+1,0,j',0,k',0] : 1 <= i <= M and 1 <= j,j' <= N and 1 <= k,k' <= K}
+[M,N,K]->{ [0,i,0,j,0,k,0] -> [0,i,0,j+1,0,k',0] : 1 <= i <= M and  1 <= j <= N and 1 <= k,k' <= K}
+[M,N,K]->{ [0,i,0,j,0,k,0] -> [0,i,0,j,0,k+1,0] : 1 <= i <= M and  1 <= j <= N and 1 <= k <= K}
+:end
+
+new ordering:
+[M,N,K]->{ [0,i,0,j,0,k,0] -> [0,i+1,0,j',0,k',0] : 1 <= i <= M and 1 <= j,j' <= N and 1 <= k,k' <= K}
+[M,N,K]->{ [0,i,0,j,0,k,0] -> [0,i,0,j+1,0,k',0] : 1 <= i <= M and  1 <= j <= N and 1 <= k,k' <= K}
+[M,N,K]->{ [0,i,0,j,0,k,0] -> [0,i,0,j,0,k+1,0] : 1 <= i <= M and  1 <= j <= N and 1 <= k <= K}
+:end

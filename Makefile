@@ -35,8 +35,22 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
-UNIT_TESTS = RectangularDomain_test LoopNest_test LoopChain_test DefaultSequentialSchedule_test
-REG_TESTS = one_loop.test two_loop.test one_nest.test two_nest.test mixed_nest.test two_loop_fuse.test example.test
+UNIT_TESTS = RectangularDomain_test \
+						 LoopNest_test \
+						 LoopChain_test \
+						 DefaultSequentialSchedule_test
+
+REG_TESTS = 1N_1D.test \
+						1N_2D.test \
+						1N_3D.test \
+						2N_1D.test \
+						2N_2D.test \
+						2N_3D.test \
+						2N_1D_2D.test \
+						3N_1D_2D_3D.test \
+						3N_3D_2D_1D.test \
+						2N_1D_fuse.test \
+						example.test
 
 # Project object files and executable
 OBJS = $(BIN)/RectangularDomain.o \
