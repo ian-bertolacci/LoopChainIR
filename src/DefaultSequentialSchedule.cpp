@@ -77,14 +77,12 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
       padding_string << ",0";
     }
 
-    std::cout << "statement_string:\n" << statement_string.str() << "\n===================" << std::endl;
-
     // Create the full string representing an ISL Domain
     std::string domain_string = SSTR( "[" << symbolic_string.str() << "] -> {"
                                           << "statement_" << nest_idx << "[" << statement_string.str() << "] : "
                                           << inequalities_string.str() << "}"
                                     );
-    std::cout << domain_string << std::endl;
+
     // Construct actual ISL domain and append it.
     domains.push_back( isl_union_set_read_from_str(ctx, domain_string.c_str() ) );
 
@@ -98,10 +96,6 @@ void DefaultSequentialSchedule::codegen( FILE* output_file ){
   }// for_each nest
 
   map_string << "}";
-
-
-  std::cout << "map_string\n" << map_string.str() << "\n===================" << std::endl;
-
 
   // Union the domains together
   isl_union_set* full_domain = NULL;
