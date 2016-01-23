@@ -1844,6 +1844,33 @@ class TestSuit:
     return test_name
 
 
+  def strip_comments_white_space( self, file_text ):
+    '''
+    empty_white_space_rx:
+      Expression:
+        (?:[ \t]*\n[ \t]*){2,}
+
+      Purpose:
+        Find empty lines such as "\n\n" or " \n\t   \n" or "  \n \n\t  \n\n \n"
+    '''
+    empty_white_space_rx = re.compile( r"(?:[ \t]*\n[ \t]*){2,}" )
+
+    '''
+    comment_rx:
+      Expression:
+        \#.*?\n
+
+      Purpose:
+        Find python style comments in text.
+    '''
+    comment_rx = re.compile( r"\#.*?\n" )
+
+    file_text = empty_white_space_rx.sub( "\n", file_text );
+    file_text = comment_rx.sub( "", file_text )
+
+    return file_text
+
+
   def parse_chain_specification( self, file_text ):
     self.write_log("[Parsing chain specification]")
 
@@ -1910,7 +1937,6 @@ class TestSuit:
 
     # Capture code generator code
     gen_code_groups = tool_generate_rx.findall( file_text )
-
 
     # Ensure exactly one tool code group exists
     if len(gen_code_groups) < 1:
@@ -2094,6 +2120,9 @@ class TestSuit:
     # Get test text
     with open( file_name, "r" ) as file:
       test_text = file.read()
+
+    # Strip comments and superfoulus whitespace from ENTIRE file.
+    test_text = self.strip_comments_white_space( test_text )
 
     # Get the test name
     test_name = self.parse_name( test_text )
