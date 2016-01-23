@@ -1802,6 +1802,11 @@ class TestSuit:
       self.dump_log()
       return
 
+    except Exception as excpt:
+      self.write_log( "[ENCOUNTERED UNHANDLED EXCEPTION]\n{0}".format( excpt ) )
+      print("FAILED!\nSoftware Error. Please report:\n{0}\nInclude log file {1}".format( excpt, self.log_file_path ) )
+      self.dump_log()
+      return
 
   def parse_name( self, file_text ):
     self.write_log("[Parsing name]")

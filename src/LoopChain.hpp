@@ -41,6 +41,11 @@ public:
   */
   size_type length();
 
+  /*
+  \returns the maximum dimensionality of all the loop-nests in the chain.
+  */
+  RectangularDomain::size_type maxDimension();
+
 };
 
 #endif
