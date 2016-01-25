@@ -31,9 +31,14 @@
 # Debug files
 *.dSYM/
 
+# Doxygen output
+doxygen/
+
 # Third-Party Builds
 third-party/install/
 third-party/build/
 
 # Test outputs
-test/bin/*
+test/unit-tests/bin/*
+test/regression-tests/*.dir
+test/regression-tests/*.log

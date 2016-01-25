@@ -1,28 +1,33 @@
 # Paths
-PROJECT_DIR=$(PWD)
+PROJECT_DIR ?= $(PWD)
 
 BIN=$(PROJECT_DIR)/bin
 SRC=$(PROJECT_DIR)/src
+UTIL=$(PROJECT_DIR)/util
 
 TEST=$(PROJECT_DIR)/test
-TEST_BIN=$(TEST)/bin
-TEST_SRC=$(TEST)/src
+UNIT_TEST_DIR=$(TEST)/unit-tests
+UNIT_TEST_BIN=$(UNIT_TEST_DIR)/bin
+UNIT_TEST_SRC=$(UNIT_TEST_DIR)/src
+REG_TEST_DIR=$(TEST)/regression-tests
 
 THIRD_PARTY=$(PROJECT_DIR)/third-party
 THIRD_PARTY_SRC=$(THIRD_PARTY)/source
 THIRD_PARTY_BUILD=$(THIRD_PARTY)/build
 THIRD_PARTY_INSTALL=$(THIRD_PARTY)/install
 
+DOC_PATH = $(PROJECT_DIR)/doxygen
+
 LIB=$(THIRD_PARTY_INSTALL)/lib
 INC=$(THIRD_PARTY_INSTALL)/include
 
 # Global Variables
-MAKE_JOBS=8
+MAKE_JOBS=2
 
 # Compiler and flags
 CXX=g++
-CXXFLAGS += -g -Wall -Wextra -pthread
-CPPFLAGS += -isystem $(INC)
+CXXFLAGS += -g -Wall -Wextra -Werror -pthread
+CPPFLAGS += --std=c++11 -isystem $(INC)
 
 # Test Variables
 GTEST_DIR=$(THIRD_PARTY_INSTALL)/gtest
@@ -30,49 +35,94 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
-TESTS = Box_test LoopNest_test LoopChain_test
+UNIT_TESTS = RectangularDomain_test \
+						 LoopNest_test \
+						 LoopChain_test \
+						 DefaultSequentialSchedule_test
+
+REG_TESTS = 1N_1D.test \
+						1N_2D.test \
+						1N_3D.test \
+						2N_1D.test \
+						2N_2D.test \
+						2N_3D.test \
+						2N_1D_2D.test \
+						3N_1D_2D_3D.test \
+						3N_3D_2D_1D.test \
+						2N_1D_fuse.test \
+						example.test
 
 # Project object files and executable
-OBJS = $(BIN)/Box.o $(BIN)/LoopChain.o $(BIN)/LoopNest.o
-# What thing are we actually making?
-EXE=$(BIN)/SomethingSomethingSomething
+OBJS = $(BIN)/RectangularDomain.o \
+       $(BIN)/LoopChain.o \
+			 $(BIN)/LoopNest.o \
+			 $(BIN)/DefaultSequentialSchedule.o \
+			 $(BIN)/util.o
+
+# Linkable library
+EXE=$(BIN)/LoopChainIR.a
 
 all: $(EXE)
 
 $(EXE): $(OBJS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) $^ -o $(EXE)
+	$(AR) $(ARFLAGS) $@ $^
 
-$(BIN)/Box.o: $(SRC)/Box.h $(SRC)/Box.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/Box.cpp -c -o $@
+# Building the Ojbect Files
+$(BIN)/RectangularDomain.o: $(SRC)/RectangularDomain.hpp $(SRC)/RectangularDomain.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/RectangularDomain.cpp -c -o $@
 
-$(BIN)/LoopChain.o: $(SRC)/LoopChain.h $(SRC)/LoopChain.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/LoopChain.cpp -c -o $@
+$(BIN)/LoopChain.o: $(SRC)/LoopChain.hpp $(SRC)/LoopChain.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/LoopChain.cpp -c -o $@
 
-$(BIN)/LoopNest.o: $(SRC)/LoopNest.h $(SRC)/LoopNest.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -L$(LIB) -I/$(SRC) $(SRC)/LoopNest.cpp -c -o $@
+$(BIN)/LoopNest.o: $(SRC)/LoopNest.hpp $(SRC)/LoopNest.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/LoopNest.cpp -c -o $@
 
-tests: $(TESTS)
+$(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.hpp $(SRC)/DefaultSequentialSchedule.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/DefaultSequentialSchedule.cpp -c -o $@
 
-$(TESTS): $(TEST_BIN)/gtest_main.a $(OBJS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(TEST_SRC)/$@.cpp -o $(TEST_BIN)/$@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -L$(LIB) -lpthread $(TEST_BIN)/$@.o $(OBJS) $(TEST_BIN)/gtest_main.a -o $(TEST_BIN)/$@
-	$(TEST_BIN)/$@
+$(BIN)/util.o: $(SRC)/util.hpp $(SRC)/util.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/util.cpp -c -o $@
 
-$(TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
+# Testing
+all-tests: unit-tests regression-tests
+
+unit-tests: $(UNIT_TESTS)
+
+regression-tests: $(EXE)
+	python $(UTIL)/regression-util.py $(addprefix $(REG_TEST_DIR)/,$(REG_TESTS))
+
+$(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(EXE)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(LIB) -o $(UNIT_TEST_BIN)/$@
+	$(UNIT_TEST_BIN)/$@
+
+$(REG_TESTS): $(EXE)
+	python $(UTIL)/regression-util.py $(REG_TEST_DIR)/$@
+
+#Building the Google Test framework
+$(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
-            $(GTEST_DIR)/src/gtest-all.cc -o $@
+            ${GTEST_DIR}/src/gtest-all.cc -o $@
 
-$(TEST_BIN)/gtest_main.o : $(GTEST_SRCS_)
+$(UNIT_TEST_BIN)/gtest_main.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest_main.cc -o $@
 
-$(TEST_BIN)/gtest.a : $(TEST_BIN)/gtest-all.o
+$(UNIT_TEST_BIN)/gtest.a : $(UNIT_TEST_BIN)/gtest-all.o
 	$(AR) $(ARFLAGS) $@ $^
 
-$(TEST_BIN)/gtest_main.a : $(TEST_BIN)/gtest-all.o $(TEST_BIN)/gtest_main.o
+$(UNIT_TEST_BIN)/gtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)/gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
-genesis: nuke
+# Building documentation
+doc: documentation
+documentation: clean-doc
+	doxygen
+
+# Initialize the project and install third-party materials
+init: initialize
+
+initialize: clean-all
 	mkdir $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 	mkdir $(LIB)
 	mkdir $(INC)
@@ -80,6 +130,7 @@ genesis: nuke
 	# Unzip and copy gtest
 	unzip -q $(THIRD_PARTY_SRC)/gtest-1.7.0.zip -d $(THIRD_PARTY_INSTALL)/.
 	mv $(THIRD_PARTY_INSTALL)/gtest-1.7.0 $(GTEST_DIR)
+	cp -r $(GTEST_DIR)/include/gtest $(INC)
 	#
 	# build ISL
 	tar -xzf $(THIRD_PARTY_SRC)/isl-0.15.tar.gz -C $(THIRD_PARTY_BUILD)/.
@@ -89,16 +140,20 @@ genesis: nuke
 	&& make -j$(MAKE_JOBS) \
 	&& make install
 
+# Cleaning
 neat:
-	- rm -r $(BIN)/*.o $(BIN)/*.a
+	- rm $(BIN)/*.o
+
+clean-doc:
+	- rm -r $(DOC_PATH)
 
 clean-third-party:
 	- rm -rf $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 
 clean-test:
-	- rm $(TEST_BIN)/*
+	- rm -r $(UNIT_TEST_BIN)/* $(REG_TEST_DIR)/*.log $(REG_TEST_DIR)/*.dir
 
 clean: clean-test
-	- rm -r $(BIN)/*
+	- rm $(BIN)/*
 
-nuke: clean-third-party clean
+clean-all: clean-third-party clean clean-doc
