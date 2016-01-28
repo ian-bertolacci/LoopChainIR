@@ -38,7 +38,8 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 UNIT_TESTS = RectangularDomain_test \
 						 LoopNest_test \
 						 LoopChain_test \
-						 DefaultSequentialSchedule_test
+						 DefaultSequentialSchedule_test \
+						 Schedule_test
 
 REG_TESTS = 1N_1D.test \
 						1N_2D.test \
@@ -56,8 +57,10 @@ REG_TESTS = 1N_1D.test \
 OBJS = $(BIN)/RectangularDomain.o \
        $(BIN)/LoopChain.o \
 			 $(BIN)/LoopNest.o \
+			 $(BIN)/Schedule.o \
 			 $(BIN)/DefaultSequentialSchedule.o \
 			 $(BIN)/util.o
+
 
 # Linkable library
 EXE=$(BIN)/LoopChainIR.a
@@ -68,6 +71,7 @@ $(EXE): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
 # Building the Ojbect Files
+
 $(BIN)/RectangularDomain.o: $(SRC)/RectangularDomain.hpp $(SRC)/RectangularDomain.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/RectangularDomain.cpp -c -o $@
 
@@ -79,6 +83,9 @@ $(BIN)/LoopNest.o: $(SRC)/LoopNest.hpp $(SRC)/LoopNest.cpp
 
 $(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.hpp $(SRC)/DefaultSequentialSchedule.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/DefaultSequentialSchedule.cpp -c -o $@
+
+$(BIN)/Schedule.o: $(SRC)/Schedule.hpp $(SRC)/Schedule.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/Schedule.cpp -c -o $@
 
 $(BIN)/util.o: $(SRC)/util.hpp $(SRC)/util.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/util.cpp -c -o $@
