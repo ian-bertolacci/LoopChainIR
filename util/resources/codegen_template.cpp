@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <string>
 
 #include "all_isl.hpp"
@@ -7,6 +8,8 @@
 #include "LoopNest.hpp"
 #include "RectangularDomain.hpp"
 #include "DefaultSequentialSchedule.hpp"
+#include "Schedule.hpp"
+#include "Scheduler.hpp"
 
 using namespace std;
 
@@ -59,10 +62,11 @@ void generateGraphCode(){
   }
 }
 
-void writeScheduledCode( DefaultSequentialSchedule schedule, string filename ){
-  FILE* output_file = fopen( filename.c_str(), "w" );
-  schedule.codegen( output_file );
-  fclose( output_file );
+void writeTextToFile( string text, string filename ){
+  ofstream output;
+  output.open( filename );
+  output << text ;
+  output.close();
 }
 
 void generateChainCode(){

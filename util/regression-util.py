@@ -926,7 +926,18 @@ class ExecutableRegressionTest( RegressionTest ):
     # Generate the C++ code for scheduling the LoopChain object, and for writing
     # that code (that will be written by the LoopChainIR scheduler) to the file
     # self.path/generated_chain_output.cpp
-    scheduleing_texts = [ "DefaultSequentialSchedule schedule({0});".format( loop_chain_name ), "writeScheduledCode(schedule, \"generated_chain_output.cpp\");" ]
+    scheduleing_texts = \
+      [ "vector<Scheduler*> schedulers;" ] \
+      + [
+        # TODO Dynamically add schedules
+        "schedulers.push_back( new DefaultSequentialSchedule() );",
+      ] \
+      + [
+        "Schedule schedule = apply( chain, schedulers );",
+        "string text = schedule.codegen();",
+        "cout << text << endl;",
+        "writeTextToFile( schedule.codegen(), \"generated_chain_output.cpp\" );"
+        ]
 
     # Concatonate the previously generated texts together with pretty formatting
     injection_text = "  " + "\n  ".join( loop_chain_decl_text + nest_texts + scheduleing_texts )
