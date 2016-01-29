@@ -1,8 +1,8 @@
-/*******************************************************************************
+/*! ****************************************************************************
 \file LoopChain.cpp
 \autors Ian J. Bertolacci
 
-\purpose
+\brief
 Contains an ordered sequence of loop nests.
 
 \copyright

@@ -1,8 +1,8 @@
-/*******************************************************************************
+/*! ****************************************************************************
 \file DefaultSequentialScheduler.cpp
 \autors Ian J. Bertolacci
 
-\purpose
+\brief
 Generate a simple sequential, non-parallel schedule.
 
 \copyright

@@ -1,8 +1,8 @@
-/*******************************************************************************
+/*! ****************************************************************************
 \file RectangularDomain_test.cpp
 \autors Ian J. Bertolacci
 
-\purpose
+\brief
 To perform unit testsing on the RectangularDomain data structure.
 
 \copyright

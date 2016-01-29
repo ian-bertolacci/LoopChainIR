@@ -23,12 +23,20 @@ Copyright 2016 Colorado State University
 
 /*!
 Schedules a loopchain in the default, sequential manner.
+
+\note
+This Scheduler does not actually transform any schedule, since this would only
+be performed on a schedule that had not already been transformed, and a
+LoopChain that has been converted into a Schedule object has already been
+properly transformed into a sequential schedule.
 */
 class DefaultSequentialScheduler : public Scheduler {
 
 public:
   DefaultSequentialScheduler( );
-
+  /*!
+  \returns Reference to schedule which has been scheduled
+  */
   Schedule& apply( Schedule& schedule );
 };
 

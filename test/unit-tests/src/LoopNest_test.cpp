@@ -1,8 +1,8 @@
-/*******************************************************************************
+/*! ****************************************************************************
 \file LoopNest_test.cpp
 \autors Ian J. Bertolacci
 
-\purpose
+\brief
 To perform unit testsing on the LoopNest data structure.
 
 \copyright

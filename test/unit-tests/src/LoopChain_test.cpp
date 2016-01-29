@@ -1,8 +1,8 @@
-/*******************************************************************************
+/*! ****************************************************************************
 \file LoopChain_test.cpp
 \autors Ian J. Bertolacci
 
-\purpose
+\brief
 To perform unit testsing on the LoopChain data structure.
 
 \copyright

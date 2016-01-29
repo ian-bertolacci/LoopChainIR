@@ -1,8 +1,8 @@
-/*******************************************************************************
+/*! ****************************************************************************
 \file DefaultSequentialScheduler_test.cpp
 \autors Ian J. Bertolacci
 
-\purpose
+\brief
 To perform unit testsing on the DefaultSequentialScheduler code generator.
 
 \copyright
