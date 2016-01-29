@@ -19,15 +19,12 @@ using namespace std;
 TEST(DefaultSequentialScheduleTest, GEN_1N_1D_Empty_Loop) {
   LoopChain chain;
 
-  string lower[1];
-  string upper[1];
-  string symbol[1];
+  {
+    string lower[1] = { "1" };
+    string upper[1] = { "0" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1 ) ) );
+  }
 
-  lower[0] = "1";
-  upper[0] = "0";
-  RectangularDomain domain( lower, upper, 1 );
-
-  chain.append( LoopNest( domain ) );
   vector<Scheduler*> schedulers;
   schedulers.push_back( new DefaultSequentialSchedule() );
 
@@ -39,16 +36,13 @@ TEST(DefaultSequentialScheduleTest, GEN_1N_1D_Empty_Loop) {
 TEST(DefaultSequentialScheduleTest, GEN_1N_1D) {
   LoopChain chain;
 
-  string lower[1];
-  string upper[1];
-  string symbol[1];
+  {
+    string lower[1] = { "1" };
+    string upper[1] = { "N" };
+    string symbols[1] = { "N" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbols, 1 ) ) );
+  }
 
-  lower[0] = "0";
-  upper[0] = "N";
-  symbol[0] = "N";
-  RectangularDomain domain( lower, upper, 1, symbol, 1 );
-
-  chain.append( LoopNest( domain ) );
   vector<Scheduler*> schedulers;
   schedulers.push_back( new DefaultSequentialSchedule() );
 
@@ -60,13 +54,12 @@ TEST(DefaultSequentialScheduleTest, GEN_1N_1D) {
 TEST(DefaultSequentialScheduleTest, GEN_1N_2D) {
   LoopChain chain;
 
-  string lower[2] = { "0", "K" };
-  string upper[2] = { "N", "M" };
-  string symbol[3] = { "K", "N", "M" };
-
-  RectangularDomain domain( lower, upper, 2, symbol, 3 );
-
-  chain.append( LoopNest( domain ) );
+  {
+    string lower[2] = { "0", "K" };
+    string upper[2] = { "N", "M" };
+    string symbol[3] = { "K", "N", "M" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 2, symbol, 3 ) ) );
+  }
 
   vector<Scheduler*> schedulers;
   schedulers.push_back( new DefaultSequentialSchedule() );
@@ -79,34 +72,33 @@ TEST(DefaultSequentialScheduleTest, GEN_1N_2D) {
 TEST(DefaultSequentialScheduleTest, GEN_4N_1D) {
   LoopChain chain;
 
-  string lower[1];
-  string upper[1];
-  string symbols[1];
+  {
+    string lower[1] = { "1" };
+    string upper[1] = { "N" };
+    string symbol[1] = { "N" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbol, 1 ) ) );
+  }
 
-  lower[0] = "0";
-  upper[0] = "N";
-  symbols[0] = "N";
-  RectangularDomain domain_1( lower, upper, 1, symbols, 1 );
+  {
+    string lower[1] = { "1" };
+    string upper[1] = { "M" };
+    string symbol[1] = { "M" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbol, 1 ) ) );
+  }
 
-  lower[0] = "1";
-  upper[0] = "M";
-  symbols[0] = "M";
-  RectangularDomain domain_2( lower, upper, 1, symbols, 1 );
+  {
+    string lower[1] = { "1" };
+    string upper[1] = { "K" };
+    string symbol[1] = { "K" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbol, 1 ) ) );
+  }
 
-  lower[0] = "2";
-  upper[0] = "J";
-  symbols[0] = "J";
-  RectangularDomain domain_3( lower, upper, 1, symbols, 1 );
-
-  lower[0] = "3";
-  upper[0] = "K";
-  symbols[0] = "K";
-  RectangularDomain domain_4( lower, upper, 1, symbols, 1 );
-
-  chain.append( LoopNest( domain_1 ) );
-  chain.append( LoopNest( domain_2 ) );
-  chain.append( LoopNest( domain_3 ) );
-  chain.append( LoopNest( domain_4 ) );
+  {
+    string lower[1] = { "1" };
+    string upper[1] = { "J" };
+    string symbol[1] = { "J" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbol, 1 ) ) );
+  }
 
   vector<Scheduler*> schedulers;
   schedulers.push_back( new DefaultSequentialSchedule() );
@@ -116,31 +108,67 @@ TEST(DefaultSequentialScheduleTest, GEN_4N_1D) {
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
 
+TEST(DefaultSequentialScheduleTest, GEN_3N_1D_2D_3D) {
+  LoopChain chain;
+
+  {
+    string lower[1] = {"0"};
+    string upper[1] = {"N"};
+    string symbols[1] = {"N"};
+
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbols, 1 ) ) );
+  }
+
+  {
+    string lower[2] = {"1","2"};
+    string upper[2] = {"M","M"};
+    string symbols[2] = {"M"};
+
+    chain.append( LoopNest( RectangularDomain( lower, upper, 2, symbols, 1 ) ) );
+  }
+
+  {
+    string lower[3] = {"3","4","5"};
+    string upper[3] = {"O","P","6"};
+    string symbols[3] = {"O","P"};
+
+    chain.append( LoopNest( RectangularDomain( lower, upper, 3, symbols, 2 ) ) );
+  }
+
+  vector<Scheduler*> schedulers;
+  schedulers.push_back( new DefaultSequentialSchedule() );
+
+  Schedule sched = apply( chain, schedulers );
+
+  ASSERT_NE( sched.codegen(), string("{\n}\n") );
+}
+
+
 TEST(DefaultSequentialScheduleTest, SC_Loops_Default) {
   LoopChain chain;
 
   string symbols[6] = { "Lx","Ux","Ly","Uy","Lz","Uz" };
+  string lower[3] = { "Lx", "Ly", "Lz" };
 
-  string d1_lower[3] = { "Lx", "Ly", "Lz" };
-  string d1_upper[3] = { "Ux+1", "Uy", "Uz" };
-  RectangularDomain domain_1( d1_lower, d1_upper, 3, symbols, 6 );
+  {
+    string upper[3] = { "Ux+1", "Uy", "Uz" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 3, symbols, 6 ) ) );
+  }
 
-  string d2_lower[3] = { "Lx", "Ly", "Lz" };
-  string d2_upper[3] = { "Ux", "Uy+1", "Uz" };
-  RectangularDomain domain_2( d2_lower, d2_upper, 3, symbols, 6 );
+  {
+    string upper[3] = { "Ux", "Uy+1", "Uz" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 3, symbols, 6 ) ) );
+  }
 
-  string d3_lower[3] = { "Lx", "Ly", "Lz" };
-  string d3_upper[3] = { "Ux", "Uy", "Uz+1" };
-  RectangularDomain domain_3( d3_lower, d3_upper, 3, symbols, 6 );
+  {
+    string upper[3] = { "Ux", "Uy", "Uz+1" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 3, symbols, 6 ) ) );
+  }
 
-  string d4_lower[3] = { "Lx", "Ly", "Lz" };
-  string d4_upper[3] = { "Ux", "Uy", "Uz" };
-  RectangularDomain domain_4( d4_lower, d4_upper, 3, symbols, 6 );
-
-  chain.append( LoopNest( domain_1 ) );
-  chain.append( LoopNest( domain_2 ) );
-  chain.append( LoopNest( domain_3 ) );
-  chain.append( LoopNest( domain_4 ) );
+  {
+    string upper[3] = { "Ux", "Uy", "Uz" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 3, symbols, 6 ) ) );
+  }
 
   vector<Scheduler*> schedulers;
   schedulers.push_back( new DefaultSequentialSchedule() );
