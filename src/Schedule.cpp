@@ -163,7 +163,7 @@ std::string Schedule::codegen( ){
   isl_union_map* schedule = isl_union_map_intersect_domain(transformation, full_domain);
 
   // Create a memory file (and stream) to write to
-  int bytes = 2048;
+  int bytes = 1028*4;
   int type_size = sizeof(char);
 
   FILE* memory_file = fmemopen( calloc(bytes, type_size), bytes*type_size, "r+" );
@@ -182,6 +182,15 @@ std::string Schedule::codegen( ){
   std::rewind(memory_file);
   std::fread(&code_text[0], 1, code_text.size(), memory_file );
   std::fclose( memory_file );
+
+  // Fix weird issue where isl generates empty code body (i.e. {\n}\n)
+  // but leaves in the remaining file as null bytes.
+  // somehow this gets copied over from the FILE to the string and makes a big
+  // mess of things. Here we find the first null character and trim to it.
+  std::size_t find_null = code_text.find( '\0' );
+  if( find_null != std::string::npos ){
+    code_text.resize( find_null );
+  }
 
   // Free ISL objects
   /*

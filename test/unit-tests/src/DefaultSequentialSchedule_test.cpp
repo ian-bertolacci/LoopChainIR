@@ -16,7 +16,27 @@ Copyright 2015 Colorado State University
 
 using namespace std;
 
-TEST(DefaultSequentialScheduleTest, Gen_OneChain) {
+TEST(DefaultSequentialScheduleTest, GEN_1N_1D_Empty_Loop) {
+  LoopChain chain;
+
+  string lower[1];
+  string upper[1];
+  string symbol[1];
+
+  lower[0] = "1";
+  upper[0] = "0";
+  RectangularDomain domain( lower, upper, 1 );
+
+  chain.append( LoopNest( domain ) );
+  vector<Scheduler*> schedulers;
+  schedulers.push_back( new DefaultSequentialSchedule() );
+
+  Schedule sched = apply( chain, schedulers );
+  ASSERT_EQ( sched.codegen(), string("{\n}\n") );
+}
+
+
+TEST(DefaultSequentialScheduleTest, GEN_1N_1D) {
   LoopChain chain;
 
   string lower[1];
@@ -33,11 +53,11 @@ TEST(DefaultSequentialScheduleTest, Gen_OneChain) {
   schedulers.push_back( new DefaultSequentialSchedule() );
 
   Schedule sched = apply( chain, schedulers );
-  
-  cout << sched << "\n" << sched.codegen() << endl;
+
+  ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
 
-TEST(DefaultSequentialScheduleTest, Gen_OneChain_TwoD) {
+TEST(DefaultSequentialScheduleTest, GEN_1N_2D) {
   LoopChain chain;
 
   string lower[2] = { "0", "K" };
@@ -53,10 +73,10 @@ TEST(DefaultSequentialScheduleTest, Gen_OneChain_TwoD) {
 
   Schedule sched = apply( chain, schedulers );
 
-  cout << sched << "\n" << sched.codegen() << endl;
+  ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
 
-TEST(DefaultSequentialScheduleTest, Gen_FourChain) {
+TEST(DefaultSequentialScheduleTest, GEN_4N_1D) {
   LoopChain chain;
 
   string lower[1];
@@ -93,8 +113,7 @@ TEST(DefaultSequentialScheduleTest, Gen_FourChain) {
 
   Schedule sched = apply( chain, schedulers );
 
-  cout << sched << "\n" << sched.codegen() << endl;
-
+  ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
 
 TEST(DefaultSequentialScheduleTest, SC_Loops_Default) {
@@ -128,6 +147,5 @@ TEST(DefaultSequentialScheduleTest, SC_Loops_Default) {
 
   Schedule sched = apply( chain, schedulers );
 
-  cout << sched << "\n" << sched.codegen() << endl;
-
+  ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
