@@ -58,6 +58,7 @@ OBJS = $(BIN)/RectangularDomain.o \
        $(BIN)/LoopChain.o \
 			 $(BIN)/LoopNest.o \
 			 $(BIN)/Schedule.o \
+			 $(BIN)/Scheduler.o \
 			 $(BIN)/DefaultSequentialSchedule.o \
 			 $(BIN)/util.o
 
@@ -86,6 +87,9 @@ $(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.hpp $(SRC)/
 
 $(BIN)/Schedule.o: $(SRC)/Schedule.hpp $(SRC)/Schedule.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/Schedule.cpp -c -o $@
+
+$(BIN)/Scheduler.o: $(SRC)/Scheduler.hpp $(SRC)/Scheduler.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/Scheduler.cpp -c -o $@
 
 $(BIN)/util.o: $(SRC)/util.hpp $(SRC)/util.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/util.cpp -c -o $@
