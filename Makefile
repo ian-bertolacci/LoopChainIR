@@ -16,6 +16,8 @@ THIRD_PARTY_SRC=$(THIRD_PARTY)/source
 THIRD_PARTY_BUILD=$(THIRD_PARTY)/build
 THIRD_PARTY_INSTALL=$(THIRD_PARTY)/install
 
+INITED_FILE=$(THIRD_PARTY)/initialized
+
 DOC_PATH = $(PROJECT_DIR)/doxygen
 
 LIB=$(THIRD_PARTY_INSTALL)/lib
@@ -68,31 +70,12 @@ EXE=$(BIN)/LoopChainIR.a
 
 all: $(EXE)
 
-$(EXE): $(OBJS)
+$(EXE): $(OBJS) $(INITED_FILE)
 	$(AR) $(ARFLAGS) $@ $^
 
 # Building the Ojbect Files
-
-$(BIN)/RectangularDomain.o: $(SRC)/RectangularDomain.hpp $(SRC)/RectangularDomain.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/RectangularDomain.cpp -c -o $@
-
-$(BIN)/LoopChain.o: $(SRC)/LoopChain.hpp $(SRC)/LoopChain.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/LoopChain.cpp -c -o $@
-
-$(BIN)/LoopNest.o: $(SRC)/LoopNest.hpp $(SRC)/LoopNest.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/LoopNest.cpp -c -o $@
-
-$(BIN)/DefaultSequentialSchedule.o: $(SRC)/DefaultSequentialSchedule.hpp $(SRC)/DefaultSequentialSchedule.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/DefaultSequentialSchedule.cpp -c -o $@
-
-$(BIN)/Schedule.o: $(SRC)/Schedule.hpp $(SRC)/Schedule.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/Schedule.cpp -c -o $@
-
-$(BIN)/Scheduler.o: $(SRC)/Scheduler.hpp $(SRC)/Scheduler.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/Scheduler.cpp -c -o $@
-
-$(BIN)/util.o: $(SRC)/util.hpp $(SRC)/util.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $(SRC)/util.cpp -c -o $@
+$(OBJS): $(BIN)/%.o : $(SRC)/%.cpp $(SRC)/%.hpp $(INITED_FILE)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $< -c -o $@
 
 # Testing
 all-tests: unit-tests regression-tests
@@ -102,7 +85,7 @@ unit-tests: $(UNIT_TESTS)
 regression-tests: $(EXE)
 	python $(UTIL)/regression-util.py $(addprefix $(REG_TEST_DIR)/,$(REG_TESTS))
 
-$(UNIT_TESTS): $(UNIT_TEST_BIN)/gtest_main.a $(EXE)
+$(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(LIB) -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
@@ -132,8 +115,9 @@ documentation: clean-doc
 
 # Initialize the project and install third-party materials
 init: initialize
+initialize: $(INITED_FILE)
 
-initialize: clean-all
+$(INITED_FILE): $(THIRD_PARTY)
 	mkdir $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 	mkdir $(LIB)
 	mkdir $(INC)
@@ -150,6 +134,7 @@ initialize: clean-all
 	&& ./configure --prefix=$(THIRD_PARTY_INSTALL) \
 	&& make -j$(MAKE_JOBS) \
 	&& make install
+	touch $(INITED_FILE)
 
 # Cleaning
 neat:
@@ -160,6 +145,7 @@ clean-doc:
 
 clean-third-party:
 	- rm -rf $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
+	- rm $(INITED_FILE)
 
 clean-test:
 	- rm -r $(UNIT_TEST_BIN)/* $(REG_TEST_DIR)/*.log $(REG_TEST_DIR)/*.dir

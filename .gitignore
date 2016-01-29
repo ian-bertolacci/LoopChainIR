@@ -37,6 +37,7 @@ doxygen/
 # Third-Party Builds
 third-party/install/
 third-party/build/
+third-party/initialized
 
 # Test outputs
 test/unit-tests/bin/*
