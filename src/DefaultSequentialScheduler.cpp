@@ -1,5 +1,5 @@
 /*******************************************************************************
-\file DefaultSequentialSchedule.cpp
+\file DefaultSequentialScheduler.cpp
 \autors Ian J. Bertolacci
 
 \purpose
@@ -9,11 +9,11 @@ Generate a simple sequential, non-parallel schedule.
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#include "DefaultSequentialSchedule.hpp"
+#include "DefaultSequentialScheduler.hpp"
 #include <iostream>
 
-DefaultSequentialSchedule::DefaultSequentialSchedule(){ }
+DefaultSequentialScheduler::DefaultSequentialScheduler(){ }
 
-Schedule& DefaultSequentialSchedule::apply( Schedule& schedule ){
+Schedule& DefaultSequentialScheduler::apply( Schedule& schedule ){
   return schedule;
 }

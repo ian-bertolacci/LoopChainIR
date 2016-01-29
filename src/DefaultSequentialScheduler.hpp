@@ -1,5 +1,5 @@
 /*! ****************************************************************************
-\file DefaultSequentialSchedule.hpp
+\file DefaultSequentialScheduler.hpp
 \autors Ian J. Bertolacci
 
 \brief
@@ -24,10 +24,10 @@ Copyright 2016 Colorado State University
 /*!
 Schedules a loopchain in the default, sequential manner.
 */
-class DefaultSequentialSchedule : public Scheduler {
+class DefaultSequentialScheduler : public Scheduler {
 
 public:
-  DefaultSequentialSchedule( );
+  DefaultSequentialScheduler( );
 
   Schedule& apply( Schedule& schedule );
 };

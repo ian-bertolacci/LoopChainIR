@@ -930,7 +930,7 @@ class ExecutableRegressionTest( RegressionTest ):
       [ "vector<Scheduler*> schedulers;" ] \
       + [
         # TODO Dynamically add schedules
-        "schedulers.push_back( new DefaultSequentialSchedule() );",
+        "schedulers.push_back( new DefaultSequentialScheduler() );",
       ] \
       + [
         "Schedule schedule = apply( chain, schedulers );",

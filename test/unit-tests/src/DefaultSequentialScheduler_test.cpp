@@ -1,22 +1,22 @@
 /*******************************************************************************
-\file DefaultSequentialSchedule_test.cpp
+\file DefaultSequentialScheduler_test.cpp
 \autors Ian J. Bertolacci
 
 \purpose
-To perform unit testsing on the DefaultSequentialSchedule code generator.
+To perform unit testsing on the DefaultSequentialScheduler code generator.
 
 \copyright
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "DefaultSequentialSchedule.hpp"
+#include "DefaultSequentialScheduler.hpp"
 #include <iostream>
 #include <utility>
 
 using namespace std;
 
-TEST(DefaultSequentialScheduleTest, GEN_1N_1D_Empty_Loop) {
+TEST(DefaultSequentialSchedulerTest, GEN_1N_1D_Empty_Loop) {
   LoopChain chain;
 
   {
@@ -26,14 +26,14 @@ TEST(DefaultSequentialScheduleTest, GEN_1N_1D_Empty_Loop) {
   }
 
   vector<Scheduler*> schedulers;
-  schedulers.push_back( new DefaultSequentialSchedule() );
+  schedulers.push_back( new DefaultSequentialScheduler() );
 
   Schedule sched = apply( chain, schedulers );
   ASSERT_EQ( sched.codegen(), string("{\n}\n") );
 }
 
 
-TEST(DefaultSequentialScheduleTest, GEN_1N_1D) {
+TEST(DefaultSequentialSchedulerTest, GEN_1N_1D) {
   LoopChain chain;
 
   {
@@ -44,14 +44,14 @@ TEST(DefaultSequentialScheduleTest, GEN_1N_1D) {
   }
 
   vector<Scheduler*> schedulers;
-  schedulers.push_back( new DefaultSequentialSchedule() );
+  schedulers.push_back( new DefaultSequentialScheduler() );
 
   Schedule sched = apply( chain, schedulers );
 
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
 
-TEST(DefaultSequentialScheduleTest, GEN_1N_2D) {
+TEST(DefaultSequentialSchedulerTest, GEN_1N_2D) {
   LoopChain chain;
 
   {
@@ -62,14 +62,14 @@ TEST(DefaultSequentialScheduleTest, GEN_1N_2D) {
   }
 
   vector<Scheduler*> schedulers;
-  schedulers.push_back( new DefaultSequentialSchedule() );
+  schedulers.push_back( new DefaultSequentialScheduler() );
 
   Schedule sched = apply( chain, schedulers );
 
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
 
-TEST(DefaultSequentialScheduleTest, GEN_4N_1D) {
+TEST(DefaultSequentialSchedulerTest, GEN_4N_1D) {
   LoopChain chain;
 
   {
@@ -101,14 +101,14 @@ TEST(DefaultSequentialScheduleTest, GEN_4N_1D) {
   }
 
   vector<Scheduler*> schedulers;
-  schedulers.push_back( new DefaultSequentialSchedule() );
+  schedulers.push_back( new DefaultSequentialScheduler() );
 
   Schedule sched = apply( chain, schedulers );
 
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
 
-TEST(DefaultSequentialScheduleTest, GEN_3N_1D_2D_3D) {
+TEST(DefaultSequentialSchedulerTest, GEN_3N_1D_2D_3D) {
   LoopChain chain;
 
   {
@@ -136,7 +136,7 @@ TEST(DefaultSequentialScheduleTest, GEN_3N_1D_2D_3D) {
   }
 
   vector<Scheduler*> schedulers;
-  schedulers.push_back( new DefaultSequentialSchedule() );
+  schedulers.push_back( new DefaultSequentialScheduler() );
 
   Schedule sched = apply( chain, schedulers );
 
@@ -144,7 +144,7 @@ TEST(DefaultSequentialScheduleTest, GEN_3N_1D_2D_3D) {
 }
 
 
-TEST(DefaultSequentialScheduleTest, SC_Loops_Default) {
+TEST(DefaultSequentialSchedulerTest, SC_Loops_Default) {
   LoopChain chain;
 
   string symbols[6] = { "Lx","Ux","Ly","Uy","Lz","Uz" };
@@ -171,7 +171,7 @@ TEST(DefaultSequentialScheduleTest, SC_Loops_Default) {
   }
 
   vector<Scheduler*> schedulers;
-  schedulers.push_back( new DefaultSequentialSchedule() );
+  schedulers.push_back( new DefaultSequentialScheduler() );
 
   Schedule sched = apply( chain, schedulers );
 

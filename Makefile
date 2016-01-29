@@ -40,7 +40,7 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 UNIT_TESTS = RectangularDomain_test \
 						 LoopNest_test \
 						 LoopChain_test \
-						 DefaultSequentialSchedule_test \
+						 DefaultSequentialScheduler_test \
 						 Schedule_test
 
 REG_TESTS = 1N_1D.test \
@@ -61,7 +61,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/LoopNest.o \
 			 $(BIN)/Schedule.o \
 			 $(BIN)/Scheduler.o \
-			 $(BIN)/DefaultSequentialSchedule.o \
+			 $(BIN)/DefaultSequentialScheduler.o \
 			 $(BIN)/util.o
 
 
