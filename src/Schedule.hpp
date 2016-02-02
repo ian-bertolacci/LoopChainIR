@@ -25,6 +25,7 @@ class Schedule{
 public:
   typedef std::vector<std::string>::iterator iterator;
   typedef std::vector<std::string>::const_iterator const_iterator;
+  typedef std::vector<std::string>::size_type size_type;
 
 private:
   LoopChain chain;

@@ -32,8 +32,7 @@ TEST(DefaultSequentialSchedulerTest, GEN_1N_1D_Empty_Loop) {
   ASSERT_EQ( sched.codegen(), string("{\n}\n") );
 }
 
-
-TEST(DefaultSequentialSchedulerTest, GEN_1N_1D) {
+TEST(DefaultSequentialSchedulerTest, GEN_1N_1D_With_Chain_Vector) {
   LoopChain chain;
 
   {
@@ -47,6 +46,61 @@ TEST(DefaultSequentialSchedulerTest, GEN_1N_1D) {
   schedulers.push_back( new DefaultSequentialScheduler() );
 
   Schedule sched = apply( chain, schedulers );
+
+  ASSERT_NE( sched.codegen(), string("{\n}\n") );
+}
+
+TEST(DefaultSequentialSchedulerTest, GEN_1N_1D_With_Schedule_Vector) {
+  LoopChain chain;
+
+  {
+    string lower[1] = { "1" };
+    string upper[1] = { "N" };
+    string symbols[1] = { "N" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbols, 1 ) ) );
+  }
+
+  vector<Scheduler*> schedulers;
+  schedulers.push_back( new DefaultSequentialScheduler() );
+
+  Schedule sched( chain );
+  apply( chain, schedulers );
+
+  ASSERT_NE( sched.codegen(), string("{\n}\n") );
+}
+
+
+TEST(DefaultSequentialSchedulerTest, GEN_1N_1D_With_Chain_Array) {
+  LoopChain chain;
+
+  {
+    string lower[1] = { "1" };
+    string upper[1] = { "N" };
+    string symbols[1] = { "N" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbols, 1 ) ) );
+  }
+
+  Scheduler* schedulers[1] = { new DefaultSequentialScheduler() };
+
+  Schedule sched = apply( chain, schedulers, 1 );
+
+  ASSERT_NE( sched.codegen(), string("{\n}\n") );
+}
+
+TEST(DefaultSequentialSchedulerTest, GEN_1N_1D_With_Schedule_Array) {
+  LoopChain chain;
+
+  {
+    string lower[1] = { "1" };
+    string upper[1] = { "N" };
+    string symbols[1] = { "N" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbols, 1 ) ) );
+  }
+
+  Scheduler* schedulers[1] = { new DefaultSequentialScheduler() };
+
+  Schedule sched( chain );
+  apply( chain, schedulers, 1 );
 
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
