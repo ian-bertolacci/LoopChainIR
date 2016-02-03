@@ -40,8 +40,11 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 UNIT_TESTS = RectangularDomain_test \
 						 LoopNest_test \
 						 LoopChain_test \
+						 Schedule_test \
 						 DefaultSequentialScheduler_test \
-						 Schedule_test
+						 FusionScheduler_test
+
+
 
 REG_TESTS = 1N_1D.test \
 						1N_2D.test \
@@ -62,6 +65,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/Schedule.o \
 			 $(BIN)/Scheduler.o \
 			 $(BIN)/DefaultSequentialScheduler.o \
+			 $(BIN)/FusionScheduler.o \
 			 $(BIN)/util.o
 
 
@@ -131,6 +135,8 @@ $(INITED_FILE): $(THIRD_PARTY)
 	tar -xzf $(THIRD_PARTY_SRC)/isl-0.15.tar.gz -C $(THIRD_PARTY_BUILD)/.
 	mv $(THIRD_PARTY_BUILD)/isl-0.15 $(THIRD_PARTY_BUILD)/isl
 		 cd $(THIRD_PARTY_BUILD)/isl \
+	&& export CPPFLAGS=-ggdb \
+	&& export CFLAGS=-ggdb \
 	&& ./configure --prefix=$(THIRD_PARTY_INSTALL) \
 	&& make -j$(MAKE_JOBS) \
 	&& make install

@@ -25,7 +25,9 @@ Schedule::Schedule( LoopChain& chain ) :
   std::ostringstream ordering_string;
   ordering_string << "{";
 
-  RectangularDomain::size_type iterators_length = this->chain.maxDimension();
+  // The maximum dimensionality of all the domains in the chain.
+  // this is used to pad iterations that are of lower dimensionality.
+  RectangularDomain::size_type max_dims = this->chain.maxDimension();
 
   for( LoopChain::size_type nest_idx = 0; nest_idx < this->chain.length(); nest_idx += 1 ){
     LoopNest& nest = this->chain.getNest( nest_idx );
@@ -69,7 +71,7 @@ Schedule::Schedule( LoopChain& chain ) :
     }// for_each dimension
 
     // Expand the iterator string if necessary
-    for( RectangularDomain::size_type dimension = domain.dimensions(); dimension < iterators_length; dimension += 1 ){
+    for( RectangularDomain::size_type dimension = domain.dimensions(); dimension < max_dims; dimension += 1 ){
       padding_string << ",0";
     }
 
@@ -93,10 +95,17 @@ Schedule::Schedule( LoopChain& chain ) :
 
   ordering_string << "}";
 
-  this->transformations.push_back( ordering_string.str() );
+  this->append( ordering_string.str() );
+
+  this->iterators_length = max_dims + 2;
 
 }
 
+
+Schedule::size_type Schedule::append( std::string text ){
+  this->transformations.push_back( text );
+  return this->transformations.size()-1;
+}
 
 Schedule::iterator Schedule::begin_domains(){
   return this->domains.begin();
@@ -151,6 +160,7 @@ std::string Schedule::codegen( ){
   isl_union_map* transformation = NULL;
 
   for( Schedule::iterator it = this->begin_transformations(); it != this->end_transformations(); ++it){
+    std::cout << (*it) << std::endl;
     isl_union_map* map = isl_union_map_read_from_str(ctx, (*it).c_str());
     if( transformation == NULL ){
       transformation = map;
@@ -212,6 +222,19 @@ std::string Schedule::codegen( ){
   return code_text;
 }
 
+RectangularDomain::size_type Schedule::getIteratorsLength() {
+  return this->iterators_length;
+}
+
+RectangularDomain::size_type Schedule::modifyIteratorsLength( int delta ){
+  if( (RectangularDomain::size_type) abs( delta ) > this->getIteratorsLength() ){
+    // EXCEPTION?
+  }
+
+  this->iterators_length += delta;
+
+  return this->getIteratorsLength();
+}
 
 std::ostream& operator<<( std::ostream& os, const Schedule& schedule){
   os << "Domains:" << std::endl;

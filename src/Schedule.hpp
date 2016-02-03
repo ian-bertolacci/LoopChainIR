@@ -12,6 +12,7 @@ Copyright 2015 Colorado State University
 #define SCHEDULE_HPP
 
 #include "LoopChain.hpp"
+#include "RectangularDomain.hpp"
 #include "util.hpp"
 #include <string>
 #include <vector>
@@ -29,13 +30,19 @@ public:
 
 private:
   LoopChain chain;
-  int iterators_length;
+  RectangularDomain::size_type iterators_length;
   std::vector<std::string> transformations;
   std::vector<std::string> domains;
 
 public:
   Schedule( LoopChain& chain );
 
+  RectangularDomain::size_type getIteratorsLength();
+
+  RectangularDomain::size_type modifyIteratorsLength( int delta );
+
+
+  size_type append( std::string );
   /*!
   \brief
   starting iterator over the domain strings
