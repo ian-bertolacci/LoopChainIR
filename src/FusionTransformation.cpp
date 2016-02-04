@@ -23,7 +23,7 @@ FusionTransformation::FusionTransformation( LoopChain::size_type loops[], int nu
   fusion_loops(loops, loops+num_loops)
   { }
 
-Schedule& FusionTransformation::apply( Schedule& schedule ){
+std::string& FusionTransformation::apply( Schedule& schedule ){
   std::ostringstream input_iteration;
   std::ostringstream output_iteration;
   std::ostringstream source;
@@ -66,14 +66,15 @@ Schedule& FusionTransformation::apply( Schedule& schedule ){
             << target.str() << "\n"
             << std::endl;
 
-  std::string transformation = SSTR( "{" << "\n"
+  std::string* transformation = new std::string(
+                               SSTR( "{" << "\n"
                                   << "[" << input_iteration.str() << "] -> [" << output_iteration.str() << "] : " << target.str() << " and " << source.str() << ";\n"
                                   << "[" << input_iteration.str() << "] -> [" << input_iteration.str() << "] : !" << source.str() << "\n"
                                   << "};"
-                                );
+                                )
+                              );
   std::cout << transformation << std::endl;
-  schedule.append( transformation );
-  return schedule;
+  return *transformation;
 }
 
 FusionTransformation::iterator FusionTransformation::begin(){

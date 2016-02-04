@@ -14,6 +14,11 @@ Copyright 2015 Colorado State University
 
 DefaultSequentialTransformation::DefaultSequentialTransformation(){ }
 
-Schedule& DefaultSequentialTransformation::apply( Schedule& schedule ){
-  return schedule;
+std::string& DefaultSequentialTransformation::apply( Schedule& schedule ){
+  // To trick the compiler into thinking schedule is used.
+  schedule.getIteratorsLength();
+
+  // Produce empty transformation.
+  std::string* transformation = new std::string();
+  return *transformation;
 }

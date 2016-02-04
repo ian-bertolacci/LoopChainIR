@@ -63,7 +63,6 @@ OBJS = $(BIN)/RectangularDomain.o \
        $(BIN)/LoopChain.o \
 			 $(BIN)/LoopNest.o \
 			 $(BIN)/Schedule.o \
-			 $(BIN)/Transformation.o \
 			 $(BIN)/DefaultSequentialTransformation.o \
 			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/util.o

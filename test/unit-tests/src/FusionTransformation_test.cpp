@@ -41,7 +41,8 @@ TEST(DefaultSequentialTransformationTest, Fuse_2N_1D) {
   cout << "We ok "<< endl;
   schedulers.push_back( a );
   cout << "we still ok "<< endl;
-  Schedule sched = apply( chain, schedulers );
+  Schedule sched( chain );
+  sched.apply( schedulers );
   cout << "we might still be ok "<< endl;
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
   cout << "we made it "<< endl;

@@ -933,7 +933,8 @@ class ExecutableRegressionTest( RegressionTest ):
         "schedulers.push_back( new DefaultSequentialTransformation() );",
       ] \
       + [
-        "Schedule schedule = apply( chain, schedulers );",
+        "Schedule schedule(chain);",
+        "schedule.apply( schedulers );",
         "string text = schedule.codegen();",
         "cout << text << endl;",
         "writeTextToFile( schedule.codegen(), \"generated_chain_output.cpp\" );"

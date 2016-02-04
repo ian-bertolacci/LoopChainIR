@@ -13,16 +13,23 @@ Copyright 2015 Colorado State University
 
 #include "LoopChain.hpp"
 #include "RectangularDomain.hpp"
+#include "Transformation.hpp"
 #include "util.hpp"
 #include <string>
 #include <vector>
 #include <iostream>
 #include <sstream>
+
+// Forward declarations because C++ was a mistake.
+class Transformation;
+
+
+
 /*!
 \brief
 Encapsulates a loop chain and its transformation schedules.
 */
-class Schedule{
+class Schedule {
 public:
   typedef std::vector<std::string>::iterator iterator;
   typedef std::vector<std::string>::const_iterator const_iterator;
@@ -34,6 +41,15 @@ private:
   std::vector<std::string> transformations;
   std::vector<std::string> domains;
 
+  /*!
+  \brief
+  Appends an ISCC code string to transformations.
+
+  \returns
+  The index where the string was deposited
+  */
+  size_type append( std::string text );
+
 public:
   Schedule( LoopChain& chain );
 
@@ -42,7 +58,20 @@ public:
   RectangularDomain::size_type modifyIteratorsLength( int delta );
 
 
-  size_type append( std::string );
+
+
+  /*!
+  \brief
+  Apply the Transformation to the schedule.
+  */
+  void apply( Transformation& scheduler );
+
+  /*!
+  \brief
+  Apply the Transformation to the schedule.
+  */
+  void apply( std::vector<Transformation*> schedulers );
+
   /*!
   \brief
   starting iterator over the domain strings

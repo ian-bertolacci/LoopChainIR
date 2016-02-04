@@ -14,6 +14,7 @@ Copyright 2016 Colorado State University
 
 #include "LoopChain.hpp"
 #include "Transformation.hpp"
+#include "Schedule.hpp"
 
 #include <string>
 #include <vector>
@@ -37,7 +38,7 @@ public:
   /*!
   \returns Reference to schedule which has been scheduled
   */
-  Schedule& apply( Schedule& schedule );
+  std::string& apply( Schedule& schedule );
 };
 
 

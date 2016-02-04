@@ -42,7 +42,7 @@ public:
   /*!
   \returns Reference to schedule which has been scheduled
   */
-  Schedule& apply( Schedule& schedule );
+  std::string& apply( Schedule& schedule );
 };
 
 #endif

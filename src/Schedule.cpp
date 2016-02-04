@@ -17,6 +17,7 @@ Copyright 2015 Colorado State University
 #include <cstdio>
 #include <unistd.h>
 
+
 Schedule::Schedule( LoopChain& chain ) :
   chain(chain)
   {
@@ -101,9 +102,21 @@ Schedule::Schedule( LoopChain& chain ) :
 
 }
 
+void Schedule::apply( Transformation& scheduler ){
+  this->append( scheduler.apply(*this) );
+}
+
+void Schedule::apply( std::vector<Transformation*> schedulers ){
+  for( std::vector<Transformation*>::iterator it = schedulers.begin(); it != schedulers.end(); ++it ){
+    this->apply( **it );
+  }
+}
 
 Schedule::size_type Schedule::append( std::string text ){
-  this->transformations.push_back( text );
+  if( text != "" ){
+    this->transformations.push_back( text );
+  }
+
   return this->transformations.size()-1;
 }
 

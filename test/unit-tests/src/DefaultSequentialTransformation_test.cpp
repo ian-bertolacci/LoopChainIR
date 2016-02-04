@@ -29,8 +29,8 @@ TEST(DefaultSequentialTransformationTest, GEN_1N_1D_Empty_Loop) {
   schedulers.push_back( new DefaultSequentialTransformation() );
 
   Schedule sched( chain );
-  apply( schedulers );
-  
+  sched.apply( schedulers );
+
   ASSERT_EQ( sched.codegen(), string("{\n}\n") );
 }
 
@@ -48,7 +48,7 @@ TEST(DefaultSequentialTransformationTest, GEN_1N_1D) {
   schedulers.push_back( new DefaultSequentialTransformation() );
 
   Schedule sched( chain );
-  sched.apply( chain, schedulers );
+  sched.apply( schedulers );
 
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
@@ -106,8 +106,8 @@ TEST(DefaultSequentialTransformationTest, GEN_4N_1D) {
   vector<Transformation*> schedulers;
   schedulers.push_back( new DefaultSequentialTransformation() );
 
-  Schedule sched( chain )
-  sched.apply( chain, schedulers );
+  Schedule sched( chain );
+  sched.apply( schedulers );
 
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
@@ -143,7 +143,7 @@ TEST(DefaultSequentialTransformationTest, GEN_3N_1D_2D_3D) {
   schedulers.push_back( new DefaultSequentialTransformation() );
 
   Schedule sched( chain );
-  apply( schedulers );
+  sched.apply( schedulers );
 
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
@@ -179,7 +179,7 @@ TEST(DefaultSequentialTransformationTest, SC_Loops_Default) {
   schedulers.push_back( new DefaultSequentialTransformation() );
 
   Schedule sched( chain );
-  apply( schedulers );
+  sched.apply( schedulers );
 
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
