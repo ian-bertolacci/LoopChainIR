@@ -1,22 +1,22 @@
 /*! ****************************************************************************
-\file DefaultSequentialScheduler_test.cpp
+\file DefaultSequentialTransformation_test.cpp
 \autors Ian J. Bertolacci
 
 \brief
-To perform unit testsing on the DefaultSequentialScheduler code generator.
+To perform unit testsing on the DefaultSequentialTransformation code generator.
 
 \copyright
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "FusionScheduler.hpp"
+#include "FusionTransformation.hpp"
 #include <iostream>
 #include <utility>
 
 using namespace std;
 
-TEST(DefaultSequentialSchedulerTest, Fuse_2N_1D) {
+TEST(DefaultSequentialTransformationTest, Fuse_2N_1D) {
   LoopChain chain;
 
   {
@@ -33,11 +33,11 @@ TEST(DefaultSequentialSchedulerTest, Fuse_2N_1D) {
     chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbols, 1 ) ) );
   }
 
-  vector<Scheduler*> schedulers;
+  vector<Transformation*> schedulers;
   vector<LoopChain::size_type> fuse_these;
   fuse_these.push_back( (LoopChain::size_type) 0 );
   fuse_these.push_back( (LoopChain::size_type) 1 );
-  FusionScheduler* a = new FusionScheduler( fuse_these );
+  FusionTransformation* a = new FusionTransformation( fuse_these );
   cout << "We ok "<< endl;
   schedulers.push_back( a );
   cout << "we still ok "<< endl;

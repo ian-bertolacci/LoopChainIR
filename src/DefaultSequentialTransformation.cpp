@@ -1,5 +1,5 @@
 /*! ****************************************************************************
-\file DefaultSequentialScheduler.cpp
+\file DefaultSequentialTransformation.cpp
 \autors Ian J. Bertolacci
 
 \brief
@@ -9,11 +9,11 @@ Generate a simple sequential, non-parallel schedule.
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#include "DefaultSequentialScheduler.hpp"
+#include "DefaultSequentialTransformation.hpp"
 #include <iostream>
 
-DefaultSequentialScheduler::DefaultSequentialScheduler(){ }
+DefaultSequentialTransformation::DefaultSequentialTransformation(){ }
 
-Schedule& DefaultSequentialScheduler::apply( Schedule& schedule ){
+Schedule& DefaultSequentialTransformation::apply( Schedule& schedule ){
   return schedule;
 }

@@ -7,7 +7,7 @@
 \brief
 Abstract object that all scheduler 'things' inherit for polymorphic purposes.
 */
-class Scheduler {
+class Transformation {
 public:
   typedef int size_type;
 
@@ -24,45 +24,45 @@ public:
 
 /*!
 \brief
-Apply a series of Schedulers to the given Schedule.
+Apply a series of Transformations to the given Schedule.
 Modifies schedule.
 
 \returns
 a reference to the transformed schedule
 */
-Schedule& apply( Schedule& schedule, std::vector<Scheduler*> schedulers );
+Schedule& apply( Schedule& schedule, std::vector<Transformation*> schedulers );
 
 
 /*!
 \brief
-Apply a series of Schedulers to the given Schedule.
+Apply a series of Transformations to the given Schedule.
 Modifies schedule.
 
 \returns
 a reference to the transformed schedule
 */
-Schedule& apply( Schedule& schedule, Scheduler* schedulers[], Scheduler::size_type num_schedulers );
+Schedule& apply( Schedule& schedule, Transformation* schedulers[], Transformation::size_type num_schedulers );
 
 /*!
 \brief
-Initialize a Schedule for the loop chain and apply a series of Schedulers to
+Initialize a Schedule for the loop chain and apply a series of Transformations to
 that Schedule.
 Modifies schedule.
 
 \returns
 a reference to the transformed schedule
 */
-Schedule& apply( LoopChain& loopchain, std::vector<Scheduler*> schedulers );
+Schedule& apply( LoopChain& loopchain, std::vector<Transformation*> schedulers );
 
 /*!
 \brief
-Initialize a Schedule for the loop chain and apply a series of Schedulers to
+Initialize a Schedule for the loop chain and apply a series of Transformations to
 that Schedule.
 Modifies schedule.
 
 \returns
 a reference to the transformed schedule
 */
-Schedule& apply( LoopChain& loopchain, Scheduler* schedulers[], Scheduler::size_type num_schedulers );
+Schedule& apply( LoopChain& loopchain, Transformation* schedulers[], Transformation::size_type num_schedulers );
 
 #endif

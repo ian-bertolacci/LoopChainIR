@@ -1,5 +1,5 @@
 /*! ****************************************************************************
-\file FusionScheduler.cpp
+\file FusionTransformation.cpp
 \autors Ian J. Bertolacci
 
 \brief
@@ -13,7 +13,7 @@ Copyright 2015 Colorado State University
 #define FUSION_SCHEDULE_HPP
 
 #include "LoopChain.hpp"
-#include "Scheduler.hpp"
+#include "Transformation.hpp"
 
 #include <string>
 #include <vector>
@@ -25,7 +25,7 @@ Copyright 2015 Colorado State University
 Fuses two or more loops into one.
 
 */
-class FusionScheduler : public Scheduler {
+class FusionTransformation : public Transformation {
 private:
   typedef std::vector<LoopChain::size_type>::iterator iterator;
   std::vector<LoopChain::size_type> fusion_loops;
@@ -35,9 +35,9 @@ private:
 
 public:
 
-  FusionScheduler( std::vector<LoopChain::size_type> loops );
+  FusionTransformation( std::vector<LoopChain::size_type> loops );
 
-  FusionScheduler( LoopChain::size_type loops[], int num_loops );
+  FusionTransformation( LoopChain::size_type loops[], int num_loops );
 
   /*!
   \returns Reference to schedule which has been scheduled

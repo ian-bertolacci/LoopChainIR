@@ -1,5 +1,5 @@
 /*! ****************************************************************************
-\file FusionScheduler.cpp
+\file FusionTransformation.cpp
 \autors Ian J. Bertolacci
 
 \brief
@@ -9,21 +9,21 @@ Fuses a series of loops nests.
 Copyright 2015 Colorado State University
 *******************************************************************************/
 
-#include "FusionScheduler.hpp"
+#include "FusionTransformation.hpp"
 #include <iostream>
 #include <sstream>
 #include <iostream>
 
-FusionScheduler::FusionScheduler( std::vector<LoopChain::size_type> loops ) :
+FusionTransformation::FusionTransformation( std::vector<LoopChain::size_type> loops ) :
   fusion_loops(loops)
   { }
 
 
-FusionScheduler::FusionScheduler( LoopChain::size_type loops[], int num_loops ) :
+FusionTransformation::FusionTransformation( LoopChain::size_type loops[], int num_loops ) :
   fusion_loops(loops, loops+num_loops)
   { }
 
-Schedule& FusionScheduler::apply( Schedule& schedule ){
+Schedule& FusionTransformation::apply( Schedule& schedule ){
   std::ostringstream input_iteration;
   std::ostringstream output_iteration;
   std::ostringstream source;
@@ -76,10 +76,10 @@ Schedule& FusionScheduler::apply( Schedule& schedule ){
   return schedule;
 }
 
-FusionScheduler::iterator FusionScheduler::begin(){
+FusionTransformation::iterator FusionTransformation::begin(){
   return this->fusion_loops.begin();
 }
 
-FusionScheduler::iterator FusionScheduler::end(){
+FusionTransformation::iterator FusionTransformation::end(){
   return this->fusion_loops.end();
 }

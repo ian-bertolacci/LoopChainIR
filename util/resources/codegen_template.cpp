@@ -7,9 +7,9 @@
 #include "LoopChain.hpp"
 #include "LoopNest.hpp"
 #include "RectangularDomain.hpp"
-#include "DefaultSequentialScheduler.hpp"
+#include "DefaultSequentialTransformation.hpp"
 #include "Schedule.hpp"
-#include "Scheduler.hpp"
+#include "Transformation.hpp"
 
 using namespace std;
 

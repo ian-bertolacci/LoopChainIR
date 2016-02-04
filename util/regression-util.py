@@ -927,10 +927,10 @@ class ExecutableRegressionTest( RegressionTest ):
     # that code (that will be written by the LoopChainIR scheduler) to the file
     # self.path/generated_chain_output.cpp
     scheduleing_texts = \
-      [ "vector<Scheduler*> schedulers;" ] \
+      [ "vector<Transformation*> schedulers;" ] \
       + [
         # TODO Dynamically add schedules
-        "schedulers.push_back( new DefaultSequentialScheduler() );",
+        "schedulers.push_back( new DefaultSequentialTransformation() );",
       ] \
       + [
         "Schedule schedule = apply( chain, schedulers );",
