@@ -1,23 +1,13 @@
-/*! ****************************************************************************
-\file FusionTransformation_test.cpp
-\autors Ian J. Bertolacci
 
-\brief
-To perform unit testsing on the DefaultSequentialTransformation code generator.
-
-\copyright
-Copyright 2015 Colorado State University
-*******************************************************************************/
-
-#include "gtest/gtest.h"
 #include "FusionTransformation.hpp"
 #include <iostream>
 #include <utility>
 
 using namespace std;
 
-TEST(FusionTransformationTest, Fuse_2N_1D) {
+int main(){
   LoopChain chain;
+
 
   {
     string lower[1] = { "1" };
@@ -43,7 +33,18 @@ TEST(FusionTransformationTest, Fuse_2N_1D) {
   cout << "we still ok "<< endl;
   Schedule sched( chain );
   sched.apply( schedulers );
+  cout << "Transformations: " << endl;
+  for( Schedule::iterator it = sched.begin_transformations(); it != sched.end_transformations(); ++it ){
+    cout << *it << endl;
+  }
+  cout << "Domains: " << endl;
+  for( Schedule::iterator it = sched.begin_domains(); it != sched.end_domains(); ++it ){
+    cout << *it << endl;
+  }
+  cout << "     " << endl;
   cout << "we might still be ok "<< endl;
-  ASSERT_NE( sched.codegen(), string("{\n}\n") );
+  cout << sched.codegen() << endl;
   cout << "we made it "<< endl;
+
+  return 0;
 }
