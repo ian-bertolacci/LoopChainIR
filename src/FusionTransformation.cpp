@@ -60,12 +60,6 @@ std::string& FusionTransformation::apply( Schedule& schedule ){
 
 
 
-  std::cout << input_iteration.str() << "\n"
-            << output_iteration.str() << "\n"
-            << source.str() << "\n"
-            << target.str() << "\n"
-            << std::endl;
-
   std::string* transformation = new std::string(
                                SSTR( "{" << "\n"
                                   << "[" << input_iteration.str() << "] -> [" << output_iteration.str() << "] : " << target.str() << " and " << source.str() << ";\n"
@@ -73,7 +67,6 @@ std::string& FusionTransformation::apply( Schedule& schedule ){
                                   << "};"
                                 )
                               );
-  std::cout << transformation << std::endl;
   return *transformation;
 }
 

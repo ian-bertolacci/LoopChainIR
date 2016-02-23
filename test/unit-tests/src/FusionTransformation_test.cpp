@@ -34,16 +34,15 @@ TEST(FusionTransformationTest, Fuse_2N_1D) {
   }
 
   vector<Transformation*> schedulers;
+
   vector<LoopChain::size_type> fuse_these;
   fuse_these.push_back( (LoopChain::size_type) 0 );
   fuse_these.push_back( (LoopChain::size_type) 1 );
-  FusionTransformation* a = new FusionTransformation( fuse_these );
-  cout << "We ok "<< endl;
-  schedulers.push_back( a );
-  cout << "we still ok "<< endl;
+
+  schedulers.push_back( new FusionTransformation( fuse_these ) );
+
   Schedule sched( chain );
   sched.apply( schedulers );
-  cout << "we might still be ok "<< endl;
+
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
-  cout << "we made it "<< endl;
 }

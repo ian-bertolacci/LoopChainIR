@@ -85,8 +85,9 @@ Schedule::Schedule( LoopChain& chain ) :
     // Construct actual ISL domain and append it.
     domains.push_back( domain_string.c_str() );
 
-
-    std::string expanded_form = SSTR( "[" << nest_idx << "," << statement_string.str() << padding_string.str() << "]" );
+    // Create expansion transformation string (i.e. { [i,j] -> [$k,i,j,0] })
+    // where $k is the loop's position in the chain.
+    std::string expanded_form = SSTR( "[" << nest_idx << "," << statement_string.str() << ",0" << padding_string.str() << "]" );
 
     // Create the loop chain map string
     ordering_string << "statement_" << nest_idx << "[" << statement_string.str() << "]"
@@ -173,13 +174,8 @@ std::string Schedule::codegen( ){
   isl_union_map* transformation = NULL;
 
   for( Schedule::iterator it = this->begin_transformations(); it != this->end_transformations(); ++it){
-    std::cout << (*it) << std::endl;
     isl_union_map* map = isl_union_map_read_from_str(ctx, (*it).c_str());
-    if( transformation == NULL ){
-      transformation = map;
-    } else {
-      isl_union_map_apply_range(transformation, map);
-    }
+    transformation = (transformation)? isl_union_map_apply_range(transformation, map) : map;
   }
 
   // Apply transformation to schedule
