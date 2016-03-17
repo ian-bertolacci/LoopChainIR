@@ -16,7 +16,9 @@ Copyright 2015 Colorado State University
 #include <utility>
 
 using namespace std;
-
+/*
+Create a Schedule from a 1N_1D chain
+*/
 TEST(ScheduleTest, Construct_1N_1D_chain) {
   LoopChain chain;
 
@@ -33,6 +35,9 @@ TEST(ScheduleTest, Construct_1N_1D_chain) {
   ASSERT_NE( sched.codegen(), "" );
 }
 
+/*
+Create a Schedule from a 2N_1D_2D chain
+*/
 TEST(ScheduleTest, Construct_2N_1D_2D_chain) {
   LoopChain chain;
 

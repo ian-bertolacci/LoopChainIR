@@ -16,14 +16,23 @@ Copyright 2015 Colorado State University
 
 using namespace std;
 
+/*
+Create a simple 1D Loop nest
+*/
 TEST(LoopNestTest, Test_Getters_1D) {
+  // Construct Domain
   string lower[1] = { "0" };
   string upper[1] = { "1" };
 
   RectangularDomain domain( lower, upper, 1 );
+
+  // Create LoopNest from domain
   LoopNest nest( domain );
+
+  // Test
   RectangularDomain got_domain = nest.getDomain();
 
+  // Compare domains
   EXPECT_EQ( got_domain.dimensions(), domain.dimensions() );
   EXPECT_EQ( got_domain.symbolics(), domain.symbolics() );
 
@@ -37,15 +46,23 @@ TEST(LoopNestTest, Test_Getters_1D) {
   }
 }
 
+/*
+Create a simple 1D Loop with symbols
+*/
 TEST(LoopNestTest, Test_Getters_1D_Symbols) {
+  // Construct domain
   string lower[1] = { "0" };
   string upper[1] = { "N" };
   string symbols[1] = { "N" };
 
-  RectangularDomain domain( lower, upper, 1 );
+  RectangularDomain domain( lower, upper, 1, symbols, 1 );
+  // COnstruct LoopNest from domain
   LoopNest nest( domain );
+
+  // Test
   RectangularDomain got_domain = nest.getDomain();
 
+  // Compare domains
   EXPECT_EQ( got_domain.dimensions(), domain.dimensions() );
   EXPECT_EQ( got_domain.symbolics(), domain.symbolics() );
 
