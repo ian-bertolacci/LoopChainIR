@@ -37,7 +37,7 @@ Schedule::Schedule( LoopChain& chain ) :
     // String of statement
     std::ostringstream statement_string;
 
-    /// String of padding for statement;
+    // String of padding for statement;
     std::ostringstream padding_string;
 
     // String of symbolic bounds

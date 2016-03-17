@@ -46,15 +46,26 @@ private:
   Appends an ISCC code string to transformations.
 
   \returns
-  The index where the string was deposited
+  The index where the string was deposited.
   */
   size_type append( std::string text );
 
 public:
   Schedule( LoopChain& chain );
-
+  /*!
+  \returns The length (in symbols) of the loop chain's iterator.
+  */
   RectangularDomain::size_type getIteratorsLength();
 
+  /*!
+  \brief
+  Changes the length (in symbols) of the loop chain's iterator by delta.
+
+  \param[in] delta The change in length.
+
+  \returns
+  The new length.
+  */
   RectangularDomain::size_type modifyIteratorsLength( int delta );
 
 
@@ -63,12 +74,16 @@ public:
   /*!
   \brief
   Apply the Transformation to the schedule.
+
   */
   void apply( Transformation& scheduler );
 
   /*!
   \brief
   Apply the Transformation to the schedule.
+  \param[in] schedulers An ordered list of Transformation objects that will be
+
+  applied to the schedule object.
   */
   void apply( std::vector<Transformation*> schedulers );
 

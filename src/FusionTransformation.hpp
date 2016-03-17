@@ -23,7 +23,6 @@ Copyright 2015 Colorado State University
 
 /*!
 Fuses two or more loops into one.
-
 */
 class FusionTransformation : public Transformation {
 private:
@@ -34,13 +33,26 @@ private:
   std::vector<LoopChain::size_type>::iterator end();
 
 public:
+  /*!
+  List loops to be fused.
+  Order dictates the order in which the bodies of the loops are prepended.
 
+  e.g. if fusing {0,1} then the body of loop 0 comes before the body of loop 1.
+       if fusing {1,0} then the body of loop 1 comes before the body of loop 0.
+  */
   FusionTransformation( std::vector<LoopChain::size_type> loops );
 
+  /*!
+  List loops to be fused.
+  Order dictates the order in which the bodies of the loops are prepended.
+
+  e.g. if fusing {0,1} then the body of loop 0 comes before the body of loop 1.
+       if fusing {1,0} then the body of loop 1 comes before the body of loop 0.
+  */
   FusionTransformation( LoopChain::size_type loops[], int num_loops );
 
   /*!
-  \returns Reference to schedule which has been scheduled
+  \returns Reference to schedule which has been transformed.
   */
   std::string& apply( Schedule& schedule );
 };
