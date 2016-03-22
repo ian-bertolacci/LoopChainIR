@@ -8,6 +8,7 @@
 #include "LoopNest.hpp"
 #include "RectangularDomain.hpp"
 #include "DefaultSequentialTransformation.hpp"
+#include "FusionTransformation.hpp"
 #include "Schedule.hpp"
 #include "Transformation.hpp"
 
