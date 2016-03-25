@@ -775,6 +775,9 @@ class ExecutableRegressionTest:
       DependencySpecification object that specifes the valid iteration order for
       any transformation of the loop chain.
 
+    derived_symbols:
+      Set of symbols that were derived from the scheduling process.
+
     log:
       Log file for the test.
 
@@ -806,6 +809,8 @@ class ExecutableRegressionTest( RegressionTest ):
     self.schedules = static_test.schedules
     self.dependencies = static_test.dependencies
     self.transformation_dependencies = static_test.transformation_dependencies
+    self.derived_symbols = set()
+
 
     self.resources_path = test_options["resources_path"]
     self.test_options = test_options
@@ -941,13 +946,18 @@ class ExecutableRegressionTest( RegressionTest ):
     def generate_transformation( schedule_text ):
       original_rx = re.compile( r"original" )
       fusion_rx = re.compile( r"fuse\s+(?P<list>(?:\d+\s*){2,})" )
+      shift_rx = re.compile( r"shift\s+(?P<loopid>.+?)\s+\(\s*(?P<extents>.+(?:\s*,\s*\d+)*)\s*\)")
+
+      symbols_rx = re.compile( r"[_a-zA-Z][_a-zA-Z0-9]*" )
 
       if original_rx.match( schedule_text ):
         return ["schedulers.push_back( new DefaultSequentialTransformation() );"]
 
       elif fusion_rx.match( schedule_text ):
-        fuse_list_str = fusion_rx.match( schedule_text ).group("list")
+        match = fusion_rx.match( schedule_text )
+        fuse_list_str = match.group("list")
         fuse_list = re.split( r"\s+", fuse_list_str )
+
         return \
         [
           "{ // Scope fuse_these",
@@ -956,6 +966,24 @@ class ExecutableRegressionTest( RegressionTest ):
         + [ "fuse_these.push_back( {0} );".format(loop) for loop in fuse_list ] \
         + [
           "schedulers.push_back( new FusionTransformation( fuse_these ) );",
+          "}"
+        ]
+
+      elif shift_rx.match( schedule_text ):
+        match = shift_rx.match( schedule_text )
+        loopid = match.group("loopid")
+        extents = re.split(r"\s*,\s*", match.group("extents"))
+        symbols = set(reduce(lambda a,b: a+b, map( symbols_rx.findall, extents) ))
+        self.derived_symbols |= symbols
+        return  [
+          "{",
+          "vector<string> extents;",
+          "vector<string> symbols;"
+        ] \
+        + map( lambda i: "extents.push_back(\"{0}\");".format(i), extents ) \
+        + map( lambda i: "symbols.push_back(\"{0}\");".format(i), symbols ) \
+        + [
+          "schedulers.push_back( new ShiftTransformation({0}, extents, symbols) );".format(loopid),
           "}"
         ]
 
@@ -1453,7 +1481,8 @@ class ExecutableRegressionTest( RegressionTest ):
 
   def bounds_generation( self ):
     # Collate all the symbols from all the chains
-    symbols = reduce( lambda a,b: a + b,  [ nest.symbols for nest in self.chain] )
+    symbols = reduce( lambda a,b: a + b,  [ nest.symbols for nest in self.chain] )\
+            + list(self.derived_symbols)
     # For each symbol give it a #define to 10
     # TODO make this dynamic/repeatable/test a range?
     return "\n".join( map( lambda sym: "#define {0} 10".format(sym), symbols ) )
