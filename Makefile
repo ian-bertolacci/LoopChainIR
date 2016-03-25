@@ -42,7 +42,8 @@ UNIT_TESTS = RectangularDomain_test \
 						 LoopChain_test \
 						 Schedule_test \
 						 DefaultSequentialTransformation_test \
-						 FusionTransformation_test
+						 FusionTransformation_test \
+						 ShiftTransformation_test
 
 
 
@@ -65,6 +66,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/Schedule.o \
 			 $(BIN)/DefaultSequentialTransformation.o \
 			 $(BIN)/FusionTransformation.o \
+			 $(BIN)/ShiftTransformation.o \
 			 $(BIN)/util.o
 
 

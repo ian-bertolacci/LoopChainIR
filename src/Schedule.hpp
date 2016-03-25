@@ -69,7 +69,12 @@ public:
   RectangularDomain::size_type modifyIteratorsLength( int delta );
 
 
-
+  /*!
+  \brief returns the original loop chain
+  */
+  LoopChain getChain(){
+    return LoopChain(this->chain);
+  }
 
   /*!
   \brief

@@ -11,9 +11,13 @@ Copyright 2015 Colorado State University
 
 #include "LoopChain.hpp"
 #include "algorithm"
-LoopChain::LoopChain(): chain() {
+LoopChain::LoopChain()
+  : chain()
+  { }
 
-}
+LoopChain::LoopChain( const LoopChain& chain )
+  : chain(chain.chain)
+  { }
 
 void LoopChain::append( LoopNest nest ){
   this->chain.push_back( nest );
