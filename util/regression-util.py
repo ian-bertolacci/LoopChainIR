@@ -923,10 +923,58 @@ class ExecutableRegressionTest( RegressionTest ):
     # scope (avoid variable name collisions)
     nest_texts = map( lambda nest: "{{\n{0}\n  }}".format( nest.generate_code(loop_chain_name) ), self.chain )
 
+    '''
+    generate_transformation( schedule_text ):
+      Purpose:
+        Generate LCIR Transformation code depending on the schedule spefication.
+
+      Parameters:
+        schedule_text:
+          string representing a single schedule.
+          Valid schdule strings are:
+            - r"original" : Default Sequential Transformations
+            - r"fuse\s+(?P<list>(?:\d+\s*){2,})": Fusion Transformation that
+              fuse the loops specified in group "list"
+      Exceptions:
+        TestMalformedException is raised if no valid schedule text is provided.
+    '''
+    def generate_transformation( schedule_text ):
+      original_rx = re.compile( r"original" )
+      fusion_rx = re.compile( r"fuse\s+(?P<list>(?:\d+\s*){2,})" )
+
+      if original_rx.match( schedule_text ):
+        return ["schedulers.push_back( new DefaultSequentialTransformation() );"]
+
+      elif fusion_rx.match( schedule_text ):
+        fuse_list_str = fusion_rx.match( schedule_text ).group("list")
+        fuse_list = re.split( r"\s+", fuse_list_str )
+        return \
+        [
+          "{ // Scope fuse_these",
+          "vector<LoopChain::size_type> fuse_these;",
+        ] \
+        + [ "fuse_these.push_back( {0} );".format(loop) for loop in fuse_list ] \
+        + [
+          "schedulers.push_back( new FusionTransformation( fuse_these ) );",
+          "}"
+        ]
+
+      else:
+        raise TestMalformedException( "Malformed schedule string: \"{0}\"".format( schedule_text) )
+
     # Generate the C++ code for scheduling the LoopChain object, and for writing
     # that code (that will be written by the LoopChainIR scheduler) to the file
     # self.path/generated_chain_output.cpp
-    scheduleing_texts = [ "DefaultSequentialSchedule schedule({0});".format( loop_chain_name ), "writeScheduledCode(schedule, \"generated_chain_output.cpp\");" ]
+    scheduleing_texts = \
+      [ "vector<Transformation*> schedulers;" ] \
+      + reduce( lambda a,b: a+b, map(generate_transformation, self.schedules ) ) \
+      + [
+        "Schedule schedule(chain);",
+        "schedule.apply( schedulers );",
+        "string text = schedule.codegen();",
+        "cout << text << endl;",
+        "writeTextToFile( schedule.codegen(), \"generated_chain_output.cpp\" );"
+        ]
 
     # Concatonate the previously generated texts together with pretty formatting
     injection_text = "  " + "\n  ".join( loop_chain_decl_text + nest_texts + scheduleing_texts )

@@ -1,8 +1,8 @@
-/*******************************************************************************
+/*! ****************************************************************************
 \file RectangularDomain.cpp
 \autors Ian J. Bertolacci
 
-\purpose
+\brief
 Contains the bounds on a loop nest.
 Currently, bounds are represented simply as a string, containing only the
 expression that gives that bound. For example the bounds 0 <= x <= N+M would be

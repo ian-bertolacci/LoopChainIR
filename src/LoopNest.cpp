@@ -1,8 +1,8 @@
-/*******************************************************************************
+/*! ****************************************************************************
 \file LoopNest.cpp
 \autors Ian J. Bertolacci
 
-\purpose
+\brief
 Contains a set of bounds and and the access pattern of a single, arbitarily deep
 loop nest.
 

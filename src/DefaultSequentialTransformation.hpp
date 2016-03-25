@@ -1,5 +1,5 @@
 /*! ****************************************************************************
-\file DefaultSequentialSchedule.hpp
+\file DefaultSequentialTransformation.hpp
 \autors Ian J. Bertolacci
 
 \brief
@@ -13,8 +13,8 @@ Copyright 2016 Colorado State University
 #define DEFAULT_SEQUENTIAL_SCHEDULE_HPP
 
 #include "LoopChain.hpp"
-#include "all_isl.hpp"
-#include "util.hpp"
+#include "Transformation.hpp"
+#include "Schedule.hpp"
 
 #include <string>
 #include <vector>
@@ -24,28 +24,21 @@ Copyright 2016 Colorado State University
 
 /*!
 Schedules a loopchain in the default, sequential manner.
+
+\note
+This Transformation does not actually transform any schedule, since this would
+only be performed on a schedule that had not already been transformed, and a
+LoopChain that has been converted into a Schedule object has already been
+properly transformed into a sequential schedule.
 */
-class DefaultSequentialSchedule {
-private:
-  //! LoopChain being scheduled.
-  LoopChain chain;
+class DefaultSequentialTransformation : public Transformation {
 
 public:
+  DefaultSequentialTransformation( );
   /*!
-  \param[in] chain a reference to the LoopChain to be scheduled.
+  \returns Reference to schedule which has been transformed.
   */
-  DefaultSequentialSchedule( LoopChain& chain );
-
-  /*!
-  \returns Reference to the LoopChain object to be scheduled.
-  */
-  LoopChain& getChain();
-
-  /*!
-  Performs scheduling and codegen, writing output to output_file
-  \param[in] output_file File pointer to output.
-  */
-  void codegen( FILE* output_file );
+  std::string& apply( Schedule& schedule );
 };
 
 
