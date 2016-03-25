@@ -100,8 +100,8 @@ std::string& ShiftTransformation::apply( Schedule& schedule ){
   std::ostringstream input_iteration;
   std::ostringstream output_iteration;
 
-  input_iteration << this->loop_id;
-  output_iteration << this->loop_id;
+  input_iteration << "t"; // this->loop_id;
+  output_iteration << "t"; // this->loop_id;
 
   // goes to getIteratorsLength()-1 because we alreay put loop_id in.
   // But, still need to index into extent (extent[i])
@@ -133,7 +133,10 @@ std::string& ShiftTransformation::apply( Schedule& schedule ){
     mapping << "]->";
   }
 
-  mapping << "{[" << input_iteration.str() << "]->[" << output_iteration.str() << "]}";
+  mapping << "{" << "\n"
+          << "[" << input_iteration.str() << "]->[" << output_iteration.str() << "] :" << "(t = " << this->loop_id << ")" << ";\n"
+          << "[" << input_iteration.str() << "]->[" << input_iteration.str() << "] :" << "(t != " << this->loop_id << ")" << ";\n"
+          << "}";
 
   return *(new std::string(mapping.str()));
 }

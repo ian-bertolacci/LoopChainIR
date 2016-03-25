@@ -999,6 +999,7 @@ class ExecutableRegressionTest( RegressionTest ):
       + [
         "Schedule schedule(chain);",
         "schedule.apply( schedulers );",
+        "cout << schedule << endl;",
         "string text = schedule.codegen();",
         "cout << text << endl;",
         "writeTextToFile( schedule.codegen(), \"generated_chain_output.cpp\" );"
