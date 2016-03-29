@@ -85,6 +85,16 @@ public:
   */
   std::vector<std::string> getSymbols();
 
+  /*!
+  \brief
+  Generate ISCC code for the shift transformation, and append it to the
+  transformation list of schedule (modifies schedule).
+
+  \param[inout] schedule Schedule this transformation is being applied to.
+
+  \returns
+  The ISCC code as a string
+  */
   std::string& apply( Schedule& schedule );
 };
 

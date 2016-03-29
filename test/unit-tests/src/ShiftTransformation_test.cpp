@@ -578,3 +578,71 @@ TEST(ShiftTransformationTest, GEN_2N_1D_Shift_K_N_Iterations) {
   // Because this is an empty loop, the code will be an empty statement body
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
+
+
+/*
+Test assertions
+*/
+
+/*
+Apply shift with fewer extents than the dimensionality of the domain
+*/
+TEST(ShiftTransformationTest, Assertion_Test_extents_lt_domain) {
+  LoopChain chain;
+
+  {
+    // This loop is empty, since its lower bound is greater than
+    // its upper bound. It is still valid, however.
+    string lower[2] = { "1", "1" };
+    string upper[2] = { "N", "1" };
+    string symbols[2] = { "N", "M" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 2, symbols, 2 ) ) );
+  }
+
+  // Create an ordered list of Transformations
+  vector<Transformation*> schedulers;
+  // Append the Default Sequential transformation to the list. (It's first)
+  vector<string> extents;
+  extents.push_back( "0" );
+  // extents.push_back( "1" ); // This is a purposeful error
+  // Constructor does not throw exception, that happens in application
+  schedulers.push_back( new ShiftTransformation(0, extents) );
+
+  Schedule sched( chain );
+  // Exception happens here
+  ASSERT_THROW( sched.apply( schedulers ), assert_exception );
+}
+
+/*
+Test assertions
+*/
+
+/*
+Apply shift with more extents than the dimensionality of the domain
+*/
+TEST(ShiftTransformationTest, Assertion_Test_extents_gt_domain) {
+  LoopChain chain;
+
+  {
+    // This loop is empty, since its lower bound is greater than
+    // its upper bound. It is still valid, however.
+    string lower[2] = { "1", "1" };
+    string upper[2] = { "N", "1" };
+    string symbols[2] = { "N", "M" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 2, symbols, 2 ) ) );
+  }
+
+  // Create an ordered list of Transformations
+  vector<Transformation*> schedulers;
+  // Append the Default Sequential transformation to the list. (It's first)
+  vector<string> extents;
+  extents.push_back( "0" );
+  extents.push_back( "1" );
+  extents.push_back( "2" ); // This is a purposeful error
+  // Constructor does not throw exception, that happens in application
+  schedulers.push_back( new ShiftTransformation(0, extents) );
+
+  Schedule sched( chain );
+  // Exception happens here
+  ASSERT_THROW( sched.apply( schedulers ), assert_exception );
+}
