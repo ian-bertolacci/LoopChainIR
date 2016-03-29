@@ -21,7 +21,8 @@ EXAMPLES = RectangularDomainHowTo \
 					 LoopNestHowTo \
 					 LoopChainHowTo \
 					 ScheduleHowTo \
-					 FusionTransformationHowTo
+					 FusionTransformationHowTo \
+					 ShiftTransformationHowTo
 
 LONG_EXAMPLES=$(addprefix $(EX_BIN)/,$(EXAMPLES))
 
