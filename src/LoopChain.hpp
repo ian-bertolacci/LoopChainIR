@@ -25,6 +25,8 @@ public:
 
   LoopChain();
 
+  LoopChain( const LoopChain& chain );
+
   /*!
   Appends the LoopNest onto the list.
   \param[in] nest LoopNest to append.
