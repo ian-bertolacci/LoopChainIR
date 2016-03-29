@@ -156,14 +156,8 @@ std::string& ShiftTransformation::apply( Schedule& schedule ){
   // goes to getIteratorsLength()-1 because we alreay put t on.
   // But, still need to index into extent (extent[i])
   for( RectangularDomain::size_type i = 0; i < schedule.getIteratorsLength()-1; i += 1 ){
-    input_iteration << ",";
-    output_iteration << ",";
-
-    // Create unique symbol ("i"*m) for this iterator
-    for(RectangularDomain::size_type m = 0; m <= i; m += 1 ){
-      input_iteration << "i";
-      output_iteration << "i";
-    }
+    input_iteration << ",i" << i;
+    output_iteration << ",i" << i;
 
     // Add this dimension's extent to the iterator
     if( i < this->extents.size() ){
@@ -188,11 +182,11 @@ std::string& ShiftTransformation::apply( Schedule& schedule ){
   // Create our mapping expression from the input iteration
   // to the output iteration.
   transformation << "{" << "\n"
-          // Transformation mapping
-          << "[" << input_iteration.str() << "]->[" << output_iteration.str() << "] :" << "(t = " << this->loop_id << ")" << ";\n"
-
-          << "[" << input_iteration.str() << "]->[" << input_iteration.str() << "] :" << "(t != " << this->loop_id << ")" << ";\n"
-          << "}";
+                 // Shift transformation for targeted loops
+                 << "[" << input_iteration.str() << "]->[" << output_iteration.str() << "] : " << "(t = " << this->loop_id << ")" << ";\n"
+                 // Identity transformation for pass-through
+                 << "[" << input_iteration.str() << "]->[" << input_iteration.str() << "] : " << "(t != " << this->loop_id << ")" << ";\n"
+                 << "}";
 
   return *(new std::string(transformation.str()));
 }

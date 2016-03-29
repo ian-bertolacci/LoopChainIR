@@ -36,7 +36,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_0_Empty_Loop) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   ShiftTransformation transformation(0, "0");
   schedulers.push_back( &transformation );
 
@@ -49,7 +48,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_0_Empty_Loop) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -65,16 +64,13 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_0_Single_Iteration) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
-    string lower[1] = { "1" };
+      string lower[1] = { "1" };
     string upper[1] = { "1" };
     chain.append( LoopNest( RectangularDomain( lower, upper, 1 ) ) );
   }
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   ShiftTransformation transformation(0, "0");
   schedulers.push_back( &transformation );
 
@@ -87,7 +83,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_0_Single_Iteration) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -102,8 +98,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_0_N_Iterations) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[1] = { "1" };
     string upper[1] = { "N" };
     string symbols[1] = { "N" };
@@ -112,7 +106,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_0_N_Iterations) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   ShiftTransformation transformation(0, "0");
   schedulers.push_back( &transformation );
 
@@ -125,7 +118,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_0_N_Iterations) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -154,7 +147,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_5_Empty_Loop) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   ShiftTransformation transformation(0, "5");
   schedulers.push_back( &transformation );
 
@@ -167,7 +159,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_5_Empty_Loop) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -182,8 +174,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_5_Single_Iteration) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[1] = { "1" };
     string upper[1] = { "1" };
     chain.append( LoopNest( RectangularDomain( lower, upper, 1 ) ) );
@@ -191,7 +181,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_5_Single_Iteration) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   ShiftTransformation transformation(0, "5");
   schedulers.push_back( &transformation );
 
@@ -204,7 +193,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_5_Single_Iteration) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -219,8 +208,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_5_N_Iterations) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[1] = { "1" };
     string upper[1] = { "N" };
     string symbols[1] = { "N" };
@@ -229,7 +216,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_5_N_Iterations) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   ShiftTransformation transformation(0, "5");
   schedulers.push_back( &transformation );
 
@@ -242,7 +228,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_5_N_Iterations) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -271,7 +257,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_neg5_Empty_Loop) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   ShiftTransformation transformation(0, "-5");
   schedulers.push_back( &transformation );
 
@@ -284,7 +269,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_neg5_Empty_Loop) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -299,8 +284,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_neg5_Single_Iteration) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[1] = { "1" };
     string upper[1] = { "1" };
     chain.append( LoopNest( RectangularDomain( lower, upper, 1 ) ) );
@@ -308,7 +291,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_neg5_Single_Iteration) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   ShiftTransformation transformation(0, "-5");
   schedulers.push_back( &transformation );
 
@@ -321,7 +303,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_neg5_Single_Iteration) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -336,8 +318,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_neg5_N_Iterations) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[1] = { "1" };
     string upper[1] = { "N" };
     string symbols[1] = { "N" };
@@ -346,7 +326,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_neg5_N_Iterations) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   ShiftTransformation transformation(0, "-5");
   schedulers.push_back( &transformation );
 
@@ -359,7 +338,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_neg5_N_Iterations) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -388,7 +367,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_K_Empty_Loop) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   vector<string> symbols(1, "K");
   ShiftTransformation transformation(0, "K", symbols);
   schedulers.push_back( &transformation );
@@ -402,7 +380,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_K_Empty_Loop) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -417,8 +395,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_Single_Iteration) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[1] = { "1" };
     string upper[1] = { "1" };
     chain.append( LoopNest( RectangularDomain( lower, upper, 1 ) ) );
@@ -426,7 +402,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_Single_Iteration) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   vector<string> symbols(1, "K");
   ShiftTransformation transformation(0, "K", symbols);
   schedulers.push_back( &transformation );
@@ -440,7 +415,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_Single_Iteration) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -455,8 +430,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_N_Iterations) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[1] = { "1" };
     string upper[1] = { "N" };
     string symbols[1] = { "N" };
@@ -465,7 +438,6 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_N_Iterations) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   vector<string> symbols(1, "K");
   ShiftTransformation transformation(0, "K", symbols);
   schedulers.push_back( &transformation );
@@ -479,7 +451,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_N_Iterations) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -494,8 +466,6 @@ TEST(ShiftTransformationTest, GEN_1N_2D_Shift_K_NxM_Iterations) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[2] = { "1", "1" };
     string upper[2] = { "N", "1" };
     string symbols[2] = { "N", "M" };
@@ -504,7 +474,6 @@ TEST(ShiftTransformationTest, GEN_1N_2D_Shift_K_NxM_Iterations) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   vector<string> symbols(1, "K");
   vector<string> extents;
   extents.push_back( "K" );
@@ -523,7 +492,7 @@ TEST(ShiftTransformationTest, GEN_1N_2D_Shift_K_NxM_Iterations) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -538,8 +507,6 @@ TEST(ShiftTransformationTest, GEN_2N_1D_Shift_K_N_Iterations) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[1] = { "1" };
     string upper[1] = { "N" };
     string symbols[1] = { "N" };
@@ -547,8 +514,6 @@ TEST(ShiftTransformationTest, GEN_2N_1D_Shift_K_N_Iterations) {
   }
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[1] = { "1" };
     string upper[1] = { "N" };
     string symbols[1] = { "N" };
@@ -557,7 +522,6 @@ TEST(ShiftTransformationTest, GEN_2N_1D_Shift_K_N_Iterations) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   vector<string> symbols(1, "K");
   ShiftTransformation transformation(0, "K", symbols);
   schedulers.push_back( &transformation );
@@ -571,7 +535,7 @@ TEST(ShiftTransformationTest, GEN_2N_1D_Shift_K_N_Iterations) {
   // Create Schedule object from chain
   Schedule sched( chain );
   // Apply list of transformations
-  // In this example, only the DefaultSequentialTransformation
+  // In this example, only the ShiftTransformation
   sched.apply( schedulers );
 
   // Test
@@ -591,8 +555,6 @@ TEST(ShiftTransformationTest, Assertion_Test_extents_lt_domain) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[2] = { "1", "1" };
     string upper[2] = { "N", "1" };
     string symbols[2] = { "N", "M" };
@@ -601,7 +563,6 @@ TEST(ShiftTransformationTest, Assertion_Test_extents_lt_domain) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   vector<string> extents;
   extents.push_back( "0" );
   // extents.push_back( "1" ); // This is a purposeful error
@@ -624,8 +585,6 @@ TEST(ShiftTransformationTest, Assertion_Test_extents_gt_domain) {
   LoopChain chain;
 
   {
-    // This loop is empty, since its lower bound is greater than
-    // its upper bound. It is still valid, however.
     string lower[2] = { "1", "1" };
     string upper[2] = { "N", "1" };
     string symbols[2] = { "N", "M" };
@@ -634,7 +593,6 @@ TEST(ShiftTransformationTest, Assertion_Test_extents_gt_domain) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
   vector<string> extents;
   extents.push_back( "0" );
   extents.push_back( "1" );
