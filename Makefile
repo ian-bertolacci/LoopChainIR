@@ -4,6 +4,7 @@ PROJECT_DIR ?= $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 BIN=$(PROJECT_DIR)/bin
 SRC=$(PROJECT_DIR)/src
 UTIL=$(PROJECT_DIR)/util
+LIB=$(PROJECT_DIR)/lib
 
 TEST=$(PROJECT_DIR)/test
 UNIT_TEST_DIR=$(TEST)/unit-tests
@@ -20,8 +21,8 @@ INITED_FILE=$(THIRD_PARTY)/initialized
 
 DOC_PATH=$(PROJECT_DIR)/doxygen
 
-LIB=$(THIRD_PARTY_INSTALL)/lib
-INC=$(THIRD_PARTY_INSTALL)/include
+SOURCE_LIB = $(THIRD_PARTY_INSTALL)/lib
+SOURCE_INC = $(THIRD_PARTY_INSTALL)/include
 
 # Global Variables
 MAKE_JOBS=2
@@ -29,7 +30,7 @@ MAKE_JOBS=2
 # Compiler and flags
 CXX=g++
 CXXFLAGS += -g -Wall -Wextra -Werror -pthread
-CPPFLAGS += --std=c++11 -isystem $(INC)
+CPPFLAGS += --std=c++11 -isystem $(SOURCE_INC)
 
 # Test Variables
 GTEST_DIR=$(THIRD_PARTY_INSTALL)/gtest
@@ -75,9 +76,9 @@ OBJS = $(BIN)/RectangularDomain.o \
 
 
 # Linkable library
-EXE=$(BIN)/LoopChainIR.a
+EXE=$(LIB)/libloopchainIR.a
 
-all: $(EXE)
+all: $(EXE) neat
 
 $(EXE): $(OBJS) $(INITED_FILE)
 	$(AR) $(ARFLAGS) $@ $^
@@ -96,13 +97,16 @@ regression-tests: $(EXE)
 
 $(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(LIB) -o $(UNIT_TEST_BIN)/$@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(SOURCE_LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(SOURCE_LIB) -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
 
 $(REG_TESTS): $(EXE)
 	python $(UTIL)/regression-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(REG_TEST_DIR)/$@
 
 #Building the Google Test framework
+$(GTEST_SRCS_): $(INITED_FILE)
+$(GTEST_HEADERS): $(INITED_FILE)
+
 $(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             ${GTEST_DIR}/src/gtest-all.cc -o $@
@@ -120,21 +124,21 @@ $(UNIT_TEST_BIN)/gtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)/gt
 # Building documentation
 doc: documentation
 documentation: clean-doc
-	doxygen
+	doxygen $(PROJECT_DIR)
 
 # Initialize the project and install third-party materials
 init: initialize
-initialize: $(INITED_FILE)
+initialize: $(INITED_FILE) $(UNIT_TEST_BIN)/gtest_main.a
 
 $(INITED_FILE): $(THIRD_PARTY)
 	mkdir $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
-	mkdir $(LIB)
-	mkdir $(INC)
+	mkdir $(SOURCE_LIB)
+	mkdir $(SOURCE_INC)
 	#
 	# Unzip and copy gtest
 	unzip -q $(THIRD_PARTY_SRC)/gtest-1.7.0.zip -d $(THIRD_PARTY_INSTALL)/.
 	mv $(THIRD_PARTY_INSTALL)/gtest-1.7.0 $(GTEST_DIR)
-	cp -r $(GTEST_DIR)/include/gtest $(INC)
+	cp -r $(GTEST_DIR)/include/gtest $(SOURCE_INC)
 	#
 	# build ISL
 	tar -xzf $(THIRD_PARTY_SRC)/isl-0.15.tar.gz -C $(THIRD_PARTY_BUILD)/.
@@ -163,5 +167,6 @@ clean-test:
 
 clean: clean-test
 	- rm $(BIN)/*
+	- rm $(LIB)/*
 
 clean-all: clean-third-party clean clean-doc
