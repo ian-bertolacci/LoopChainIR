@@ -124,7 +124,7 @@ $(UNIT_TEST_BIN)/gtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)/gt
 # Building documentation
 doc: documentation
 documentation: clean-doc
-	doxygen $(PROJECT_DIR)
+	doxygen
 
 # Initialize the project and install third-party materials
 init: initialize
