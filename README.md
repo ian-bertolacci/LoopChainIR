@@ -148,8 +148,25 @@ A regression test has several sections:
   Each range is expressed `lower_bound .. upper_bound`, and bounds can contain simple expressions (using + - * / % operators and parentheses, no function calls)
   The iterators and bounds are matched up by their index (i.e. the first iterator is bounded by the first range, and the second iterator by the second, and so on.)
 
-* `schedule` : (Currently InOp, since we only have the default schedule) An ordered list of transformations to be applied to the loop chain.
-  Transformations occur in the order listed.
+* `schedule` : There are three schedule {things}
+  + Original: default sequential schedule for a loop chain.
+    code: `original`  
+    regex: `original`   
+
+  + Fusion schedule: Fuse a series of loops.  
+    code: `fuse {loop index} {loop index} [{loop index} ...]`  
+    regex: `"fuse\s+(?P<list>(?:\d+\s*){2,})`  
+    Example: `fuse 0 1` fuses loops 0 and 1 (the first and second loops).
+
+  + Shift: shift the domain of a loop by some extent(s).
+    Extents can be constant integers, symbols, and valid C expressions using only arithmetic operators.
+    There must be the same number of extents as dimensions of the domain of the loop.  
+    code: `shift {loop index} ({extent} [,{extent} ...])`  
+    regex: `shift\s+(?P<loopid>\d+)\s+\(\s*(?P<extents>.+)\s*\)`  
+    Example: `shift 0 (1,K,n+3)` shifts the first loop in the chain, which is 3D,by 1, K, and n+3.  
+
+  In theory (but not yet tested) these schedules can be composed.
+  They are (or will be) applied in the order specified.
 
 * `dependencies` : The dependencies that _must_ be satisfied for _any_ transformation on the loop.
   These are used to ensure that a transformation produced a loop satisfying the dependencies of the original loop.
@@ -282,6 +299,8 @@ There are options for the script:
 * --resources_path PATH (or -r): Give the script a path to $(UTIL)/resources.
   By default, the script assumes that it lives in the same directory as the resources folder and will construct the path from its call.
 
+* --project_path PATH (or -p): Give the script a path to the LoopChainIR project directory.
+  By default, the script assumes that it will be called from the LoopChainIr project root directory, and thus the path would be equivalent to ".".
 
 ## Third-Party materials
 Included with this project are several third-party materials under the

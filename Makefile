@@ -1,5 +1,5 @@
 # Paths
-PROJECT_DIR ?= $(PWD)
+PROJECT_DIR ?= $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 BIN=$(PROJECT_DIR)/bin
 SRC=$(PROJECT_DIR)/src
@@ -18,7 +18,7 @@ THIRD_PARTY_INSTALL=$(THIRD_PARTY)/install
 
 INITED_FILE=$(THIRD_PARTY)/initialized
 
-DOC_PATH = $(PROJECT_DIR)/doxygen
+DOC_PATH=$(PROJECT_DIR)/doxygen
 
 LIB=$(THIRD_PARTY_INSTALL)/lib
 INC=$(THIRD_PARTY_INSTALL)/include
@@ -92,7 +92,7 @@ all-tests: unit-tests regression-tests
 unit-tests: $(UNIT_TESTS)
 
 regression-tests: $(EXE)
-	python $(UTIL)/regression-util.py $(addprefix $(REG_TEST_DIR)/,$(REG_TESTS))
+	python $(UTIL)/regression-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(addprefix $(REG_TEST_DIR)/,$(REG_TESTS))
 
 $(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
@@ -100,7 +100,7 @@ $(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/gtest_main.a
 	$(UNIT_TEST_BIN)/$@
 
 $(REG_TESTS): $(EXE)
-	python $(UTIL)/regression-util.py $(REG_TEST_DIR)/$@
+	python $(UTIL)/regression-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(REG_TEST_DIR)/$@
 
 #Building the Google Test framework
 $(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)

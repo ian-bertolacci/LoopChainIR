@@ -853,8 +853,8 @@ class ExecutableRegressionTest( RegressionTest ):
 
     # Assuming pwd (i.e. "./") is the project directory (ps, this is a
     # moderately valid assumption, but I'd like to not make it.) derive a
-    # relative path _from_ self.path _to_ "."
-    relative_path = os.path.relpath( ".", self.path )
+    # relative path _from_ self.path _to_ the project path
+    relative_path = os.path.relpath( self.test_options['project_path'], self.path )
 
     # Replace PROJECT_DIR_PATH_STAMP in Makefile
     full_text = full_text.replace( "PROJECT_DIR_PATH_STAMP",  relative_path)
@@ -946,7 +946,7 @@ class ExecutableRegressionTest( RegressionTest ):
     def generate_transformation( schedule_text ):
       original_rx = re.compile( r"original" )
       fusion_rx = re.compile( r"fuse\s+(?P<list>(?:\d+\s*){2,})" )
-      shift_rx = re.compile( r"shift\s+(?P<loopid>.+?)\s+\(\s*(?P<extents>.+(?:\s*,\s*\d+)*)\s*\)")
+      shift_rx = re.compile( r"shift\s+(?P<loopid>\d+)\s+\(\s*(?P<extents>.+)\s*\)")
 
       symbols_rx = re.compile( r"[_a-zA-Z][_a-zA-Z0-9]*" )
 
@@ -2380,7 +2380,8 @@ def main():
   # Flag to save log file even if test(s) pass
   parser.add_argument( "-sl", "--save_log", dest="save_log", action="store_const", const=True, default=False )
   # Sets path to $(UTIL)/resources
-  parser.add_argument( "-r", "--resources_path", dest="resources_path", action="store", default= os.path.dirname( sys.argv[0] ) + "/resources" )
+  parser.add_argument( "-r", "--resources_path", dest="resources_path", action="store", default=(os.path.dirname( sys.argv[0] ) + "/resources") )
+  parser.add_argument( "-p", "--project_path", dest="project_path", action="store", default="." )
 
   args = parser.parse_args()
 
@@ -2389,7 +2390,8 @@ def main():
                 "save_env_on_fail" : args.save_env_on_fail,
                 "save_log" : args.save_log,
                 "resources_path" : args.resources_path,
-                "test_files" : args.files
+                "test_files" : args.files,
+                "project_path" : args.project_path,
               },
     lock_state = True
   )
