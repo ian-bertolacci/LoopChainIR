@@ -1,0 +1,22 @@
+test name: 2N_1D_shift_1
+
+loop chain:
+(i){1..M}
+(i){1..N}
+:end
+
+schedule:
+shift 1 (1)
+:end
+
+dependencies:
+[M]->{ [0,i,0] -> [0,i+1,0] : 1 <= i <= M }
+[N]->{ [1,i,0] -> [1,i+1,0] : 1 <= i <= N }
+[N,M]->{ [0,i,0] -> [1,j,0] : 1 <= i <= M and 1 <= j <= N }
+:end
+
+new ordering:
+[M]->{ [0,i,0] -> [0,i+1,0] : 1 <= i <= M }
+[N]->{ [1,i,0] -> [1,i+1,0] : 1 <= i <= N }
+[N,M]->{ [0,i,0] -> [1,j,0] : 1 <= i <= M and 1 <= j <= N }
+:end

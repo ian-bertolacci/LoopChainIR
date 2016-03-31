@@ -13,11 +13,11 @@ using namespace std;
 
 int main(){
   /*
-  A Schedule is a higher order wraper around a loop chain that can be
-  transformed according to Transformation instances, and then generate C code
-  for that schedule.
+  A fusion transformation takes two or more loops in a chain and fuses them into
+  one, with the loop body the concationation of the loop bodies in the order
+  that they originally appeared in the loop chain.
 
-  First lets create a simple 3N_1D loop chain to fuse.
+  Lets demonstrate the fusion of two loops within a simple 3N_1D loop chain.
   */
   {
     cout << "Simple 3N_1D loop example" << endl;
@@ -38,7 +38,7 @@ int main(){
     cout << "Before Transformation:\n"
          << "Schedule state:\n" << sched
          << "\nDefault scheduled code:\n" << sched.codegen()
-         << endl;
+         << "-------------------------------------" << endl;
     /*
     Before Transformation:
     Schedule state:
@@ -86,7 +86,7 @@ int main(){
     // Print everything
     cout << "After Fusion Transformation:\n"
          << "Schedule state:\n" << sched
-         << "\nDefault scheduled code:\n" << sched.codegen()
+         << "\nFusion scheduled code:\n" << sched.codegen()
          << endl;
     /*
     After Fusion Transformation:
@@ -99,11 +99,11 @@ int main(){
     Transformations:
     {statement_0[idx_0] -> [0,idx_0,0]; statement_1[idx_0] -> [1,idx_0,0]; statement_2[idx_0] -> [2,idx_0,0]; }
     {
-    [f,i,ii] -> [t,i,f] : ( t = 0 ) and (f = 0 or f = 1);
-    [f,i,ii] -> [f,i,ii] : !(f = 0 or f = 1)
+    [f,i1,i2] -> [t,i1,f] : ( t = 0 ) and (f = 0 or f = 1);
+    [f,i1,i2] -> [f,i1,i2] : !(f = 0 or f = 1)
     };
 
-    Default scheduled code:
+    Fusion scheduled code:
     {
       for (int c1 = 0; c1 <= N; c1 += 1) {
         statement_0(c1);
@@ -113,9 +113,8 @@ int main(){
         statement_2(c1);
     }
 
-
     Notice, the domains did not change, and we we still have the transformations
-    that gives our statements full names, but we also have the  transformations
+    that gives our statements full names, but we also have the transformations
       [f,i,ii] -> [t,i,f] : ( t = 0 ) and (f = 0 or f = 1)
       [f,i,ii] -> [f,i,ii] : !(f = 0 or f = 1)
 
@@ -133,7 +132,7 @@ int main(){
     and the body of loop 1 (f=1) is now statement 1 in the new loop body:
       [1,i,0] -> [0,i,1]
 
-    The second statement
+    The second transformation
       [f,i,ii] -> [f,i,ii] : !(f = 0 or f = 1)
     is to pass through loops that are not being fused.
     If any loop (f) is not loop 0 or 1, then the statement keeps the same name.
@@ -145,7 +144,8 @@ int main(){
     /*
     We can also fuse loops that dont have the exact same domain.
     */
-    cout << "Dissimilar 2N_1D loop example" << endl;
+    cout << "=====================================\n"
+         << "Dissimilar 2N_1D loop example" << endl;
 
     LoopChain chain;
     {
@@ -168,7 +168,7 @@ int main(){
     cout << "Before Transformation:\n"
          << "Schedule state:\n" << sched
          << "\nDefault scheduled code:\n" << sched.codegen()
-         << endl;
+         << "-------------------------------------" << endl;
     /*
     Before Transformation:
     Schedule state:
@@ -204,7 +204,7 @@ int main(){
     // Print everything
     cout << "After Fusion Transformation:\n"
          << "Schedule state:\n" << sched
-         << "\nDefault scheduled code:\n" << sched.codegen()
+         << "\nFusion scheduled code:\n" << sched.codegen()
          << endl;
     /*
     After Fusion Transformation:
@@ -216,11 +216,11 @@ int main(){
     Transformations:
     {statement_0[idx_0] -> [0,idx_0,0]; statement_1[idx_0] -> [1,idx_0,0]; }
     {
-    [f,i,ii] -> [t,i,f] : ( t = 0 ) and (f = 0 or f = 1);
-    [f,i,ii] -> [f,i,ii] : !(f = 0 or f = 1)
+    [f,i1,i2] -> [t,i1,f] : ( t = 0 ) and (f = 0 or f = 1);
+    [f,i1,i2] -> [f,i1,i2] : !(f = 0 or f = 1)
     };
 
-    Default scheduled code:
+    Fusion scheduled code:
     if (M <= -11) {
       for (int c1 = 0; c1 <= N; c1 += 1)
         statement_0(c1);
