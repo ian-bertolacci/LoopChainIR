@@ -1,5 +1,5 @@
 /*! ****************************************************************************
-\file FusionTransformation.cpp
+\file FusionTransformation.hpp
 \autors Ian J. Bertolacci
 
 \brief
