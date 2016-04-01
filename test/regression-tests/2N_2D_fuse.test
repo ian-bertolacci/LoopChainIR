@@ -1,0 +1,30 @@
+test name: 2N_2D_fuse
+
+loop chain:
+(i,j){1..I,1..J}
+(k,l){1..K,1..L}
+:end
+
+schedule:
+fuse 0 1
+:end
+
+dependencies:
+[I,J]->{ [0,i,0,j,0] -> [0,i+1,0,j',0] : 1 <= i <= I and 1 <= j <= J and  1 <= j' <= J}
+[I,J]->{ [0,i,0,j,0] -> [0,i,0,j+1,0] : 1 <= i <= I and  1 <= j <= J }
+
+[K,L]->{ [1,k,0,l,0] -> [1,k+1,0,l',0] : 1 <= k <= K and 1 <= l <= L and  1 <= l' <= L}
+[K,L]->{ [1,k,0,l,0] -> [1,k,0,l+1,0] : 1 <= k <= K and  1 <= l <= L }
+
+[I,J,K,L]->{ [0,ik,0,jl,0] -> [1,ik,0,jl,0] : 1 <= ik <= K and  1 <= jl <= L and 1 <= ik <= I and  1 <= jl <= J}
+:end
+
+new ordering:
+[I,J]->{ [0,i,0,j,0] -> [0,i+1,0,j',0] : 1 <= i <= I and 1 <= j <= J and  1 <= j' <= J}
+[I,J]->{ [0,i,0,j,0] -> [0,i,0,j+1,0] : 1 <= i <= I and  1 <= j <= J }
+
+[K,L]->{ [0,k,0,l,1] -> [0,k+1,0,l',1] : 1 <= k <= K and 1 <= l <= L and  1 <= l' <= L}
+[K,L]->{ [0,k,0,l,1] -> [0,k,0,l+1,1] : 1 <= k <= K and  1 <= l <= L }
+
+[I,J,K,L]->{ [0,ik,0,jl,0] -> [0,ik,0,jl,1] : 1 <= ik <= K and  1 <= jl <= L and 1 <= ik <= I and  1 <= jl <= J}
+:end
