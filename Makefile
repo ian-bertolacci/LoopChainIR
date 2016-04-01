@@ -78,7 +78,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 # Linkable library
 EXE=$(LIB)/libloopchainIR.a
 
-all: $(EXE) neat
+all: $(EXE)
 
 $(EXE): $(OBJS) $(INITED_FILE)
 	$(AR) $(ARFLAGS) $@ $^
