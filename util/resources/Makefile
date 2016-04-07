@@ -8,4 +8,4 @@ TEST_BINARIES = code_generator \
 
 $(TEST_BINARIES): %: $(EXE) %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $@.cpp -o $@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(LIB) $@.o $(EXE) -L$(LIB) -lisl -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(SOURCE_LIB) $@.o $(EXE) -L$(SOURCE_LIB) -L$(LIB) -lisl -o $@

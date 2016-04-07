@@ -1,4 +1,4 @@
-test name: 2N_3D
+test name: 2N_3D_fuse
 
 loop chain:
 (i,j,z){1..I,1..J,1..Z}
@@ -6,7 +6,7 @@ loop chain:
 :end
 
 schedule:
-original
+fuse 0 1
 :end
 
 dependencies:
@@ -18,7 +18,7 @@ dependencies:
 [K,L,Y]->{ [1,k,0,l,0,y,0] -> [1,k,0,l+1,0,y',0] : 1 <= k <= K and  1 <= l <= L and 1 <= y,y' <= Y }
 [K,L,Y]->{ [1,k,0,l,0,y,0] -> [1,k,0,l,0,y+1,0] : 1 <= k <= K and  1 <= l <= L and 1 <= y <= Y }
 
-[I,J,K,L,Z,Y]->{ [0,i,0,j,0,z,0] -> [1,k,0,l,0,y,0] : 1 <= k <= K and  1 <= l <= L and 1 <= i <= I and  1 <= j <= J and 1 <= z <= Z and 1 <= y <= Y }
+[I,J,K,L,Z,Y]->{ [0,ik,0,jl,0,zy,0] -> [1,ik,0,jl,0,zy,0] : 1 <= ik <= K and  1 <= lj <= L and 1 <= ij <= I and  1 <= jl <= J and 1 <= zy <= Z and 1 <= zy <= Y }
 :end
 
 new ordering:
@@ -26,9 +26,9 @@ new ordering:
 [I,J,Z]->{ [0,i,0,j,0,z,0] -> [0,i,0,j+1,0,z',0] : 1 <= i <= I and  1 <= j <= J and 1 <= z,z' <= Z }
 [I,J,Z]->{ [0,i,0,j,0,z,0] -> [0,i,0,j,0,z+1,0] : 1 <= i <= I and  1 <= j <= J and 1 <= z <= Z }
 
-[K,L,Y]->{ [1,k,0,l,0,y,0] -> [1,k+1,0,l',0,y',0] : 1 <= k <= K and 1 <= l,l' <= L and 1 <= y,y' <= Y }
-[K,L,Y]->{ [1,k,0,l,0,y,0] -> [1,k,0,l+1,0,y',0] : 1 <= k <= K and  1 <= l <= L and 1 <= y,y' <= Y }
-[K,L,Y]->{ [1,k,0,l,0,y,0] -> [1,k,0,l,0,y+1,0] : 1 <= k <= K and  1 <= l <= L and 1 <= y <= Y }
+[K,L,Y]->{ [0,k,0,l,0,y,1] -> [0,k+1,0,l',0,y',1] : 1 <= k <= K and 1 <= l,l' <= L and 1 <= y,y' <= Y }
+[K,L,Y]->{ [0,k,0,l,0,y,1] -> [0,k,0,l+1,0,y',1] : 1 <= k <= K and  1 <= l <= L and 1 <= y,y' <= Y }
+[K,L,Y]->{ [0,k,0,l,0,y,1] -> [0,k,0,l,0,y+1,1] : 1 <= k <= K and  1 <= l <= L and 1 <= y <= Y }
 
-[I,J,K,L,Z,Y]->{ [0,i,0,j,0,z,0] -> [1,k,0,l,0,y,0] : 1 <= k <= K and  1 <= l <= L and 1 <= i <= I and  1 <= j <= J and 1 <= z <= Z and 1 <= y <= Y }
+[I,J,K,L,Z,Y]->{ [0,ik,0,jl,0,zy,0] -> [0,ik,0,jl,0,zy,1] : 1 <= ik <= K and  1 <= lj <= L and 1 <= ij <= I and  1 <= jl <= J and 1 <= zy <= Z and 1 <= zy <= Y }
 :end
