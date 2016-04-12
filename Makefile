@@ -74,6 +74,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/DefaultSequentialTransformation.o \
 			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/ShiftTransformation.o \
+			 $(BIN)/TileTransformation.o \
 			 $(BIN)/util.o
 
 
