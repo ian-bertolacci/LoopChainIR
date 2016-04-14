@@ -58,6 +58,7 @@ REG_TESTS = 1N_1D_shift_1.test \
 						2N_1D_shift_1.test \
 						2N_1D_shift_K.test \
 						2N_1D.test \
+						2N_1D_shift_fuse.test \
 						2N_2D_fuse.test \
 						2N_2D.test \
 						2N_3D.test \
