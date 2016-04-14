@@ -14,10 +14,25 @@ Copyright 2015 Colorado State University
 #include <sstream>
 #include <iostream>
 
-TileTransformation::TileTransformation( LoopChain::size_type loop, std::string tile_size ){
-  this->loop = loop;
-  this->uniform = true;
+TileTransformation::TileTransformation( LoopChain::size_type loop, std::string tile_size )
+  : loop(loop), uniform(true){
   this->tile_sizes.push_back( tile_size );
+}
+
+TileTransformation::TileTransformation( LoopChain::size_type loop, std::vector<std::string> tile_sizes )
+  : loop(loop), tile_sizes( tile_sizes ), uniform(tile_sizes.size() == 1) { }
+
+
+bool TileTransformation::isUniformSize( ){
+  return this->uniform;
+}
+
+std::string TileTransformation::getSize( TileTransformation::size_type i ){
+  return this->tile_sizes[ this->isUniformSize()?0:i ];
+}
+
+std::vector<std::string> TileTransformation::getSizes(){
+  return std::vector<std::string>( this->tile_sizes );
 }
 
 std::string& TileTransformation::apply( Schedule& schedule ){
@@ -36,6 +51,9 @@ std::string& TileTransformation::apply( Schedule& schedule ){
   std::ostringstream condition;
 
   RectangularDomain domain = schedule.getChain().getNest(this->loop).getDomain();
+
+  bool check = this->uniform || (this->tile_sizes.size() == domain.dimensions());
+  assertWithException( check, "No uniform tile size provided nor are there an equal number of tile sizes and dimensions." );
 
   // to/from iterators
   input_iteration << "l";
@@ -73,7 +91,7 @@ std::string& TileTransformation::apply( Schedule& schedule ){
   condition << " : " ;
 
   for( RectangularDomain::size_type i = 1; i <= domain.dimensions(); i += 1 ){
-    std::string size_exp = this->tile_sizes[ (this->uniform)? 0 : i ];
+    std::string size_exp = this->tile_sizes[ (this->uniform)? 0 : i-1 ];
 
     if( i != 1 ){
       condition << " and ";

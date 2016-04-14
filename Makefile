@@ -44,7 +44,8 @@ UNIT_TESTS = RectangularDomain_test \
 						 Schedule_test \
 						 DefaultSequentialTransformation_test \
 						 FusionTransformation_test \
-						 ShiftTransformation_test
+						 ShiftTransformation_test \
+						 TileTransformation_test
 
 REG_TESTS = 1N_1D_shift_1.test \
 						1N_1D_shift_K.test \
