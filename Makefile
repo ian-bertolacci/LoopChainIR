@@ -44,13 +44,15 @@ UNIT_TESTS = RectangularDomain_test \
 						 Schedule_test \
 						 DefaultSequentialTransformation_test \
 						 FusionTransformation_test \
-						 ShiftTransformation_test
+						 ShiftTransformation_test \
+						 TileTransformation_test
 
 REG_TESTS = 1N_1D_shift_1.test \
 						1N_1D_shift_K.test \
 						1N_1D.test \
 						1N_2D_shift_1_2.test \
 						1N_2D_shift_K_exp.test \
+						1N_2D_tile.test \
 						1N_2D.test \
 						1N_3D.test \
 						2N_1D_2D.test \
@@ -59,7 +61,9 @@ REG_TESTS = 1N_1D_shift_1.test \
 						2N_1D_shift_K.test \
 						2N_1D.test \
 						2N_1D_shift_fuse.test \
+						2N_1D_2D_tile.test \
 						2N_2D_fuse.test \
+						2N_2D_fuse_tile.test \
 						2N_2D.test \
 						2N_3D.test \
 						2N_3D_fuse.test \
@@ -75,6 +79,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/DefaultSequentialTransformation.o \
 			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/ShiftTransformation.o \
+			 $(BIN)/TileTransformation.o \
 			 $(BIN)/util.o
 
 

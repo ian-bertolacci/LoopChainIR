@@ -947,7 +947,7 @@ class ExecutableRegressionTest( RegressionTest ):
       original_rx = re.compile( r"original" )
       fusion_rx = re.compile( r"fuse\s+(?P<list>(?:\d+\s*){2,})" )
       shift_rx = re.compile( r"shift\s+(?P<loopid>\d+)\s+\(\s*(?P<extents>.+)\s*\)")
-
+      tile_rx = re.compile( r"tile\s+(?P<loopid>\d+)\s+\(\s*(?P<extents>\d+(?:\s*,\s*\d+)*)\s*\)")
       symbols_rx = re.compile( r"[_a-zA-Z][_a-zA-Z0-9]*" )
 
       if original_rx.match( schedule_text ):
@@ -986,6 +986,24 @@ class ExecutableRegressionTest( RegressionTest ):
           "schedulers.push_back( new ShiftTransformation({0}, extents, symbols) );".format(loopid),
           "}"
         ]
+
+      elif tile_rx.match( schedule_text ):
+        match = tile_rx.match( schedule_text )
+        loopid = match.group("loopid")
+        extents = re.split(r"\s*,\s*", match.group("extents"))
+        symbols = set(reduce(lambda a,b: a+b, map( symbols_rx.findall, extents) ))
+        if len(symbols) != 0:
+          raise TestMalformedException("Tile size extents cannot be be symbolic. Must be constant. Offending symbols: \{{0}\}".format( symbols ) )
+        return [
+          "{",
+          "vector<string> extents;"
+        ] \
+        + map( lambda i: "extents.push_back(\"{0}\");".format(i), extents ) \
+        + [
+          "schedulers.push_back( new TileTransformation({0}, extents) );".format(loopid),
+          "}"
+        ]
+
 
       else:
         raise TestMalformedException( "Malformed schedule string: \"{0}\"".format( schedule_text) )
