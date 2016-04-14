@@ -10,6 +10,7 @@
 #include "DefaultSequentialTransformation.hpp"
 #include "ShiftTransformation.hpp"
 #include "FusionTransformation.hpp"
+#include "TileTransformation.hpp"
 #include "Schedule.hpp"
 #include "Transformation.hpp"
 
