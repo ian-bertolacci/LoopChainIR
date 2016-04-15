@@ -13,41 +13,45 @@ Copyright 2015 Colorado State University
 #define LOOPCHAIN_HPP
 
 #include "LoopNest.hpp"
-/*!
-Encapsulates an ordered chain of LoopNests.
-*/
-class LoopChain {
-private:
-  std::vector<LoopNest> chain;
 
-public:
-  typedef std::vector<LoopNest>::size_type size_type;
-
-  LoopChain();
-
-  LoopChain( const LoopChain& chain );
+  namespace LoopChainIR{
 
   /*!
-  Appends the LoopNest onto the list.
-  \param[in] nest LoopNest to append.
+  Encapsulates an ordered chain of LoopNests.
   */
-  void append( LoopNest nest );
+  class LoopChain {
+  private:
+    std::vector<LoopNest> chain;
 
-  /*!
-  \returns reference to the LoopNest object at index.
-  */
-  LoopNest& getNest( size_type index );
+  public:
+    typedef std::vector<LoopNest>::size_type size_type;
 
-  /*!
-  \returns number of LoopNest objects in chain.
-  */
-  size_type length();
+    LoopChain();
 
-  /*
-  \returns the maximum dimensionality of all the loop-nests in the chain.
-  */
-  RectangularDomain::size_type maxDimension();
+    LoopChain( const LoopChain& chain );
 
-};
+    /*!
+    Appends the LoopNest onto the list.
+    \param[in] nest LoopNest to append.
+    */
+    void append( LoopNest nest );
 
+    /*!
+    \returns reference to the LoopNest object at index.
+    */
+    LoopNest& getNest( size_type index );
+
+    /*!
+    \returns number of LoopNest objects in chain.
+    */
+    size_type length();
+
+    /*
+    \returns the maximum dimensionality of all the loop-nests in the chain.
+    */
+    RectangularDomain::size_type maxDimension();
+
+  };
+
+}
 #endif

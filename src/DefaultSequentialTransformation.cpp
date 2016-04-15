@@ -12,6 +12,8 @@ Copyright 2015 Colorado State University
 #include "DefaultSequentialTransformation.hpp"
 #include <iostream>
 
+using namespace LoopChainIR;
+
 DefaultSequentialTransformation::DefaultSequentialTransformation(){ }
 
 std::string& DefaultSequentialTransformation::apply( Schedule& schedule ){

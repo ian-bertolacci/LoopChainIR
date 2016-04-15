@@ -14,6 +14,7 @@
 #include "Transformation.hpp"
 
 using namespace std;
+using namespace LoopChainIR;
 
 void simpleGenerateFromString( string expression, FILE* file ){
   isl_ctx* ctx;

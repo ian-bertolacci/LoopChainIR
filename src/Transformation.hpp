@@ -4,26 +4,29 @@
 #include "Schedule.hpp"
 #include <string>
 
-// Forward declarations because C++ was a mistake.
-class Schedule;
+namespace LoopChainIR {
 
-/*!
-\brief
-Abstract object that all scheduler 'things' inherit for polymorphic purposes.
-*/
-class Transformation {
-public:
-  typedef int size_type;
+  // Forward declarations because C++ was a mistake.
+  class Schedule;
 
   /*!
   \brief
-  Generate ISCC code for a transformation, and append it to the transformation
-  list of schedule (modifies schedule).
-
-  \returns
-  The ISCC code as a string
+  Abstract object that all scheduler 'things' inherit for polymorphic purposes.
   */
-  virtual std::string& apply( Schedule& schedule ) = 0;
-};
+  class Transformation {
+  public:
+    typedef int size_type;
 
+    /*!
+    \brief
+    Generate ISCC code for a transformation, and append it to the transformation
+    list of schedule (modifies schedule).
+
+    \returns
+    The ISCC code as a string
+    */
+    virtual std::string& apply( Schedule& schedule ) = 0;
+  };
+
+}
 #endif

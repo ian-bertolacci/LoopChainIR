@@ -15,6 +15,7 @@ Copyright 2015 Colorado State University
 #include <utility>
 
 using namespace std;
+using namespace LoopChainIR;
 
 /*
 Create a 4 loop chain of 1 dimension (4N_1D)

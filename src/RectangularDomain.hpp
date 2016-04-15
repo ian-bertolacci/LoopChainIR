@@ -19,60 +19,63 @@ Copyright 2015 Colorado State University
 #include <vector>
 #include <utility>
 
-/*
-Encapsulates the bounds of a rectangular domain.
-*/
-class RectangularDomain
-{
-private:
-  std::vector<std::string> upper_bounds;
-  std::vector<std::string> lower_bounds;
-  std::vector<std::string> symbols;
+namespace LoopChainIR{
 
-public:
-  typedef std::vector<std::string>::size_type size_type;
-
-  /*!
-  \param[in] input_lower_bounds ordered list of lower bounds
-  \param[in] input_upper_bounds ordered list of upper bounds
-  \param[in] dimension the dimensionality of the domain
-  \param[in] symbols the list of symbols found in the bounds
-  \param[in] symbolics number of symbols
+  /*
+  Encapsulates the bounds of a rectangular domain.
   */
-  RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions, std::string symbols[], size_type symbolics );
+  class RectangularDomain
+  {
+  private:
+    std::vector<std::string> upper_bounds;
+    std::vector<std::string> lower_bounds;
+    std::vector<std::string> symbols;
 
-  /*!
-  \param[in] input_lower_bounds ordered list of lower bounds
-  \param[in] input_upper_bounds ordered list of upper bounds
-  \param[in] dimension the dimensionality of the domain
-  */
-  RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions );
+  public:
+    typedef std::vector<std::string>::size_type size_type;
 
-  /*!
-  \returns the dimensionality of the domain
-  */
-  size_type dimensions();
+    /*!
+    \param[in] input_lower_bounds ordered list of lower bounds
+    \param[in] input_upper_bounds ordered list of upper bounds
+    \param[in] dimension the dimensionality of the domain
+    \param[in] symbols the list of symbols found in the bounds
+    \param[in] symbolics number of symbols
+    */
+    RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions, std::string symbols[], size_type symbolics );
 
-  /*!
-  \returns the number of symbolics
-  */
-  size_type symbolics();
+    /*!
+    \param[in] input_lower_bounds ordered list of lower bounds
+    \param[in] input_upper_bounds ordered list of upper bounds
+    \param[in] dimension the dimensionality of the domain
+    */
+    RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions );
 
-  /*!
-  \returns the upper bound of the dimension.
-  */
-  std::string getUpperBound( size_type dimension );
+    /*!
+    \returns the dimensionality of the domain
+    */
+    size_type dimensions();
 
-  /*!
-  \returns the lower bound of the dimension.
-  */
-  std::string getLowerBound( size_type dimension );
+    /*!
+    \returns the number of symbolics
+    */
+    size_type symbolics();
 
-  /*!
-  \returns the N'th symbol from the list as it was provided to the constructor.
-  */
-  std::string getSymbol( size_type symbolic );
+    /*!
+    \returns the upper bound of the dimension.
+    */
+    std::string getUpperBound( size_type dimension );
 
-};
+    /*!
+    \returns the lower bound of the dimension.
+    */
+    std::string getLowerBound( size_type dimension );
 
+    /*!
+    \returns the N'th symbol from the list as it was provided to the constructor.
+    */
+    std::string getSymbol( size_type symbolic );
+
+  };
+
+}
 #endif
