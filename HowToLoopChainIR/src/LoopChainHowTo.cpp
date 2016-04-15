@@ -8,6 +8,7 @@ Recommended Reading:
 #include <utility>
 
 using namespace std;
+using namespace LoopChainIR;
 
 int main(){
   /*

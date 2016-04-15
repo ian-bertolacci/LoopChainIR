@@ -15,6 +15,7 @@ Copyright 2015 Colorado State University
 #include <utility>
 
 using namespace std;
+using namespace LoopChainIR;
 
 /*
 Create a simple 1D RectangularDomain on {0..1}

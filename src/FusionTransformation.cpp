@@ -14,6 +14,8 @@ Copyright 2015 Colorado State University
 #include <sstream>
 #include <iostream>
 
+using namespace LoopChainIR;
+
 FusionTransformation::FusionTransformation( std::vector<LoopChain::size_type> loops ) :
   fusion_loops(loops)
   { }

@@ -22,24 +22,27 @@ Copyright 2016 Colorado State University
 #include <sstream>
 #include "stdio.h"
 
-/*!
-Schedules a loopchain in the default, sequential manner.
+namespace LoopChainIR {
 
-\note
-This Transformation does not actually transform any schedule, since this would
-only be performed on a schedule that had not already been transformed, and a
-LoopChain that has been converted into a Schedule object has already been
-properly transformed into a sequential schedule.
-*/
-class DefaultSequentialTransformation : public Transformation {
-
-public:
-  DefaultSequentialTransformation( );
   /*!
-  \returns Reference to schedule which has been transformed.
-  */
-  std::string& apply( Schedule& schedule );
-};
+  Schedules a loopchain in the default, sequential manner.
 
+  \note
+  This Transformation does not actually transform any schedule, since this would
+  only be performed on a schedule that had not already been transformed, and a
+  LoopChain that has been converted into a Schedule object has already been
+  properly transformed into a sequential schedule.
+  */
+  class DefaultSequentialTransformation : public Transformation {
+
+  public:
+    DefaultSequentialTransformation( );
+    /*!
+    \returns Reference to schedule which has been transformed.
+    */
+    std::string& apply( Schedule& schedule );
+  };
+
+}
 
 #endif

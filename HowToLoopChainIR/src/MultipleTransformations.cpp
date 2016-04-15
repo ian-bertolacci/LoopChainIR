@@ -10,6 +10,7 @@ Recommended Reading:
 #include <vector>
 
 using namespace std;
+using namespace LoopChainIR;
 
 int main(){
   {

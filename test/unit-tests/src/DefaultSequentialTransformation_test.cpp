@@ -15,6 +15,7 @@ Copyright 2015 Colorado State University
 #include <utility>
 
 using namespace std;
+using namespace LoopChainIR;
 
 /*
 Apply DefaultSequentialTransformation to a loop with no iterations
