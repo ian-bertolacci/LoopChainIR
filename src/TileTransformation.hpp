@@ -21,68 +21,69 @@ Copyright 2015 Colorado State University
 #include <sstream>
 #include "stdio.h"
 
-/*!
-Fuses two or more loops into one.
-*/
-class TileTransformation : public Transformation {
-private:
-
-  LoopChain::size_type loop;
-  std::vector<std::string> tile_sizes;
-  bool uniform;
-
-public:
-  typedef std::vector<std::string>::size_type size_type;
-
+namespace LoopChainIR {
   /*!
-  \brief
-  Create tiling schedule with single tile size
-
-  \param[in] loop Id of loop to transform;
-  \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
+  Fuses two or more loops into one.
   */
-  TileTransformation( LoopChain::size_type loop, std::string tile_size );
+  class TileTransformation : public Transformation {
+  private:
 
-  /*!
-  \brief
-  Create tiling schedule with an list of tile size
+    LoopChain::size_type loop;
+    std::vector<std::string> tile_sizes;
+    bool uniform;
 
-  \param[in] loop Id of loop to transform;
-  \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
-  */
-  TileTransformation( LoopChain::size_type loop, std::vector<std::string> tile_sizes );
+  public:
+    typedef std::vector<std::string>::size_type size_type;
 
-  /*!
-  \brief
-  Return true if tile size is uniform across all dimensions, false otherwise.
-  */
-  bool isUniformSize( );
+    /*!
+    \brief
+    Create tiling schedule with single tile size
 
-  /*!
-  \brief
-  Returns the size of the tile in dimension i
-  \param[in] i Dimension of the domain
-  */
-  std::string getSize( TileTransformation::size_type i );
+    \param[in] loop Id of loop to transform;
+    \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
+    */
+    TileTransformation( LoopChain::size_type loop, std::string tile_size );
+
+    /*!
+    \brief
+    Create tiling schedule with an list of tile size
+
+    \param[in] loop Id of loop to transform;
+    \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
+    */
+    TileTransformation( LoopChain::size_type loop, std::vector<std::string> tile_sizes );
+
+    /*!
+    \brief
+    Return true if tile size is uniform across all dimensions, false otherwise.
+    */
+    bool isUniformSize( );
+
+    /*!
+    \brief
+    Returns the size of the tile in dimension i
+    \param[in] i Dimension of the domain
+    */
+    std::string getSize( TileTransformation::size_type i );
 
 
-  /*!
-  \brief
-  Returns a copy of the provided tile size vector
-  */
-  std::vector<std::string> getSizes();
+    /*!
+    \brief
+    Returns a copy of the provided tile size vector
+    */
+    std::vector<std::string> getSizes();
 
-  /*!
-  \brief
-  Generate ISCC code for the shift transformation, and append it to the
-  transformation list of schedule (modifies schedule).
+    /*!
+    \brief
+    Generate ISCC code for the shift transformation, and append it to the
+    transformation list of schedule (modifies schedule).
 
-  \param[inout] schedule Schedule this transformation is being applied to.
+    \param[inout] schedule Schedule this transformation is being applied to.
 
-  \returns
-  The ISCC code as a string
-  */
-  std::string& apply( Schedule& schedule );
-};
-
+    \returns
+    The ISCC code as a string
+    */
+    std::string& apply( Schedule& schedule );
+  };
+}
 #endif

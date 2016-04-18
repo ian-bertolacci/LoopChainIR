@@ -15,7 +15,7 @@ Copyright 2015 Colorado State University
 #include <utility>
 
 using namespace std;
-
+using namespace LoopChainIR;
 
 TEST(TileTransformationTest, GEN_1N_1D_Empty_Loop) {
   LoopChain chain;

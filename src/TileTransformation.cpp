@@ -14,6 +14,8 @@ Copyright 2015 Colorado State University
 #include <sstream>
 #include <iostream>
 
+using namespace LoopChainIR;
+
 TileTransformation::TileTransformation( LoopChain::size_type loop, std::string tile_size )
   : loop(loop), uniform(true){
   this->tile_sizes.push_back( tile_size );
