@@ -12,7 +12,13 @@ using namespace std;
 
 int main(){
   {
-    cout << "example preamble" << endl;
+    /*
+    A tile transformation takes the domain of a loop and splits it into tiles of
+    some constant size.
+
+    Lets demonstrate the tiling of a single 2D loop.
+    */
+    cout << "Simple 1N_2D example" << endl;
     LoopChain chain;
     {
       string lower[2] = { "1", "1" };
@@ -31,14 +37,24 @@ int main(){
     /*
     Before Transformation:
     Schedule state:
+    Domains:
+    [N] -> {statement_0[idx_0,idx_1] : 1 <= idx_0 <= N and 1 <= idx_1 <= N}
 
+    Transformations:
+    {statement_0[idx_0,idx_1] -> [0,idx_0,idx_1,0]; }
+
+    Default scheduled code:
+    for (int c1 = 1; c1 <= N; c1 += 1)
+      for (int c2 = 1; c2 <= N; c2 += 1)
+        statement_0(c1, c2);
     */
 
-    // Let's shift and fuse our loops.
     vector<Transformation*> transformations;
-    // Create our shift transformation
-    // Fuse our two loops
-    vector<LoopChain::size_type> fuse_these;
+    /*
+    Tile loop 0 with a tile size of 10.
+    The tile size _must_ be a constant integer expression.
+    No symbols or evaluated expressions allowed.
+    */
     TileTransformation transformation( 0, "10" );
     transformations.push_back( &transformation );
 
@@ -46,14 +62,33 @@ int main(){
     sched.apply( transformations );
 
     // Print everything
-    cout << "After Shift Transformation:\n"
+    cout << "After Tile Transformation:\n"
          << "Schedule state:\n" << sched
          << "\nTransformed code:\n" << sched.codegen()
          << endl;
 
     /*
-    After Shift Transformation:
+    After Tile Transformation:
     Schedule state:
+    Domains:
+    [N] -> {statement_0[idx_0,idx_1] : 1 <= idx_0 <= N and 1 <= idx_1 <= N}
+
+    Transformations:
+    {statement_0[idx_0,idx_1] -> [0,idx_0,idx_1,0]; }
+    {
+    [l,i1,i2,i3] -> [l,t1,t2,i1,i2,i3] : (l = 0) and Exists(r1,r2 : 0 <= r1 < 10 and i1 = t1 * 10 + r1 and 0 <= r2 < 10 and i2 = t2 * 10 + r2);
+    [l,i1,i2,i3] -> [l,i1,i2,i3] : !(l = 0)
+    };
+
+    Transformed code:
+    for (int c1 = 0; c1 <= floord(N, 10); c1 += 1)
+      for (int c2 = 0; c2 <= N / 10; c2 += 1)
+        for (int c3 = max(1, 10 * c1); c3 <= min(N, 10 * c1 + 9); c3 += 1)
+          for (int c4 = max(1, 10 * c2); c4 <= min(N, 10 * c2 + 9); c4 += 1)
+            statement_0(c3, c4);
+
+    The resulting loop is now a 4D nest were the outer two loops iterate over
+    the tiles, and the inner two loops iterate within the tiles.
     */
   }
 }
