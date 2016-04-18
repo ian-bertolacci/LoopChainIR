@@ -15,6 +15,8 @@ Copyright 2015 Colorado State University
 #include "RectangularDomain.hpp"
 #include "util.hpp"
 
+using namespace LoopChainIR;
+
 RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions ){
   assertWithException( input_lower_bounds != NULL, "Lower bounds array cannot be null" );
   assertWithException( input_upper_bounds != NULL, "Upper bounds array cannot be null" );

@@ -12,6 +12,8 @@ Copyright 2015 Colorado State University
 
 #include "LoopNest.hpp"
 
+using namespace LoopChainIR;
+
 LoopNest::LoopNest( RectangularDomain loop_bounds ): bounds( loop_bounds ){
 
 }

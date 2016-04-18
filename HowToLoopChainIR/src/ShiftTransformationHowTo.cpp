@@ -10,6 +10,7 @@ Recommended Reading:
 
 
 using namespace std;
+using namespace LoopChainIR;
 
 int main(){
   /*

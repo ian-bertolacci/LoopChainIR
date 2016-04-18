@@ -14,6 +14,8 @@ Copyright 2015 Colorado State University
 #include <sstream>
 #include "util.hpp"
 
+using namespace LoopChainIR;
+
 /*!
 \brief
 Shift all loops specified in nest by the extents.

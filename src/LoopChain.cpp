@@ -11,6 +11,9 @@ Copyright 2015 Colorado State University
 
 #include "LoopChain.hpp"
 #include "algorithm"
+
+using namespace LoopChainIR;
+
 LoopChain::LoopChain()
   : chain()
   { }

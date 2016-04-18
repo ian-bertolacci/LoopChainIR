@@ -17,6 +17,7 @@ Copyright 2015 Colorado State University
 #include <cstdio>
 #include <unistd.h>
 
+using namespace LoopChainIR;
 
 Schedule::Schedule( LoopChain& chain ) :
   chain(chain)
@@ -245,7 +246,7 @@ RectangularDomain::size_type Schedule::modifyIteratorsLength( int delta ){
   return this->getIteratorsLength();
 }
 
-std::ostream& operator<<( std::ostream& os, const Schedule& schedule){
+std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule){
   os << "Domains:" << std::endl;
 
   for( Schedule::const_iterator it = schedule.begin_domains(); it != schedule.end_domains(); ++it ){

@@ -6,6 +6,7 @@ How To RectangularDomain
 #include <utility>
 
 using namespace std;
+using namespace LoopChainIR;
 
 int main(){
   /*
