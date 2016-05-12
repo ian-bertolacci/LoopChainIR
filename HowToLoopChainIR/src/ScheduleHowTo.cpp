@@ -114,6 +114,10 @@ int main(){
 
   /*
   As expected, nothing changed here.
+
+  Generated code can also be output to a file
   */
+
+  sched.codegenToFile( "Schedule_HowTo_codgenToFile.cpp" );
 
 }

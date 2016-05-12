@@ -232,6 +232,18 @@ std::string Schedule::codegen( ){
   return code_text;
 }
 
+bool Schedule::codegenToFile( std::string file_name ){
+  std::string code = this->codegen();
+  std::ofstream file_stream( file_name );
+
+  if( file_stream ){
+    file_stream << code;
+    file_stream.flush();
+  }
+
+  return file_stream.good() && !( file_stream.fail() || file_stream.bad() );
+}
+
 RectangularDomain::size_type Schedule::getIteratorsLength() {
   return this->iterators_length;
 }
