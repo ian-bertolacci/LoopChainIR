@@ -1,0 +1,17 @@
+test name: 1N_2D_tile
+
+loop chain:
+(i,j){1..100,1..100}
+:end
+
+schedule:
+tile 0 (10)
+:end
+
+dependencies:
+{ [0,i,0,j,0] -> [0,i,0,j,0] : 1 == 0 }
+:end
+
+new ordering:
+{ [0,i,0,j,0] -> [0,i,0,j,0] : 1 == 0 }
+:end

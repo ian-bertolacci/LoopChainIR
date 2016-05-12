@@ -1,0 +1,18 @@
+test name: 2N_1D_2D_tile
+
+loop chain:
+(i){1..100}
+(i,j){1..100,1..100}
+:end
+
+schedule:
+tile 0 (10)
+:end
+
+dependencies:
+{ [0,a,0,0,0] -> [1,i,0,j,0] : 1 <= a <= 100 and 1 <= i,j <= 100 }
+:end
+
+new ordering:
+{ [0,a,0,0,0] -> [1,i,0,j,0] : 1 <= a <= 100 and 1 <= i,j <= 100 }
+:end

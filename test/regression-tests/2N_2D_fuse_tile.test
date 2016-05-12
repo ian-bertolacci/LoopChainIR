@@ -1,0 +1,19 @@
+test name: 2N_2D_fuse_tile
+
+loop chain:
+(i,j){1..100,1..100}
+(ii,jj){1..100,1..100}
+:end
+
+schedule:
+fuse 0 1
+tile 0 (10)
+:end
+
+dependencies:
+{ [0,i,0,j,0] -> [1,ii,0,jj,0] : i = ii and j = jj }
+:end
+
+new ordering:
+{ [0,i,0,j,0] -> [0,ii,0,jj,1] : i = ii and j = jj }
+:end
