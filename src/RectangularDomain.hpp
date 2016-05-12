@@ -34,6 +34,13 @@ namespace LoopChainIR{
   public:
     typedef std::vector<std::string>::size_type size_type;
 
+    //RectangularDomain();
+    /*!
+    \param[in] lower_bound string
+    \param[in] upper_bound string
+    */
+    RectangularDomain( std::string lower, std::string upper);
+
     /*!
     \param[in] input_lower_bounds ordered list of lower bounds
     \param[in] input_upper_bounds ordered list of upper bounds
@@ -49,6 +56,11 @@ namespace LoopChainIR{
     \param[in] dimension the dimensionality of the domain
     */
     RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions );
+
+    /*!
+    \param[in] RectangularDomain to append
+    */
+    void append(RectangularDomain d);
 
     /*!
     \returns the dimensionality of the domain

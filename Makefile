@@ -90,7 +90,7 @@ $(OBJS): $(BIN)/%.o : $(SRC)/%.cpp $(SRC)/%.hpp $(INITED_FILE)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $< -c -o $@
 
 # Testing
-all-tests: unit-tests regression-tests
+test: unit-tests regression-tests
 
 unit-tests: $(UNIT_TESTS)
 
