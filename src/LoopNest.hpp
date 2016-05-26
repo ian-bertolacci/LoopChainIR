@@ -25,6 +25,7 @@ namespace LoopChainIR{
     RectangularDomain bounds;
 
   public:
+
     /*!
     \param[in] loop_bounds Domain of the loop nest
     */

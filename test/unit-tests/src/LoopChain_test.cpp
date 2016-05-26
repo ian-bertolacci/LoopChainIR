@@ -94,6 +94,23 @@ TEST(LoopChainTest, Test_Getters_4N_1D) {
   EXPECT_EQ( got_domain.getSymbol(0), "M" );
 }
 
+TEST(LoopChainTest, TestNew) {
+
+  LoopChain *lc;
+  lc = new LoopChain();
+
+  delete lc;
+  lc = new LoopChain();
+  {
+    // Create first loop nest on {0..J}
+    string lower[1] = { "0" };
+    string upper[1] = { "J" };
+    string symbol[1] = { "J" };
+    lc->append( LoopNest( RectangularDomain( lower, upper, 1, symbol, 1 ) ) );
+  }
+  EXPECT_EQ( lc->length(), 1 );
+}
+
 /*
 Create a 2 loop chain, the first of 1 dimenstion, the second of
 2 dimensions (2N_1D_2D)

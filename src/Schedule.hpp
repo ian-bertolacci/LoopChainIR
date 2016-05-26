@@ -178,6 +178,18 @@ namespace LoopChainIR {
     */
     std::string getRootStatementSymbol();
 
+    /*!
+    \brief
+    Transform the initial loop chain using the applied trasformations and
+    generate the resulting loop code to a file.
+
+    \param[in] file_name Path to file being written.
+
+    \returns
+    bool true if stream good and not fail and not bad
+    */
+    bool codegenToFile( std::string file_name );
+
   public:
     friend std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule);
 

@@ -17,6 +17,14 @@ Copyright 2015 Colorado State University
 
 using namespace LoopChainIR;
 
+
+RectangularDomain::RectangularDomain( std::string input_lower_bounds, std::string input_upper_bounds ){
+
+  this->lower_bounds.push_back( input_lower_bounds );
+  this->upper_bounds.push_back( input_upper_bounds );
+
+}
+
 RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions ){
   assertWithException( input_lower_bounds != NULL, "Lower bounds array cannot be null" );
   assertWithException( input_upper_bounds != NULL, "Upper bounds array cannot be null" );
@@ -46,6 +54,14 @@ RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::str
 
 }
 
+void RectangularDomain::append( RectangularDomain other){
+
+  for( size_type d = 0; d < other.dimensions(); d += 1 ){
+    this->lower_bounds.push_back( other.getLowerBound(d) );
+    this->upper_bounds.push_back( other.getUpperBound(d) );
+  }
+
+}
 RectangularDomain::size_type RectangularDomain::dimensions(){
   return this->lower_bounds.size();
 }

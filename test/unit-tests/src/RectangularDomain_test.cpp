@@ -36,6 +36,37 @@ TEST(RectangularDomainTest, Test_Getters_1D ) {
   EXPECT_EQ( domain.getUpperBound(0), "1" );
 }
 
+TEST(RectangularDomainTest, Test_Append ) {
+
+  // Create our lower and upper bounds
+  string lower =  "0" ;
+  string upper =  "1" ;
+
+  RectangularDomain domain(lower, upper);
+
+  RectangularDomain domain2(lower, upper);
+
+  // Test the object
+  EXPECT_EQ( domain.dimensions(), 1 );
+  EXPECT_EQ( domain.symbolics(), 0 );
+  EXPECT_EQ( domain.getLowerBound(0), "0" );
+  EXPECT_EQ( domain.getUpperBound(0), "1" );
+
+  RectangularDomain domain3( lower, upper);
+  
+  // append
+  domain.append(domain2);  
+  domain.append(domain3);
+
+  // Test the object
+  EXPECT_EQ( domain.dimensions(), 3 );
+  EXPECT_EQ( domain.symbolics(), 0 );
+  EXPECT_EQ( domain.getLowerBound(1), "0" );
+  EXPECT_EQ( domain.getUpperBound(1), "1" );
+
+
+}
+
 /*
 Create a simple 2D RectangularDomain on {0..1, 0..1}
 */

@@ -1,0 +1,23 @@
+test name: 2N_1D_shift_fuse
+
+loop chain:
+(i){1..10}
+(j){1+9..10+9}
+:end
+
+dependencies:
+{ [0,i,0] -> [0,i+1,0] : 1 <= i <= 10 }
+{ [1,i,0] -> [1,i+1,0] : 1+9 <= i <= 10+9 }
+{ [0,i,0] -> [1,j,0] : i = j-9 and 1 <= i <= 10 and 1+9 <= j <= 10+9 }
+:end
+
+schedule:
+shift 1 (-9)
+fuse 0 1
+:end
+
+new ordering:
+{ [0,i,0] -> [0,i+1,0] : 1 <= i <= 10 }
+{ [0,j,1] -> [0,j+1,1] : 1+9 <= i <= 10+9 }
+{ [0,i,0] -> [0,j,1] : i = j-9 and 1 <= i <= 10 and 1+9 <= j <= 10+9 }
+:end

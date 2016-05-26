@@ -24,6 +24,7 @@ EXAMPLES = RectangularDomainHowTo \
 					 ScheduleHowTo \
 					 FusionTransformationHowTo \
 					 ShiftTransformationHowTo \
+					 TileTransformationHowTo \
 					 MultipleTransformations
 
 LONG_EXAMPLES=$(addprefix $(EX_BIN)/,$(EXAMPLES))

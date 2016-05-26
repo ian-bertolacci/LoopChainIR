@@ -132,5 +132,9 @@ int main(){
       for (int c2 = 1; c2 <= 2 * M; c2 += 1)
         my_prefix_statement_1(c1, c2);
   }
+
+  Generated code can also be output to a file
   */
+
+  sched.codegenToFile( "Schedule_HowTo_codgenToFile.cpp" );
 }

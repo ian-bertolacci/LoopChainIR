@@ -60,12 +60,16 @@ TEST(LoopNestTest, Test_Getters_1D_Symbols) {
   // COnstruct LoopNest from domain
   LoopNest nest( domain );
 
+  LoopNest otherNest = nest;
+
   // Test
   RectangularDomain got_domain = nest.getDomain();
 
   // Compare domains
   EXPECT_EQ( got_domain.dimensions(), domain.dimensions() );
   EXPECT_EQ( got_domain.symbolics(), domain.symbolics() );
+  EXPECT_EQ( otherNest.getDomain().dimensions(), domain.dimensions() );
+  EXPECT_EQ( otherNest.getDomain().symbolics(), domain.symbolics() );
 
   for( RectangularDomain::size_type d = 0; d < got_domain.dimensions(); d += 1){
     EXPECT_EQ( got_domain.getLowerBound(d), domain.getLowerBound(d) );
