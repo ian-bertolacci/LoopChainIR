@@ -662,7 +662,7 @@ class ExecutableRegressionTest:
         ( bounds_generation() ), produces the templated tuple type for the Graph
         object, and injects the resulting code into test_template.cpp in palace
         of COMPARISON_CODE_STAMP, GENERATED_CODE_STAMP, BOUNDS_CODE_STAMP, and
-        TUPLE_TYPE_STAMP. The resulting code is writen to self.path/test.cpp.
+        TUPLE_TYPE_STAMP. The resulting code is writen to self.path/test_exe.cpp.
 
     determine_iterators_length( ):
       Purpose:
@@ -726,7 +726,7 @@ class ExecutableRegressionTest:
     build_test( ):
       Purpose:
         Build the binary test that comprises the regression test by calling the
-        test's Makefile for test.
+        test's Makefile for test_exe.
 
       Exceptions:
         If build process exits with non-zero exit code (indicating a failed
@@ -1235,8 +1235,8 @@ class ExecutableRegressionTest( RegressionTest ):
 
     self.write_log( "Generated Code:\n{0}".format(transformed_text) )
 
-    # Write to self.path/test.cpp
-    with open( self.path + "/test.cpp", 'w' ) as file:
+    # Write to self.path/test_exe.cpp
+    with open( self.path + "/test_exe.cpp", 'w' ) as file:
       file.write( transformed_text )
 
 
@@ -1514,9 +1514,9 @@ class ExecutableRegressionTest( RegressionTest ):
 
     # Call 'make test' to build the executable test, which
     # is the final test of the whole regression test process
-    self.write_log( "[Calling make test]" )
+    self.write_log( "[Calling make test_exe]" )
 
-    process = subprocess.Popen( ["make", "test"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    process = subprocess.Popen( ["make", "test_exe"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
     stdout, stderr = process.communicate()
     exit_code = process.returncode
 
@@ -1543,9 +1543,9 @@ class ExecutableRegressionTest( RegressionTest ):
     # Call './test', running the test of the generated loop chain and its
     # transformations. Will print error information if an error occurs, which
     # is captured in the log file self.log
-    self.write_log( "[Calling ./test]")
+    self.write_log( "[Calling ./test_exe]")
 
-    process = subprocess.Popen( ["./test"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    process = subprocess.Popen( ["./test_exe"], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
     stdout, stderr = process.communicate()
     exit_code = process.returncode
 
@@ -1610,7 +1610,7 @@ class ExecutableRegressionTest( RegressionTest ):
       self.chain_code_generator_run()
 
       # Collect both graph_output.cpp and generated_chain_output.cpp, transform
-      # it, and inject it into the template, producing test.cpp
+      # it, and inject it into the template, producing test_exe.cpp
       self.generate_test_code()
 
       # Build test
