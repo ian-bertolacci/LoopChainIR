@@ -19,8 +19,9 @@ Copyright 2015 Colorado State University
 
 using namespace LoopChainIR;
 
-Schedule::Schedule( LoopChain& chain ) :
-  chain(chain)
+Schedule::Schedule( LoopChain& chain, std::string statement_prefix ) :
+  chain(chain), statement_prefix(statement_prefix),
+  root_statement_symbol( SSTR(statement_prefix << "statement_" ) )
   {
 
   // String of domains mapping to chain
@@ -79,7 +80,7 @@ Schedule::Schedule( LoopChain& chain ) :
 
     // Create the full string representing an ISL Domain
     std::string domain_string = SSTR( "[" << symbolic_string.str() << "] -> {"
-                                          << "statement_" << nest_idx << "[" << statement_string.str() << "] : "
+                                          << root_statement_symbol << nest_idx << "[" << statement_string.str() << "] : "
                                           << inequalities_string.str() << "}"
                                     );
 
@@ -91,7 +92,7 @@ Schedule::Schedule( LoopChain& chain ) :
     std::string expanded_form = SSTR( "[" << nest_idx << "," << statement_string.str() << ",0" << padding_string.str() << "]" );
 
     // Create the loop chain map string
-    ordering_string << "statement_" << nest_idx << "[" << statement_string.str() << "]"
+    ordering_string << root_statement_symbol << nest_idx << "[" << statement_string.str() << "]"
                << " -> " << expanded_form << "; ";
 
   }// for_each nest
@@ -244,6 +245,14 @@ RectangularDomain::size_type Schedule::modifyIteratorsLength( int delta ){
   this->iterators_length += delta;
 
   return this->getIteratorsLength();
+}
+
+std::string Schedule::getStatementPrefix(){
+  return std::string(this->statement_prefix);
+}
+
+std::string Schedule::getRootStatementSymbol(){
+  return std::string(this->root_statement_symbol);
 }
 
 std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule){

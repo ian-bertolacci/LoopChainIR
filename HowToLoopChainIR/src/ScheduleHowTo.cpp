@@ -114,6 +114,23 @@ int main(){
 
   /*
   As expected, nothing changed here.
+
+  Additionally, the name of the statment can be prefixed.
+  It will always be suffixed with "statement_#"
   */
 
+  Schedule sched_prefix( chain, "my_prefix_" );
+  cout << "Schedule state:\n" << sched_prefix
+       << "\nCode with prefix \"my_prefix_\":\n" << sched_prefix.codegen()
+       << endl;
+  /*
+  Code with prefix "my_prefix_":
+  {
+    for (int c1 = 0; c1 <= N; c1 += 1)
+      my_prefix_statement_0(c1);
+    for (int c1 = 1; c1 <= N; c1 += 1)
+      for (int c2 = 1; c2 <= 2 * M; c2 += 1)
+        my_prefix_statement_1(c1, c2);
+  }
+  */
 }
