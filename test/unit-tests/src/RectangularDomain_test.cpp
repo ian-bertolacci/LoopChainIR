@@ -13,6 +13,7 @@ Copyright 2015 Colorado State University
 #include "RectangularDomain.hpp"
 #include <iostream>
 #include <utility>
+#include <set>
 
 using namespace std;
 using namespace LoopChainIR;
@@ -53,9 +54,9 @@ TEST(RectangularDomainTest, Test_Append ) {
   EXPECT_EQ( domain.getUpperBound(0), "1" );
 
   RectangularDomain domain3( lower, upper);
-  
+
   // append
-  domain.append(domain2);  
+  domain.append(domain2);
   domain.append(domain3);
 
   // Test the object
@@ -197,4 +198,31 @@ TEST(RectangularDomainTest, Test_Getters_2D_Expressions_Symbols) {
   EXPECT_EQ( domain.getUpperBound(1), "N * N" );
   EXPECT_EQ( domain.getSymbol(0), "L" );
   EXPECT_EQ( domain.getSymbol(1), "N" );
+}
+
+/*
+Create a complex 2D RectangularDomain with symbols { L - 15 .. N * 2, L * 2 .. N * N }
+*/
+TEST(RectangularDomainTest, Test_Getters_2D_Expressions_Symbols_Set) {
+  // Create our lower and upper bounds
+  string lower[2] = { "L - 15", "L * 2"};
+  string upper[2] = { "N * 2", "N * N" };
+  set<string> symbols; // = { "L", "N" };
+  symbols.insert("L");
+  symbols.insert("N");
+
+  // Construct the domain (lower, upper, dimensions )
+  RectangularDomain domain( lower, upper, 2, symbols);
+
+  // Test object
+  EXPECT_EQ( domain.dimensions(), 2 );
+  EXPECT_EQ( domain.symbolics(), 2 );
+  EXPECT_EQ( domain.getLowerBound(0), "L - 15" );
+  EXPECT_EQ( domain.getUpperBound(0), "N * 2" );
+  EXPECT_EQ( domain.getLowerBound(1), "L * 2" );
+  EXPECT_EQ( domain.getUpperBound(1), "N * N" );
+  set<string> symbols_check;
+  symbols_check.insert( domain.getSymbol(0) );
+  symbols_check.insert( domain.getSymbol(1) );
+  EXPECT_EQ( symbols_check, symbols );
 }

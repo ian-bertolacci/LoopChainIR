@@ -17,6 +17,7 @@ Copyright 2015 Colorado State University
 
 #include <string>
 #include <vector>
+#include <set>
 #include <utility>
 
 namespace LoopChainIR{
@@ -49,6 +50,14 @@ namespace LoopChainIR{
     \param[in] symbolics number of symbols
     */
     RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions, std::string symbols[], size_type symbolics );
+
+    /*!
+    \param[in] input_lower_bounds ordered list of lower bounds
+    \param[in] input_upper_bounds ordered list of upper bounds
+    \param[in] dimension the dimensionality of the domain
+    \param[in] symbols the set of symbols found in the bounds
+    */
+    RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions, const std::set<std::string> symbols );
 
     /*!
     \param[in] input_lower_bounds ordered list of lower bounds
