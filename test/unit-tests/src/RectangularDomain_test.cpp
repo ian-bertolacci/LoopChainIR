@@ -201,13 +201,38 @@ TEST(RectangularDomainTest, Test_Getters_2D_Expressions_Symbols) {
 }
 
 /*
+Create a complex 1D RectangularDomain with symbols { L - 15 .. N * 2, L * 2 .. N * N }
+*/
+TEST(RectangularDomainTest, Test_Getters_1D_Expressions_Symbols_Set) {
+  // Create our lower and upper bounds
+  string lower[1] = { "L - 15"};
+  string upper[1] = { "N * 2" };
+  set<string> symbols;
+  symbols.insert("L");
+  symbols.insert("N");
+
+  // Construct the domain (lower, upper, dimensions )
+  RectangularDomain domain( lower, upper, 1, symbols);
+
+  // Test object
+  EXPECT_EQ( domain.dimensions(), 1 );
+  EXPECT_EQ( domain.symbolics(), 2 );
+  EXPECT_EQ( domain.getLowerBound(0), "L - 15" );
+  EXPECT_EQ( domain.getUpperBound(0), "N * 2" );
+  set<string> symbols_check;
+  symbols_check.insert( domain.getSymbol(0) );
+  symbols_check.insert( domain.getSymbol(1) );
+  EXPECT_EQ( symbols_check, symbols );
+}
+
+/*
 Create a complex 2D RectangularDomain with symbols { L - 15 .. N * 2, L * 2 .. N * N }
 */
 TEST(RectangularDomainTest, Test_Getters_2D_Expressions_Symbols_Set) {
   // Create our lower and upper bounds
   string lower[2] = { "L - 15", "L * 2"};
   string upper[2] = { "N * 2", "N * N" };
-  set<string> symbols; // = { "L", "N" };
+  set<string> symbols;
   symbols.insert("L");
   symbols.insert("N");
 

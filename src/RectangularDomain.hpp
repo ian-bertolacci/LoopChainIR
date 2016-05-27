@@ -42,6 +42,14 @@ namespace LoopChainIR{
     */
     RectangularDomain( std::string lower, std::string upper);
 
+    //RectangularDomain();
+    /*!
+    \param[in] lower_bound string
+    \param[in] upper_bound string
+    \param[in] symbols the set of symbols found in the bounds
+    */
+    RectangularDomain( std::string lower, std::string upper, const std::set<std::string> symbols );
+
     /*!
     \param[in] input_lower_bounds ordered list of lower bounds
     \param[in] input_upper_bounds ordered list of upper bounds
