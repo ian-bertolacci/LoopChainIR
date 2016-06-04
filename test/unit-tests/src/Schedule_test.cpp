@@ -34,6 +34,8 @@ TEST(ScheduleTest, Construct_1N_1D_chain) {
 
   ASSERT_NE( SSTR( sched ), "" );
   ASSERT_NE( sched.codegen(), "" );
+  ASSERT_EQ( sched.getStatementPrefix(), "" );
+  ASSERT_EQ( sched.getRootStatementSymbol(), "statement_" );
 }
 
 /*
@@ -60,4 +62,28 @@ TEST(ScheduleTest, Construct_2N_1D_2D_chain) {
 
   ASSERT_NE( SSTR( sched ), "" );
   ASSERT_NE( sched.codegen(), "" );
+  ASSERT_EQ( sched.getStatementPrefix(), "" );
+  ASSERT_EQ( sched.getRootStatementSymbol(), "statement_" );
+}
+
+/*
+Create a Schedule from a 1N_1D chain
+*/
+TEST(ScheduleTest, Custom_statement_prefix) {
+  LoopChain chain;
+
+  {
+    string lower[1] = {"0"};
+    string upper[1] = {"N"};
+    string symbol[1] = {"N"};
+    chain.append( LoopNest( RectangularDomain( lower, upper, 1, symbol, 1 ) ) );
+  }
+  std::string prefix("custom_prefix_");
+  Schedule sched( chain, prefix );
+
+  ASSERT_NE( SSTR( sched ), "" );
+  ASSERT_NE( sched.codegen(), "" );
+  ASSERT_EQ( sched.getStatementPrefix(), prefix );
+  ASSERT_EQ( sched.getRootStatementSymbol(), SSTR(prefix << "statement_") );
+  ASSERT_NE( sched.codegen().find(prefix), std::string::npos );
 }

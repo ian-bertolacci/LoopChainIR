@@ -4,7 +4,7 @@ include $(PROJECT_DIR)/Makefile
 TEST_BINARIES = code_generator \
 								raw_order_graph_generator \
 								new_order_graph_generator \
-								test
+								test_exe
 
 $(TEST_BINARIES): %: $(EXE) %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $@.cpp -o $@.o

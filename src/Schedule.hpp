@@ -48,6 +48,8 @@ namespace LoopChainIR {
     RectangularDomain::size_type iterators_length;
     std::vector<std::string> transformations;
     std::vector<std::string> domains;
+    std::string statement_prefix;
+    std::string root_statement_symbol;
 
     /*!
     \brief
@@ -59,7 +61,7 @@ namespace LoopChainIR {
     size_type append( std::string text );
 
   public:
-    Schedule( LoopChain& chain );
+    Schedule( LoopChain& chain, std::string statement_prefix = std::string("") );
     /*!
     \returns The length (in symbols) of the loop chain's iterator.
     */
@@ -157,6 +159,24 @@ namespace LoopChainIR {
     std::string of generated loop code.
     */
     std::string codegen( );
+
+    /*!
+    \brief
+    Return copy of the statment prefix.
+
+    \returns
+    std::string copy of the statement prefix.
+    */
+    std::string getStatementPrefix();
+
+    /*!
+    \brief
+    Returns copy of the root statement symbol.
+
+    \returns
+    std::string copy of the root statement symbol.
+    */
+    std::string getRootStatementSymbol();
 
     /*!
     \brief
