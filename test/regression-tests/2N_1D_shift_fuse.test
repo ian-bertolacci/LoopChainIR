@@ -13,7 +13,7 @@ dependencies:
 
 schedule:
 shift 1 (-9)
-fuse 0 1
+fuse 0, 1
 :end
 
 new ordering:

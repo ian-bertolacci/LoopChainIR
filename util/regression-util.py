@@ -945,7 +945,7 @@ class ExecutableRegressionTest( RegressionTest ):
     '''
     def generate_transformation( schedule_text ):
       original_rx = re.compile( r"original" )
-      fusion_rx = re.compile( r"fuse\s+(?P<list>(?:\d+\s*){2,})" )
+      fusion_rx = re.compile( r"fuse\s+(?P<list>(?:\d+)(?:\s*,\s*\d+){1,})" )
       shift_rx = re.compile( r"shift\s+(?P<loopid>\d+)\s+\(\s*(?P<extents>.+)\s*\)")
       tile_rx = re.compile( r"tile\s+(?P<loopid>\d+)\s+\(\s*(?P<extents>\d+(?:\s*,\s*\d+)*)\s*\)")
       symbols_rx = re.compile( r"[_a-zA-Z][_a-zA-Z0-9]*" )
@@ -956,7 +956,7 @@ class ExecutableRegressionTest( RegressionTest ):
       elif fusion_rx.match( schedule_text ):
         match = fusion_rx.match( schedule_text )
         fuse_list_str = match.group("list")
-        fuse_list = re.split( r"\s+", fuse_list_str )
+        fuse_list = re.split( r"\s*,\s*", fuse_list_str )
 
         return \
         [

@@ -6,7 +6,7 @@ loop chain:
 :end
 
 schedule:
-fuse 0 1
+fuse 0, 1
 tile 0 (10)
 :end
 

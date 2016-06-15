@@ -156,7 +156,7 @@ A regression test has several sections:
   + Fusion schedule: Fuse a series of loops.  
     code: `fuse {loop index} {loop index} [{loop index} ...]`  
     regex: `"fuse\s+(?P<list>(?:\d+\s*){2,})`  
-    Example: `fuse 0 1` fuses loops 0 and 1 (the first and second loops).
+    Example: `fuse 0, 1` fuses loops 0 and 1 (the first and second loops).
 
   + Shift: shift the domain of a loop by some extent(s).
     Extents can be constant integers, symbols, and valid C expressions using only arithmetic operators.

@@ -12,7 +12,7 @@ dependencies:
 :end
 
 schedule:
-fuse 0 1
+fuse 0, 1
 :end
 
 new ordering:
