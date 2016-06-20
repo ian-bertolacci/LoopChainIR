@@ -24,7 +24,7 @@ are compiled to. Known as $(BIN).
 
 * test/ : Subdirectory for testing. Known as $(TEST)
 
-  + regression-tests : Subdirectory for regression-test files. Known as $(REG_TEST_DIR)
+  + integration-tests : Subdirectory for integration-test files. Known as $(REG_TEST_DIR)
 
   + unit-tests : Subdirectory for unit-test files. Known as $(UNIT_TEST_DIR)
 
@@ -59,11 +59,11 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
 
 * `all`: Builds the LoopChainIR.a library
 
-* `all-tests`: Performs `unit-tests` and `regression-tests`
+* `all-tests`: Performs `unit-tests` and `integration-tests`
 
 * `unit-tests`: Runs all unit tests specified by $(UNIT-TESTS)
 
-* `regression-tests`: Runs all regression tests specified by $(REG_TESTS)
+* `integration-tests`: Runs all integration tests specified by $(REG_TESTS)
 
 * `documentation` (or `doc`): Runs doxygen, uses the local Doxyfile
 
@@ -96,7 +96,7 @@ make doc
 The output can be found at $(DOC)
 
 ## Testing
-A complete run of all tests (both regression and unit) is run with
+A complete run of all tests (both integration and unit) is run with
 
 `make all-tests`
 
@@ -115,22 +115,22 @@ Or individually using the name of the test, for example:
 
 `make RectangularDomain_test`
 
-### Regression Testing
-Regression testing is conducted by an in-house script (see $(UTIL)/regression-util.py).
+### Integration Testing
+Integration testing is conducted by an in-house script (see $(UTIL)/integration-util.py).
 
 Test files are placed in $(REG_TEST_DIR).
 
 Tests are run with
 
-`make regression-tests`
+`make integration-tests`
 
 Or individually using the name of the test.
 
 If a test fails, it's log file is dropped next to the test file suffixed with '.log'.
 This can be useful to determine what failed, how to fix it, and in the case of a software error is useful to us.
 
-#### Regression Test Files
-A regression test has several sections:
+#### Itegration Test Files
+A integration test has several sections:
 * `test name` : Name of the test. Prefers no white-space.
 
 * `loop chain` : An ordered list of each loop nest, where each loop nest is expressed as a terse domain.
@@ -156,7 +156,7 @@ A regression test has several sections:
   + Fusion schedule: Fuse a series of loops.  
     code: `fuse {loop index} {loop index} [{loop index} ...]`  
     regex: `"fuse\s+(?P<list>(?:\d+\s*){2,})`  
-    Example: `fuse 0 1` fuses loops 0 and 1 (the first and second loops).
+    Example: `fuse 0, 1` fuses loops 0 and 1 (the first and second loops).
 
   + Shift: shift the domain of a loop by some extent(s).
     Extents can be constant integers, symbols, and valid C expressions using only arithmetic operators.
@@ -277,13 +277,13 @@ for( int i = 0; i < M; ++i ){
 :end
 ```
 
-#### regression-util.py
-The regression-util.py script lives in $(UTIL) and is the driver behind the regression testing framework.
+#### integration-util.py
+The integration-util.py script lives in $(UTIL) and is the driver behind the integration testing framework.
 
 To run a test (or list of tests) by hand, simply calls
 
 ```
-python $(UTIL)/regression-util.py path/to/file.test path/to/file2.test
+python $(UTIL)/integration-util.py path/to/file.test path/to/file2.test
 ```
 
 There are options for the script:

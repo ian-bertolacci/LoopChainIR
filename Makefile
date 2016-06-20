@@ -10,7 +10,7 @@ TEST=$(PROJECT_DIR)/test
 UNIT_TEST_DIR=$(TEST)/unit-tests
 UNIT_TEST_BIN=$(UNIT_TEST_DIR)/bin
 UNIT_TEST_SRC=$(UNIT_TEST_DIR)/src
-REG_TEST_DIR=$(TEST)/regression-tests
+REG_TEST_DIR=$(TEST)/integration-tests
 
 THIRD_PARTY=$(PROJECT_DIR)/third-party
 THIRD_PARTY_SRC=$(THIRD_PARTY)/source
@@ -47,7 +47,7 @@ UNIT_TESTS = RectangularDomain_test \
 						 ShiftTransformation_test \
 						 TileTransformation_test
 
-REG_TESTS = 1N_1D.test \
+INT_TEST = 1N_1D.test \
 						1N_2D.test \
 						1N_3D.test \
 						1N_1D_shift_1.test \
@@ -96,20 +96,20 @@ $(OBJS): $(BIN)/%.o : $(SRC)/%.cpp $(SRC)/%.hpp $(INITED_FILE)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $< -c -o $@
 
 # Testing
-test: unit-tests regression-tests
+test: unit-tests integration-tests
 
 unit-tests: $(UNIT_TESTS)
 
-regression-tests: $(EXE)
-	python $(UTIL)/regression-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(addprefix $(REG_TEST_DIR)/,$(REG_TESTS))
+integration-tests: $(EXE)
+	python $(UTIL)/integration-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(addprefix $(REG_TEST_DIR)/,$(INT_TEST))
 
 $(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(SOURCE_LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(SOURCE_LIB) -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
 
-$(REG_TESTS): $(EXE)
-	python $(UTIL)/regression-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(REG_TEST_DIR)/$@
+$(INT_TEST): $(EXE)
+	python $(UTIL)/integration-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(REG_TEST_DIR)/$@
 
 #Building the Google Test framework
 $(GTEST_SRCS_): $(INITED_FILE)
