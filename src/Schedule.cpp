@@ -157,7 +157,7 @@ Schedule::const_iterator Schedule::end_transformations() const {
 }
 
 
-std::string Schedule::codegen( ){
+IslAstRoot* Schedule::codegenToIslAst(){
   isl_ctx* ctx = isl_ctx_alloc();
 
   // Union domains together
@@ -183,15 +183,29 @@ std::string Schedule::codegen( ){
   // Apply transformation to schedule
   isl_union_map* schedule = isl_union_map_intersect_domain(transformation, full_domain);
 
+  // Create AST
+  isl_ast_build* build = isl_ast_build_alloc(ctx);
+  isl_ast_node* tree = isl_ast_build_node_from_schedule_map(build, schedule);
+
+  // free ISL objects
+  isl_ast_build_free( build );
+
+  return new IslAstRoot( tree, ctx );
+}
+
+std::string Schedule::codegen( ){
+  // Create ISL AST Tree
+  IslAstRoot& root = *this->codegenToIslAst();
+  isl_ctx* ctx = root.ctx;
+  isl_ast_node* tree = root.root;
+
   // Create a memory file (and stream) to write to
   int bytes = 1028*4;
   int type_size = sizeof(char);
 
   FILE* memory_file = fmemopen( calloc(bytes, type_size), bytes*type_size, "r+" );
 
-  // Create AST and write to memory_file
-  isl_ast_build* build = isl_ast_build_alloc(ctx);
-  isl_ast_node* tree = isl_ast_build_node_from_schedule_map(build, schedule);
+  // Write code to memeory file
   isl_printer* p = isl_printer_to_file(ctx, memory_file);
                p = isl_printer_set_output_format(p, ISL_FORMAT_C);
                p = isl_printer_print_ast_node(p, tree);
@@ -225,7 +239,6 @@ std::string Schedule::codegen( ){
   }
   */
 
-  isl_ast_build_free( build );
   isl_printer_free( p );
   isl_ast_node_free( tree );
   isl_ctx_free( ctx );

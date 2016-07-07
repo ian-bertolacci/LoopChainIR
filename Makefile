@@ -80,6 +80,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/ShiftTransformation.o \
 			 $(BIN)/TileTransformation.o \
+			 $(BIN)/IslAstRoot.o \
 			 $(BIN)/util.o
 
 
