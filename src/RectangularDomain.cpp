@@ -25,6 +25,15 @@ RectangularDomain::RectangularDomain( std::string input_lower_bounds, std::strin
 
 }
 
+RectangularDomain::RectangularDomain( std::string input_lower_bounds, std::string input_upper_bounds, const std::set<std::string> symbols ){
+  this->lower_bounds.push_back( input_lower_bounds );
+  this->upper_bounds.push_back( input_upper_bounds );
+
+  for( std::set<std::string>::const_iterator iter = symbols.begin(); iter != symbols.end(); ++iter ){
+    this->symbols.push_back( std::string(*iter) );
+  }
+}
+
 RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions ){
   assertWithException( input_lower_bounds != NULL, "Lower bounds array cannot be null" );
   assertWithException( input_upper_bounds != NULL, "Upper bounds array cannot be null" );
@@ -52,6 +61,21 @@ RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::str
     this->symbols.push_back( symbols[d] );
   }
 
+}
+
+RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions, const std::set<std::string> symbols ){
+  assertWithException( input_lower_bounds != NULL, "Lower bounds array cannot be null" );
+  assertWithException( input_upper_bounds != NULL, "Upper bounds array cannot be null" );
+  assertWithException( dimensions >= 1, "Cannot have domain with fewer than one dimension" );
+
+  for( size_type d = 0; d < dimensions; d += 1 ){
+    this->lower_bounds.push_back( input_lower_bounds[d] );
+    this->upper_bounds.push_back( input_upper_bounds[d] );
+  }
+
+  for( std::set<std::string>::const_iterator iter = symbols.begin(); iter != symbols.end(); ++iter ){
+    this->symbols.push_back( std::string(*iter) );
+  }
 }
 
 void RectangularDomain::append( RectangularDomain other){
