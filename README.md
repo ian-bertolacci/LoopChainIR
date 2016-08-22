@@ -2,19 +2,20 @@
 The code repository for the internal representation data structure that holds a
 loop chain execution schedule.
 
-## Getting Started
+## Quickstart
 The entire build process is controlled through the Makefile at the root of this
 project.
 
 After getting this repository (via git clone, zip download, carrier pigeon,
 what have you ), run:
 
-`make initialize`
+`make all`
 
-This will build and position all third-party materials in the correct place.
+This will build and locally install all third-party materials in the correct place (through `make initialize`), then build the LoopChainIR library.
+
 To ensure that everything is in working order, run:
 
-`make all-tests`
+`make test`
 
 ## Project Directory Structure
 * bin/ : Where all executables (including intermediate \*.o and \*.a files)
@@ -54,12 +55,11 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
     - include/ : Third-party headers. Known as $(INC)
 
 ## Make commands
-* `initialize` (or `init`): This is the first command that should be run when getting started
-  with the project. It builds and places all the third-party tools into good organized places.
+* `initialize` (or `init`): This is the first command that should be run when getting started with the project. It builds and places all the third-party tools into good organized places.
 
-* `all`: Builds the LoopChainIR.a library
+* `all`: Builds the LoopChainIR.a library (after first performing `initialize` if necessary)
 
-* `all-tests`: Performs `unit-tests` and `integration-tests`
+* `test`: Performs `unit-tests` and `integration-tests`
 
 * `unit-tests`: Runs all unit tests specified by $(UNIT-TESTS)
 
@@ -75,8 +75,7 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
 
 * `clean-doc`: Removes (recursive) the $(DOC_PATH) directory
 
-* `clean`: Performs `clean-test` and removes (recursively) all files under
-  $(BIN).
+* `clean`: Performs `clean-test` and removes (recursively) all files under $(BIN).
 
 * `clean-all`: Performs `clean`, `clean-third-party`, and `clean-doc`. Mimics a restored project state.
 
@@ -98,7 +97,7 @@ The output can be found at $(DOC)
 ## Testing
 A complete run of all tests (both integration and unit) is run with
 
-`make all-tests`
+`make test`
 
 ### Unit Testing
 Testing is conducted through the [Google Test](https://code.google.com/p/googletest/)
@@ -165,8 +164,7 @@ A integration test has several sections:
     regex: `shift\s+(?P<loopid>\d+)\s+\(\s*(?P<extents>.+)\s*\)`  
     Example: `shift 0 (1,K,n+3)` shifts the first loop in the chain, which is 3D,by 1, K, and n+3.  
 
-  In theory (but not yet tested) these schedules can be composed.
-  They are (or will be) applied in the order specified.
+  Multiple schedules can be composed, and are applied in the order specified.
 
 * `dependencies` : The dependencies that _must_ be satisfied for _any_ transformation on the loop.
   These are used to ensure that a transformation produced a loop satisfying the dependencies of the original loop.
@@ -232,7 +230,7 @@ A integration test has several sections:
 
 The full test (using all the examples) would look something like this:
 ```
-test name: example_test
+test name: example_3N_1D_1D_2D
 
 loop chain:
 (i){0..9}
@@ -249,7 +247,7 @@ dependencies:
 :end
 
 schedule:
-fuse
+fuse 0, 1, 2
 :end
 
 new ordering:
