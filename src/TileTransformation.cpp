@@ -44,9 +44,11 @@ std::string& TileTransformation::apply( Schedule& schedule ){
   */
 
   std::ostringstream input_iteration;
-  std::ostringstream output_iteration;
+  std::ostringstream tiled_output_iteration;
+  std::ostringstream untiled_output_iteration;
 
   std::ostringstream tile_iterators;
+  std::ostringstream nontile_iterators;
   std::ostringstream loop_iterators;
 
   std::ostringstream source;
@@ -59,7 +61,8 @@ std::string& TileTransformation::apply( Schedule& schedule ){
 
   // to/from iterators
   input_iteration << "l";
-  output_iteration << "l";
+  tiled_output_iteration << "l";
+  untiled_output_iteration << "l";
 
   // Create rest of input iteration
   for( RectangularDomain::size_type i = 1; i < schedule.getIteratorsLength(); i += 1 ){
@@ -72,10 +75,12 @@ std::string& TileTransformation::apply( Schedule& schedule ){
   for( RectangularDomain::size_type i = 1; i <= domain.dimensions(); i += 1 ){
     // Create unique symbol for tile iterator ("t"+i, eg "t1", "t2", ...)
     tile_iterators << ",t" << i;
+    nontile_iterators << ",0";
   }
 
   input_iteration << loop_iterators.str();
-  output_iteration << tile_iterators.str() << loop_iterators.str();
+  tiled_output_iteration << tile_iterators.str() << loop_iterators.str();
+  untiled_output_iteration << nontile_iterators.str() << loop_iterators.str();
 
   // Create conditional expression for source loops (eg (f=0 or f=1 or ...))
   source << "(l = " << this->loop << ")";
@@ -110,9 +115,9 @@ std::string& TileTransformation::apply( Schedule& schedule ){
   std::ostringstream transformation;
   transformation << "{" << "\n"
                  // transformation for targeted loops
-                 << "[" << input_iteration.str() << "] -> [" << output_iteration.str() << "] : " << source.str() << " and " << condition.str() << ";\n"
+                 << "[" << input_iteration.str() << "] -> [" << tiled_output_iteration.str() << "] : " << source.str() << " and " << condition.str() << ";\n"
                  // Identity transformation for pass-through
-                 << "[" << input_iteration.str() << "] -> [" << input_iteration.str() << "] : !" << source.str() << "\n"
+                 << "[" << input_iteration.str() << "] -> [" << untiled_output_iteration.str() << "] : !" << source.str() << "\n"
                  << "};";
   return *(new std::string(transformation.str()));
 }
