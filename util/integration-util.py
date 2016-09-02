@@ -947,7 +947,7 @@ class ExecutableRegressionTest( RegressionTest ):
       original_rx = re.compile( r"original" )
       fusion_rx = re.compile( r"fuse\s+(?P<list>(?:\d+)(?:\s*,\s*\d+){1,})" )
       shift_rx = re.compile( r"shift\s+(?P<loopid>\d+)\s+\(\s*(?P<extents>.+)\s*\)")
-      tile_rx = re.compile( r"tile\s+(?P<loopid>\d+)\s+\(\s*(?P<extents>\d+(?:\s*,\s*\d+)*)\s*\)")
+      tile_rx = re.compile( r"tile\s+(?P<loopid>\d+)\s+\{\s*(?P<extents>\d+\s*:\s*\d+(?:\s*,\s*\d+\s*:\s*\d+)*)\s*\}")
       symbols_rx = re.compile( r"[_a-zA-Z][_a-zA-Z0-9]*" )
 
       if original_rx.match( schedule_text ):
@@ -988,17 +988,18 @@ class ExecutableRegressionTest( RegressionTest ):
         ]
 
       elif tile_rx.match( schedule_text ):
+        extents_rx = re.compile( r"(?P<dimension>\d+\s*):(?P<extent>\s*\d+)")
         match = tile_rx.match( schedule_text )
         loopid = match.group("loopid")
-        extents = re.split(r"\s*,\s*", match.group("extents"))
-        symbols = set(reduce(lambda a,b: a+b, map( symbols_rx.findall, extents) ))
+        extents = dict( (extent.group("dimension"), extent.group("extent") ) for extent in map( extents_rx.search, re.split(r"\s*,\s*", match.group("extents")) ) )
+        symbols = set(reduce(lambda a,b: a+b, map( symbols_rx.findall, extents.values()) ))
         if len(symbols) != 0:
           raise TestMalformedException("Tile size extents cannot be be symbolic. Must be constant. Offending symbols: \{{0}\}".format( symbols ) )
         return [
           "{",
-          "vector<string> extents;"
+          "TileTransformation::TileMap extents;"
         ] \
-        + map( lambda i: "extents.push_back(\"{0}\");".format(i), extents ) \
+        + map( lambda i: "extents[{0}] = \"{1}\";".format(i[0], i[1]), extents.items() ) \
         + [
           "schedulers.push_back( new TileTransformation({0}, extents) );".format(loopid),
           "}"

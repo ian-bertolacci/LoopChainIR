@@ -7,7 +7,7 @@ loop chain:
 
 schedule:
 fuse 0, 1
-tile 0 (10)
+tile 0 {1:10,2:10}
 :end
 
 dependencies:

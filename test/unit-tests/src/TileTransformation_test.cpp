@@ -30,8 +30,11 @@ TEST(TileTransformationTest, GEN_1N_1D_Empty_Loop) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
-  schedulers.push_back( new TileTransformation(0, "10") );
+
+  // Create tiling extents
+  TileTransformation::TileMap extents;
+  extents[1] = "10";
+  schedulers.push_back( new TileTransformation(0, extents) );
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -58,8 +61,11 @@ TEST(TileTransformationTest, GEN_1N_1D) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
-  schedulers.push_back( new TileTransformation(0, "10") );
+
+  // Create tiling extents
+  TileTransformation::TileMap extents;
+  extents[1] = "10";
+  schedulers.push_back( new TileTransformation(0, extents) );
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -93,8 +99,11 @@ TEST(TileTransformationTest, GEN_2N_1D_0) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
-  schedulers.push_back( new TileTransformation(0, "10") );
+
+  // Create tiling extents
+  TileTransformation::TileMap extents;
+  extents[1] = "10";
+  schedulers.push_back( new TileTransformation(0, extents) );
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -128,8 +137,11 @@ TEST(TileTransformationTest, GEN_2N_1D_1) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
-  schedulers.push_back( new TileTransformation(1, "10") );
+
+  // Create tiling extents
+  TileTransformation::TileMap extents;
+  extents[1] = "10";
+  schedulers.push_back( new TileTransformation(1, extents) );
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -155,8 +167,12 @@ TEST(TileTransformationTest, GEN_1N_2D) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
-  schedulers.push_back( new TileTransformation(0, "10") );
+
+  // Create tiling extents
+  TileTransformation::TileMap extents;
+  extents[1] = "10";
+  extents[2] = "10";
+  schedulers.push_back( new TileTransformation(0, extents) );
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -190,8 +206,12 @@ TEST(TileTransformationTest, GEN_2N_2D_0) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
-  schedulers.push_back( new TileTransformation(0, "10") );
+
+  // Create tiling extents
+  TileTransformation::TileMap extents;
+  extents[1] = "10";
+  extents[2] = "10";
+  schedulers.push_back( new TileTransformation(0, extents) );
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -225,8 +245,12 @@ TEST(TileTransformationTest, GEN_2N_2D_1) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  // Append the Default Sequential transformation to the list. (It's first)
-  schedulers.push_back( new TileTransformation(1, "10") );
+
+  // Create tiling extents
+  TileTransformation::TileMap extents;
+  extents[1] = "10";
+  extents[2] = "10";
+  schedulers.push_back( new TileTransformation(1, extents) );
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -252,9 +276,43 @@ TEST(TileTransformationTest, GEN_1N_2D_multi_extent) {
 
   // Create an ordered list of Transformations
   vector<Transformation*> schedulers;
-  vector<string> extents;
-  extents.push_back("2");
-  extents.push_back("5");
+
+  // Create tiling extents
+  TileTransformation::TileMap extents;
+  extents[1] = "2";
+  extents[2] = "5";
+
+  // Append the Default Sequential transformation to the list. (It's first)
+  schedulers.push_back( new TileTransformation(0, extents ) );
+
+  // Create Schedule object from chain
+  Schedule sched( chain );
+  // Apply list of transformations
+  // In this example, only the DefaultSequentialTransformation
+  sched.apply( schedulers );
+
+  // Test
+  // Because this is an empty loop, the code will be an empty statement body
+  ASSERT_NE( sched.codegen(), string("{\n}\n") );
+}
+
+TEST(TileTransformationTest, GEN_1N_2D_fewer_extents) {
+  LoopChain chain;
+
+  {
+    // This loop is empty, since its lower bound is greater than
+    // its upper bound. It is still valid, however.
+    string lower[2] = { "1", "1" };
+    string upper[2] = { "10", "20" };
+    chain.append( LoopNest( RectangularDomain( lower, upper, 2 ) ) );
+  }
+
+  // Create an ordered list of Transformations
+  vector<Transformation*> schedulers;
+
+  // Create tiling extents
+  TileTransformation::TileMap extents;
+  extents[1] = "2";
 
   // Append the Default Sequential transformation to the list. (It's first)
   schedulers.push_back( new TileTransformation(0, extents ) );

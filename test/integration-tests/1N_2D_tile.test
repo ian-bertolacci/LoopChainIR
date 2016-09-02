@@ -5,13 +5,13 @@ loop chain:
 :end
 
 schedule:
-tile 0 (10)
+tile 0 {1:10,2:10}
 :end
 
 dependencies:
-{ [0,i,0,j,0] -> [0,i,0,j,0] : 1 == 0 }
+{ [0,i,0,j,0] -> [0,i,0,j,0] : 1 = 0 }
 :end
 
 new ordering:
-{ [0,i,0,j,0] -> [0,i,0,j,0] : 1 == 0 }
+{ [0,i,0,j,0] -> [0,i,0,j,0] : 1 = 0 }
 :end
