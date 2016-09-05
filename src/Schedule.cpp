@@ -263,9 +263,8 @@ RectangularDomain::size_type Schedule::getIteratorsLength() {
 }
 
 RectangularDomain::size_type Schedule::modifyIteratorsLength( int delta ){
-  if( (RectangularDomain::size_type) abs( delta ) > this->getIteratorsLength() ){
-    // EXCEPTION?
-  }
+  // Cannot have delta that would make iterators length 0
+  assertWithException( (RectangularDomain::size_type) -delta > this->getIteratorsLength(), "-delta > iterator length" );
 
   this->iterators_length += delta;
 

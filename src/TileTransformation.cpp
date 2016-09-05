@@ -114,5 +114,7 @@ std::string& TileTransformation::apply( Schedule& schedule ){
                  << "[" << input_iteration.str() << "] -> [" << untiled_output_iteration.str() << "] : !" << source.str() << "\n"
                  << "};";
 
+  schedule.modifyIteratorsLength( this->tile_sizes.size() );
+
   return *(new std::string(transformation.str()));
 }
