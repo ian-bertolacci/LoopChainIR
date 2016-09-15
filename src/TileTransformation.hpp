@@ -17,6 +17,7 @@ Copyright 2015 Colorado State University
 
 #include <string>
 #include <vector>
+#include <map>
 #include <iostream>
 #include <sstream>
 #include "stdio.h"
@@ -26,23 +27,28 @@ namespace LoopChainIR {
   Fuses two or more loops into one.
   */
   class TileTransformation : public Transformation {
-  private:
-
-    LoopChain::size_type loop;
-    std::vector<std::string> tile_sizes;
-    bool uniform;
 
   public:
-    typedef std::vector<std::string>::size_type size_type;
+    typedef RectangularDomain::size_type key_type;
+    typedef std::string mapped_type;
+    typedef std::map<key_type, mapped_type> TileMap;
 
+  private:
+    LoopChain::size_type loop;
+    TileMap tile_sizes;
+    bool uniform;
+    mapped_type uniform_size;
+
+  public:
     /*!
+    DEPRICATED
     \brief
     Create tiling schedule with single tile size
 
     \param[in] loop Id of loop to transform;
     \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
     */
-    TileTransformation( LoopChain::size_type loop, std::string tile_size );
+    //TileTransformation( LoopChain::size_type loop, mapped_type tile_size );
 
     /*!
     \brief
@@ -51,7 +57,7 @@ namespace LoopChainIR {
     \param[in] loop Id of loop to transform;
     \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
     */
-    TileTransformation( LoopChain::size_type loop, std::vector<std::string> tile_sizes );
+    TileTransformation( LoopChain::size_type loop, TileMap tile_sizes );
 
     /*!
     \brief
@@ -64,14 +70,14 @@ namespace LoopChainIR {
     Returns the size of the tile in dimension i
     \param[in] i Dimension of the domain
     */
-    std::string getSize( TileTransformation::size_type i );
+    mapped_type getSize( TileTransformation::key_type i );
 
 
     /*!
     \brief
     Returns a copy of the provided tile size vector
     */
-    std::vector<std::string> getSizes();
+    TileMap getSizes();
 
     /*!
     \brief

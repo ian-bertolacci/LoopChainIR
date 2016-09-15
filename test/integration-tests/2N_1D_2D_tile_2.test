@@ -6,7 +6,7 @@ loop chain:
 :end
 
 schedule:
-tile 0 (10)
+tile 1 {1:10,2:10}
 :end
 
 dependencies:

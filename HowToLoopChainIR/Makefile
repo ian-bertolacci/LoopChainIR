@@ -36,7 +36,7 @@ all: $(LONG_EXAMPLES)
 $(EXAMPLES):  % : $(EX_BIN)/%
 
 $(LONG_EXAMPLES): $(EX_BIN)/% : $(EX_SRC)/%.cpp $(LCIR_LIB)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(T_LIB) $^ -L$(T_LIB) -lisl -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -isystem $(T_INC) -I$(SRC) -Wl,-rpath -Wl,$(T_LIB) $^ -L$(T_LIB) -lisl -o $@
 
 clean:
 	- rm $(EX_BIN)/*
