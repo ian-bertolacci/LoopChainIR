@@ -79,13 +79,13 @@ RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::str
 }
 
 void RectangularDomain::append( RectangularDomain other){
-
+  this->symbols.insert( this->symbols.end(), other.symbols.begin(), other.symbols.end() );
   for( size_type d = 0; d < other.dimensions(); d += 1 ){
     this->lower_bounds.push_back( other.getLowerBound(d) );
     this->upper_bounds.push_back( other.getUpperBound(d) );
   }
-
 }
+
 RectangularDomain::size_type RectangularDomain::dimensions(){
   return this->lower_bounds.size();
 }
