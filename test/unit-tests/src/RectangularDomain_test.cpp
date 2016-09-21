@@ -68,6 +68,43 @@ TEST(RectangularDomainTest, Test_Append ) {
 
 }
 
+
+TEST(RectangularDomainTest, Test_Append_Symbols ) {
+
+  RectangularDomain* domain;
+  {
+    // Create our lower and upper bounds
+    string lower[1] = { "0" };
+    string upper[1] = { "N" };
+    // List all symbols (no order required)
+    string symbols[1] = { "N" };
+
+    // Construct the domain (lower, upper, dimensions, symbols, # of symbols)
+    domain = new RectangularDomain( lower, upper, 1, symbols, 1 );
+  }
+
+  {
+    // Create our lower and upper bounds
+    string lower[1] = { "L" };
+    string upper[1] = { "1" };
+    // List all symbols (no order required)
+    string symbols[1] = { "L" };
+
+    // Construct the domain (lower, upper, dimensions, symbols, # of symbols)
+    domain->append( RectangularDomain( lower, upper, 1, symbols, 1 ) );
+  }
+
+  // Test the object
+  EXPECT_EQ( domain->dimensions(), 2 );
+  EXPECT_EQ( domain->symbolics(), 2 );
+  EXPECT_EQ( domain->getLowerBound(0), "0" );
+  EXPECT_EQ( domain->getUpperBound(0), "N" );
+  EXPECT_EQ( domain->getLowerBound(1), "L" );
+  EXPECT_EQ( domain->getUpperBound(1), "1" );
+  EXPECT_EQ( domain->getSymbol(0), "N" );
+  EXPECT_EQ( domain->getSymbol(1), "L" );
+}
+
 /*
 Create a simple 2D RectangularDomain on {0..1, 0..1}
 */
