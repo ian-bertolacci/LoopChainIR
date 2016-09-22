@@ -30,7 +30,7 @@ namespace LoopChainIR{
   private:
     std::vector<std::string> upper_bounds;
     std::vector<std::string> lower_bounds;
-    std::vector<std::string> symbols;
+    std::set<std::string> symbols;
 
   public:
     typedef std::vector<std::string>::size_type size_type;
@@ -100,9 +100,9 @@ namespace LoopChainIR{
     std::string getLowerBound( size_type dimension );
 
     /*!
-    \returns the N'th symbol from the list as it was provided to the constructor.
+    \returns the set of symbols.
     */
-    std::string getSymbol( size_type symbolic );
+    std::set<std::string> getSymbols( );
 
   };
 

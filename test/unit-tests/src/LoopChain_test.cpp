@@ -59,39 +59,53 @@ TEST(LoopChainTest, Test_Getters_4N_1D) {
   // Test
   EXPECT_EQ( chain.length(), 4 );
 
-  RectangularDomain got_domain = chain.getNest(0).getDomain();
+  {
+    RectangularDomain got_domain = chain.getNest(0).getDomain();
 
-  EXPECT_EQ( got_domain.dimensions(), 1 );
-  EXPECT_EQ( got_domain.symbolics(), 1 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("0") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("J") );
-  EXPECT_EQ( got_domain.getSymbol(0), "J" );
+    EXPECT_EQ( got_domain.dimensions(), 1 );
+    EXPECT_EQ( got_domain.symbolics(), 1 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("0") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("J") );
+    string arr_sym[1] = { "J" };
+    set<string> form_symbols( arr_sym, arr_sym+1 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 
-  got_domain = chain.getNest(1).getDomain();
+  {
+    RectangularDomain got_domain = chain.getNest(1).getDomain();
 
-  EXPECT_EQ( got_domain.dimensions(), 1 );
-  EXPECT_EQ( got_domain.symbolics(), 1 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("1") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("K") );
-  EXPECT_EQ( got_domain.getSymbol(0), "K" );
+    EXPECT_EQ( got_domain.dimensions(), 1 );
+    EXPECT_EQ( got_domain.symbolics(), 1 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("1") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("K") );
+    string arr_sym[1] = { "K" };
+    set<string> form_symbols( arr_sym, arr_sym+1 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 
+  {
+    RectangularDomain got_domain = chain.getNest(2).getDomain();
 
-  got_domain = chain.getNest(2).getDomain();
+    EXPECT_EQ( got_domain.dimensions(), 1 );
+    EXPECT_EQ( got_domain.symbolics(), 1 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("2") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("L") );
+    string arr_sym[1] = { "L" };
+    set<string> form_symbols( arr_sym, arr_sym+1 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 
-  EXPECT_EQ( got_domain.dimensions(), 1 );
-  EXPECT_EQ( got_domain.symbolics(), 1 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("2") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("L") );
-  EXPECT_EQ( got_domain.getSymbol(0), "L" );
+  {
+    RectangularDomain got_domain = chain.getNest(3).getDomain();
 
-
-  got_domain = chain.getNest(3).getDomain();
-
-  EXPECT_EQ( got_domain.dimensions(), 1 );
-  EXPECT_EQ( got_domain.symbolics(), 1 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("3") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("M") );
-  EXPECT_EQ( got_domain.getSymbol(0), "M" );
+    EXPECT_EQ( got_domain.dimensions(), 1 );
+    EXPECT_EQ( got_domain.symbolics(), 1 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("3") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("M") );
+    string arr_sym[1] = { "M" };
+    set<string> form_symbols( arr_sym, arr_sym+1 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 }
 
 TEST(LoopChainTest, TestNew) {
@@ -137,23 +151,31 @@ TEST(LoopChainTest, Test_Getters_2N_1D_2D) {
   // Test
   EXPECT_EQ( chain.length(), 2 );
 
-  RectangularDomain got_domain = chain.getNest(0).getDomain();
+  {
+    RectangularDomain got_domain = chain.getNest(0).getDomain();
 
-  EXPECT_EQ( got_domain.dimensions(), 1 );
-  EXPECT_EQ( got_domain.symbolics(), 1 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("0") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("J") );
-  EXPECT_EQ( got_domain.getSymbol(0), "J" );
+    EXPECT_EQ( got_domain.dimensions(), 1 );
+    EXPECT_EQ( got_domain.symbolics(), 1 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("0") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("J") );
+    string arr_sym[1] = { "J" };
+    set<string> form_symbols( arr_sym, arr_sym+1 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 
-  got_domain = chain.getNest(1).getDomain();
+  {
+    RectangularDomain got_domain = chain.getNest(1).getDomain();
 
-  EXPECT_EQ( got_domain.dimensions(), 2 );
-  EXPECT_EQ( got_domain.symbolics(), 1 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("1") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("K") );
-  EXPECT_EQ( got_domain.getLowerBound(1), string("2") );
-  EXPECT_EQ( got_domain.getUpperBound(1), string("3") );
-  EXPECT_EQ( got_domain.getSymbol(0), "K" );
+    EXPECT_EQ( got_domain.dimensions(), 2 );
+    EXPECT_EQ( got_domain.symbolics(), 1 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("1") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("K") );
+    EXPECT_EQ( got_domain.getLowerBound(1), string("2") );
+    EXPECT_EQ( got_domain.getUpperBound(1), string("3") );
+    string arr_sym[1] = { "K" };
+    set<string> form_symbols( arr_sym, arr_sym+1 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 }
 
 /*
@@ -182,23 +204,31 @@ TEST(LoopChainTest, Test_Getters_2N_2D_1D) {
   // Test
   EXPECT_EQ( chain.length(), 2 );
 
-  RectangularDomain got_domain = chain.getNest(0).getDomain();
+  {
+    RectangularDomain got_domain = chain.getNest(0).getDomain();
 
-  EXPECT_EQ( got_domain.dimensions(), 2 );
-  EXPECT_EQ( got_domain.symbolics(), 1 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("1") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("K") );
-  EXPECT_EQ( got_domain.getLowerBound(1), string("2") );
-  EXPECT_EQ( got_domain.getUpperBound(1), string("3") );
-  EXPECT_EQ( got_domain.getSymbol(0), "K" );
+    EXPECT_EQ( got_domain.dimensions(), 2 );
+    EXPECT_EQ( got_domain.symbolics(), 1 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("1") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("K") );
+    EXPECT_EQ( got_domain.getLowerBound(1), string("2") );
+    EXPECT_EQ( got_domain.getUpperBound(1), string("3") );
+    string arr_sym[1] = { "K" };
+    set<string> form_symbols( arr_sym, arr_sym+1 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 
-  got_domain = chain.getNest(1).getDomain();
+  {
+    RectangularDomain got_domain = chain.getNest(1).getDomain();
 
-  EXPECT_EQ( got_domain.dimensions(), 1 );
-  EXPECT_EQ( got_domain.symbolics(), 1 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("0") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("J") );
-  EXPECT_EQ( got_domain.getSymbol(0), "J" );
+    EXPECT_EQ( got_domain.dimensions(), 1 );
+    EXPECT_EQ( got_domain.symbolics(), 1 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("0") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("J") );
+    string arr_sym[1] = { "J" };
+    set<string> form_symbols( arr_sym, arr_sym+1 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 }
 
 /*
@@ -234,36 +264,45 @@ TEST(LoopChainTest, Test_Getters_3N_1D_2D_3D) {
   // Test
   EXPECT_EQ( chain.length(), 3 );
 
-  RectangularDomain got_domain = chain.getNest(0).getDomain();
+  {
+    RectangularDomain got_domain = chain.getNest(0).getDomain();
 
-  EXPECT_EQ( got_domain.dimensions(), 1 );
-  EXPECT_EQ( got_domain.symbolics(), 1 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("0") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("J") );
-  EXPECT_EQ( got_domain.getSymbol(0), "J" );
+    EXPECT_EQ( got_domain.dimensions(), 1 );
+    EXPECT_EQ( got_domain.symbolics(), 1 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("0") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("J") );
+    string arr_sym[1] = { "J" };
+    set<string> form_symbols( arr_sym, arr_sym+1 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 
-  got_domain = chain.getNest(1).getDomain();
+  {
+    RectangularDomain got_domain = chain.getNest(1).getDomain();
 
-  EXPECT_EQ( got_domain.dimensions(), 2 );
-  EXPECT_EQ( got_domain.symbolics(), 1 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("1") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("K") );
-  EXPECT_EQ( got_domain.getLowerBound(1), string("2") );
-  EXPECT_EQ( got_domain.getUpperBound(1), string("3") );
-  EXPECT_EQ( got_domain.getSymbol(0), "K" );
+    EXPECT_EQ( got_domain.dimensions(), 2 );
+    EXPECT_EQ( got_domain.symbolics(), 1 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("1") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("K") );
+    EXPECT_EQ( got_domain.getLowerBound(1), string("2") );
+    EXPECT_EQ( got_domain.getUpperBound(1), string("3") );
+    string arr_sym[1] = { "K" };
+    set<string> form_symbols( arr_sym, arr_sym+1 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 
-  got_domain = chain.getNest(2).getDomain();
+  {
+    RectangularDomain got_domain = chain.getNest(2).getDomain();
 
-  EXPECT_EQ( got_domain.dimensions(), 3 );
-  EXPECT_EQ( got_domain.symbolics(), 4 );
-  EXPECT_EQ( got_domain.getLowerBound(0), string("L") );
-  EXPECT_EQ( got_domain.getUpperBound(0), string("K") );
-  EXPECT_EQ( got_domain.getLowerBound(1), string("M") );
-  EXPECT_EQ( got_domain.getUpperBound(1), string("3") );
-  EXPECT_EQ( got_domain.getLowerBound(2), string("N") );
-  EXPECT_EQ( got_domain.getUpperBound(2), string("5") );
-  EXPECT_EQ( got_domain.getSymbol(0), "K" );
-  EXPECT_EQ( got_domain.getSymbol(1), "L" );
-  EXPECT_EQ( got_domain.getSymbol(2), "M" );
-  EXPECT_EQ( got_domain.getSymbol(3), "N" );
+    EXPECT_EQ( got_domain.dimensions(), 3 );
+    EXPECT_EQ( got_domain.symbolics(), 4 );
+    EXPECT_EQ( got_domain.getLowerBound(0), string("L") );
+    EXPECT_EQ( got_domain.getUpperBound(0), string("K") );
+    EXPECT_EQ( got_domain.getLowerBound(1), string("M") );
+    EXPECT_EQ( got_domain.getUpperBound(1), string("3") );
+    EXPECT_EQ( got_domain.getLowerBound(2), string("N") );
+    EXPECT_EQ( got_domain.getUpperBound(2), string("5") );
+    string arr_sym[4] = { "K", "L", "M", "N" };
+    set<string> form_symbols( arr_sym, arr_sym+4 );
+    EXPECT_EQ( got_domain.getSymbols(), form_symbols );
+  }
 }

@@ -25,13 +25,11 @@ RectangularDomain::RectangularDomain( std::string input_lower_bounds, std::strin
 
 }
 
-RectangularDomain::RectangularDomain( std::string input_lower_bounds, std::string input_upper_bounds, const std::set<std::string> symbols ){
+RectangularDomain::RectangularDomain( std::string input_lower_bounds, std::string input_upper_bounds, const std::set<std::string> symbols )
+: symbols( symbols )
+{
   this->lower_bounds.push_back( input_lower_bounds );
   this->upper_bounds.push_back( input_upper_bounds );
-
-  for( std::set<std::string>::const_iterator iter = symbols.begin(); iter != symbols.end(); ++iter ){
-    this->symbols.push_back( std::string(*iter) );
-  }
 }
 
 RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions ){
@@ -58,12 +56,14 @@ RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::str
   }
 
   for( size_type d = 0; d < symbolics; d += 1 ){
-    this->symbols.push_back( symbols[d] );
+    this->symbols.insert( symbols[d] );
   }
 
 }
 
-RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions, const std::set<std::string> symbols ){
+RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions, const std::set<std::string> symbols )
+: symbols( symbols )
+{
   assertWithException( input_lower_bounds != NULL, "Lower bounds array cannot be null" );
   assertWithException( input_upper_bounds != NULL, "Upper bounds array cannot be null" );
   assertWithException( dimensions >= 1, "Cannot have domain with fewer than one dimension" );
@@ -73,13 +73,10 @@ RectangularDomain::RectangularDomain( std::string input_lower_bounds[], std::str
     this->upper_bounds.push_back( input_upper_bounds[d] );
   }
 
-  for( std::set<std::string>::const_iterator iter = symbols.begin(); iter != symbols.end(); ++iter ){
-    this->symbols.push_back( std::string(*iter) );
-  }
 }
 
 void RectangularDomain::append( RectangularDomain other){
-  this->symbols.insert( this->symbols.end(), other.symbols.begin(), other.symbols.end() );
+  this->symbols.insert( other.symbols.begin(), other.symbols.end() );
   for( size_type d = 0; d < other.dimensions(); d += 1 ){
     this->lower_bounds.push_back( other.getLowerBound(d) );
     this->upper_bounds.push_back( other.getUpperBound(d) );
@@ -102,6 +99,6 @@ std::string RectangularDomain::getLowerBound( RectangularDomain::size_type dimen
   return this->lower_bounds[dimension];
 }
 
-std::string RectangularDomain::getSymbol( RectangularDomain::size_type symbolic ){
-  return this->symbols[symbolic];
+std::set<std::string> RectangularDomain::getSymbols( ){
+  return this->symbols;
 }

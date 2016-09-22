@@ -101,8 +101,9 @@ TEST(RectangularDomainTest, Test_Append_Symbols ) {
   EXPECT_EQ( domain->getUpperBound(0), "N" );
   EXPECT_EQ( domain->getLowerBound(1), "L" );
   EXPECT_EQ( domain->getUpperBound(1), "1" );
-  EXPECT_EQ( domain->getSymbol(0), "N" );
-  EXPECT_EQ( domain->getSymbol(1), "L" );
+  string arr_sym[2] = { "N", "L" };
+  set<string> form_symbols( arr_sym, arr_sym+2 );
+  EXPECT_EQ( domain->getSymbols(), form_symbols );
 }
 
 /*
@@ -146,7 +147,9 @@ TEST(RectangularDomainTest, Test_Getters_2D_Symbols) {
   EXPECT_EQ( domain.getUpperBound(0), "1" );
   EXPECT_EQ( domain.getLowerBound(1), "0" );
   EXPECT_EQ( domain.getUpperBound(1), "N" );
-  EXPECT_EQ( domain.getSymbol(0), "N" );
+  string arr_sym[1] = { "N" };
+  set<string> form_symbols( arr_sym, arr_sym+1 );
+  EXPECT_EQ( domain.getSymbols(), form_symbols );
 }
 
 /*
@@ -169,8 +172,9 @@ TEST(RectangularDomainTest, Test_Getters_2D_Symbols_2) {
   EXPECT_EQ( domain.getUpperBound(0), "1" );
   EXPECT_EQ( domain.getLowerBound(1), "0" );
   EXPECT_EQ( domain.getUpperBound(1), "N" );
-  EXPECT_EQ( domain.getSymbol(0), "L" );
-  EXPECT_EQ( domain.getSymbol(1), "N" );
+  string arr_sym[2] = { "L", "N" };
+  set<string> form_symbols( arr_sym, arr_sym+2 );
+  EXPECT_EQ( domain.getSymbols(), form_symbols );
 }
 
 /*
@@ -233,8 +237,9 @@ TEST(RectangularDomainTest, Test_Getters_2D_Expressions_Symbols) {
   EXPECT_EQ( domain.getUpperBound(0), "N * 2" );
   EXPECT_EQ( domain.getLowerBound(1), "L * 2" );
   EXPECT_EQ( domain.getUpperBound(1), "N * N" );
-  EXPECT_EQ( domain.getSymbol(0), "L" );
-  EXPECT_EQ( domain.getSymbol(1), "N" );
+  string arr_sym[2] = { "L", "N" };
+  set<string> form_symbols( arr_sym, arr_sym+2 );
+  EXPECT_EQ( domain.getSymbols(), form_symbols );
 }
 
 /*
@@ -256,10 +261,7 @@ TEST(RectangularDomainTest, Test_Getters_1D_Expressions_Symbols_Set) {
   EXPECT_EQ( domain.symbolics(), 2 );
   EXPECT_EQ( domain.getLowerBound(0), "L - 15" );
   EXPECT_EQ( domain.getUpperBound(0), "N * 2" );
-  set<string> symbols_check;
-  symbols_check.insert( domain.getSymbol(0) );
-  symbols_check.insert( domain.getSymbol(1) );
-  EXPECT_EQ( symbols_check, symbols );
+  EXPECT_EQ( domain.getSymbols(), symbols );
 }
 
 /*
@@ -283,8 +285,5 @@ TEST(RectangularDomainTest, Test_Getters_2D_Expressions_Symbols_Set) {
   EXPECT_EQ( domain.getUpperBound(0), "N * 2" );
   EXPECT_EQ( domain.getLowerBound(1), "L * 2" );
   EXPECT_EQ( domain.getUpperBound(1), "N * N" );
-  set<string> symbols_check;
-  symbols_check.insert( domain.getSymbol(0) );
-  symbols_check.insert( domain.getSymbol(1) );
-  EXPECT_EQ( symbols_check, symbols );
+  EXPECT_EQ( domain.getSymbols(), symbols );
 }
