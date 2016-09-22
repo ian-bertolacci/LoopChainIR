@@ -46,11 +46,11 @@ Schedule::Schedule( LoopChain& chain, std::string statement_prefix ) :
     std::ostringstream symbolic_string;
 
     bool is_not_first_symbolic = false; // for comma insertion
-    for( RectangularDomain::size_type symbolic = 0; symbolic < domain.symbolics(); symbolic += 1 ){
+    for( auto symbol : domain.getSymbols() ){
       if( is_not_first_symbolic ){
         symbolic_string << ",";
       }
-      symbolic_string << domain.getSymbol(symbolic);
+      symbolic_string << symbol;
       is_not_first_symbolic = true;
     }
 

@@ -42,9 +42,7 @@ TEST(LoopNestTest, Test_Getters_1D) {
     EXPECT_EQ( got_domain.getUpperBound(d), domain.getUpperBound(d) );
   }
 
-  for( RectangularDomain::size_type s = 0; s < got_domain.symbolics(); s += 1 ){
-    EXPECT_EQ( got_domain.getSymbol(s), domain.getSymbol(s) );
-  }
+  EXPECT_EQ( got_domain.getSymbols(), domain.getSymbols() );
 }
 
 /*
@@ -76,7 +74,5 @@ TEST(LoopNestTest, Test_Getters_1D_Symbols) {
     EXPECT_EQ( got_domain.getUpperBound(d), domain.getUpperBound(d) );
   }
 
-  for( RectangularDomain::size_type s = 0; s < got_domain.symbolics(); s += 1 ){
-    EXPECT_EQ( got_domain.getSymbol(s), domain.getSymbol(s) );
-  }
+  EXPECT_EQ( got_domain.getSymbols(), domain.getSymbols() );
 }
