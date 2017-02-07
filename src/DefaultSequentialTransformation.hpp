@@ -37,6 +37,12 @@ namespace LoopChainIR {
 
   public:
     DefaultSequentialTransformation( );
+
+    /*!
+    \returns Reference to schedule which has been transformed.
+    */
+    std::string& apply( Schedule& schedule, Subspace* subspace);
+
     /*!
     \returns Reference to schedule which has been transformed.
     */

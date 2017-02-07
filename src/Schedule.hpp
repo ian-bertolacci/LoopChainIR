@@ -16,6 +16,7 @@ Copyright 2015 Colorado State University
 #include "Transformation.hpp"
 #include "IslAstRoot.hpp"
 #include "all_isl.hpp"
+#include "Subspace.hpp"
 #include "util.hpp"
 #include <string>
 #include <vector>
@@ -53,6 +54,7 @@ namespace LoopChainIR {
     std::vector<std::string> domains;
     std::string statement_prefix;
     std::string root_statement_symbol;
+    SubspaceManager manager;
 
     /*!
     \brief
@@ -85,9 +87,7 @@ namespace LoopChainIR {
     /*!
     \brief returns the original loop chain
     */
-    LoopChain getChain(){
-      return LoopChain(this->chain);
-    }
+    LoopChain getChain();
 
     /*!
     \brief
@@ -202,6 +202,11 @@ namespace LoopChainIR {
     Pointer to isl_ast_node struct.
     */
     IslAstRoot* codegenToIslAst();
+
+    /*!
+    \brief Get a reference to the manager.
+    */
+    SubspaceManager& getSubspaceManager();
 
   public:
     friend std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule);

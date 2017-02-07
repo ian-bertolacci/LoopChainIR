@@ -17,9 +17,10 @@ using namespace LoopChainIR;
 DefaultSequentialTransformation::DefaultSequentialTransformation(){ }
 
 std::string& DefaultSequentialTransformation::apply( Schedule& schedule ){
-  // To trick the compiler into thinking schedule is used.
-  schedule.getIteratorsLength();
+  return this->apply( schedule, nullptr );
+}
 
+std::string& DefaultSequentialTransformation::apply( Schedule& schedule __attribute__((unused)), Subspace* subspace __attribute__((unused)) ){
   // Produce empty transformation.
   std::string* transformation = new std::string();
   return *transformation;

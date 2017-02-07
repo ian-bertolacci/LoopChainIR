@@ -43,3 +43,19 @@ RectangularDomain::size_type LoopChain::maxDimension(){
 
   return maximum;
 }
+
+LoopChain::iterator LoopChain::begin(){
+  return this->chain.begin();
+}
+
+LoopChain::const_iterator LoopChain::begin() const{
+  return this->chain.begin();
+}
+
+LoopChain::iterator LoopChain::end(){
+  return this->chain.end();
+}
+
+LoopChain::const_iterator LoopChain::end() const{
+  return this->chain.end();
+}
