@@ -29,7 +29,7 @@ MAKE_JOBS=2
 
 # Compiler and flags
 CXX=g++
-CXXFLAGS += -g -Wall -Wextra -Werror -pthread
+CXXFLAGS += -g -Wall -Wextra -pthread
 CPPFLAGS += --std=c++11 -isystem $(SOURCE_INC)
 
 # Test Variables
@@ -45,6 +45,7 @@ UNIT_TESTS = RectangularDomain_test \
 						 DefaultSequentialTransformation_test \
 						 FusionTransformation_test \
 						 ShiftTransformation_test \
+						 Subspace_test \
 						 TileTransformation_test
 
 INT_TEST = 1N_1D_shift_1.test\
@@ -78,6 +79,7 @@ OBJS = $(BIN)/RectangularDomain.o \
        $(BIN)/LoopChain.o \
 			 $(BIN)/LoopNest.o \
 			 $(BIN)/Schedule.o \
+			 $(BIN)/Subspace.o \
 			 $(BIN)/DefaultSequentialTransformation.o \
 			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/ShiftTransformation.o \
