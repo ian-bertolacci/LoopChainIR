@@ -68,8 +68,6 @@ Subspace::iterator Subspace::end() {
   return SubspaceIterator( this, this->all_iterators.end(), false );
 }
 
-
-
 Subspace::const_iterator Subspace::begin( bool use_aliases ) const {
   return ConstSubspaceIterator( this, this->all_iterators.begin(), use_aliases );
 }
@@ -108,12 +106,17 @@ std::string Subspace::get_iterators( timestamp_t stage, bool use_aliases ){
   return stream.str();
 }
 
-std::string Subspace::operator[]( size_type index ){
-  if( this->is_aliased() ){
+std::string Subspace::get( Subspace::size_type index, bool use_aliases ){
+  if( this->is_aliased() && use_aliases ){
     return SSTR( alias_prefix << this->all_iterators[index] );
   } else {
     return this->all_iterators[index];
   }
+}
+
+
+std::string Subspace::operator[]( size_type index ){
+  return this->get( index, this->is_aliased() );
 }
 
 bool Subspace::operator==( const Subspace that ) const {
@@ -257,6 +260,14 @@ SubspaceManager::iterator SubspaceManager::insert_left( Subspace* subspace, Subs
 
 SubspaceManager::iterator SubspaceManager::insert_right( Subspace* subspace, SubspaceManager::iterator cursor ){
   return this->insert_left( subspace, std::next(cursor) );
+}
+
+Subspace::size_type SubspaceManager::size(){
+  Subspace::size_type size = 0;
+  for( Subspace* subspace : *this ){
+    size += subspace->complete_size();
+  }
+  return size;
 }
 
 timestamp_t SubspaceManager::get_current_stage(){
