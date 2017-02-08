@@ -62,6 +62,8 @@ namespace LoopChainIR {
       timestamp_t get_stage() const;
       std::string get_iterators( timestamp_t stage, bool use_aliases );
 
+      std::string get( size_type index, bool use_aliases );
+
       std::string operator[]( size_type index );
       bool operator==( const Subspace that ) const;
       bool operator!=( const Subspace that ) const;
@@ -136,6 +138,8 @@ namespace LoopChainIR {
 
       iterator insert_left( Subspace* subpsace, iterator cursor );
       iterator insert_right( Subspace* subpsace, iterator cursor );
+
+      Subspace::size_type size();
 
       timestamp_t get_current_stage();
       timestamp_t get_input_stage();

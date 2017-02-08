@@ -43,7 +43,6 @@ Copyright 2015 Colorado State University
     */
     LoopNest& getNest( size_type index );
 
-
     /*!
     \returns number of LoopNest objects in chain.
     */
