@@ -41,12 +41,12 @@ namespace LoopChainIR {
     /*!
     \returns Reference to schedule which has been transformed.
     */
-    std::string& apply( Schedule& schedule, Subspace* subspace);
+    std::vector<std::string> apply( Schedule& schedule, Subspace* subspace);
 
     /*!
     \returns Reference to schedule which has been transformed.
     */
-    std::string& apply( Schedule& schedule );
+    std::vector<std::string> apply( Schedule& schedule );
   };
 
 }

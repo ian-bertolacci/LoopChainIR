@@ -41,38 +41,38 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 UNIT_TESTS = RectangularDomain_test \
 						 LoopNest_test \
 						 LoopChain_test \
+						 Subspace_test \
 						 Schedule_test \
 						 DefaultSequentialTransformation_test \
 						 FusionTransformation_test \
 						 ShiftTransformation_test \
-						 Subspace_test \
 						 TileTransformation_test
 
-INT_TEST = 1N_1D_shift_1.test\
-						1N_1D_shift_K.test\
-						1N_1D.test\
-						1N_2D_shift_1_2.test\
-						1N_2D_shift_K_exp.test\
-						1N_2D.test\
-						1N_2D_tile.test\
-						1N_3D.test\
-						2N_1D_2D.test\
-						2N_1D_2D_tile_1.test\
-						2N_1D_2D_tile_2.test\
-						2N_1D_2D_tile_all.test\
-						2N_1D_fuse.test\
-						2N_1D_shift_1.test\
-						2N_1D_shift_fuse.test\
-						2N_1D_shift_K.test\
-						2N_1D.test\
-						2N_2D_fuse.test\
-						2N_2D_fuse_tile.test\
-						2N_2D.test\
-						2N_3D_fuse.test\
-						2N_3D.test\
-						3N_1D_2D_3D.test\
-						3N_3D_2D_1D.test\
-						example.test\
+INT_TEST = 1N_1D_shift_1.test \
+					1N_2D_shift_1_2.test \
+					1N_2D_tile.test \
+					2N_1D_2D_tile_1.test \
+					2N_1D_fuse.test \
+					2N_1D_shift_K.test \
+					2N_2D_fuse_tile.test \
+					2N_3D.test \
+					example.test \
+					1N_1D_shift_K.test \
+					1N_2D_shift_K_exp.test \
+					1N_3D.test \
+					2N_1D_2D_tile_2.test \
+					2N_1D_shift_1.test \
+					2N_1D.test \
+					2N_2D.test \
+					3N_1D_2D_3D.test \
+					1N_1D.test \
+					1N_2D.test \
+					2N_1D_2D.test \
+					2N_1D_2D_tile_all.test \
+					2N_1D_shift_fuse.test \
+					2N_2D_fuse.test \
+					2N_3D_fuse.test \
+					3N_3D_2D_1D.test
 
 # Project object files and executable
 OBJS = $(BIN)/RectangularDomain.o \
@@ -81,9 +81,9 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/Schedule.o \
 			 $(BIN)/Subspace.o \
 			 $(BIN)/DefaultSequentialTransformation.o \
-			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/ShiftTransformation.o \
 			 $(BIN)/TileTransformation.o \
+			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/IslAstRoot.o \
 			 $(BIN)/util.o
 
@@ -114,7 +114,7 @@ $(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/gtest_main.a
 	$(UNIT_TEST_BIN)/$@
 
 $(INT_TEST): $(EXE)
-	python $(UTIL)/integration-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(REG_TEST_DIR)/$@
+	python $(UTIL)/integration-util.py -r $(UTIL)/resources -se -p $(PROJECT_DIR) $(REG_TEST_DIR)/$@
 
 #Building the Google Test framework
 $(GTEST_SRCS_): $(INITED_FILE)

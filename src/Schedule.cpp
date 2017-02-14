@@ -23,14 +23,17 @@ using namespace std;
 Schedule::Schedule( LoopChain& chain, std::string statement_prefix ) :
   chain(chain), statement_prefix(statement_prefix),
   root_statement_symbol( SSTR(statement_prefix << "statement_" ) ),
-  manager( new Subspace("loop", 0), new Subspace("i", chain.maxDimension() ))
+  manager( new Subspace("loop", 0), new Subspace("i", chain.maxDimension() )),
+  depth(0)
   {
 
   // Synthesize the loop statements and the primary maps
   // primary map(s) needs to occur all at once, across all nests
+  this->manager.get_safe_prefix( "loop" );
+  this->manager.get_safe_prefix( "i" );
 
   ostringstream map_string;
-  map_string << "{";
+  map_string << "{\n";
 
   Subspace* nest_ss = this->manager.get_nest();
   Subspace* loop_ss = this->manager.get_loops();
@@ -49,9 +52,9 @@ Schedule::Schedule( LoopChain& chain, std::string statement_prefix ) :
       is_not_first_symbolic = true;
     }
 
-    statement_string << "]->{ " << root_statement_symbol << chain_idx << "[";
+    statement_string << "]->{" << root_statement_symbol << chain_idx << "[";
     // add statement name into map_string;
-    map_string << root_statement_symbol << chain_idx << "[";
+    map_string << "\t" << root_statement_symbol << chain_idx << "[";
 
     // build the iterators for the statement (and the map)
     for( RectangularDomain::size_type dimension = 0; dimension < domain.dimensions(); dimension += 1 ){
@@ -59,10 +62,10 @@ Schedule::Schedule( LoopChain& chain, std::string statement_prefix ) :
       map_string << ((dimension > 0)?",":"") << "i_" << dimension;
     }
 
-    statement_string << "] : ";
+    statement_string << "] :";
 
     // Create maping tuple
-    map_string << "] -> [" << this->manager.get_output_iterators() << "] : "
+    map_string << "] -> [" << this->manager.get_output_iterators() << "] : \n\t\t"
     // Map the loop constant iterator to the chain index,
     // and the nest constant to 0 i_0 .. i_n will be maped later
                << ((*loop_ss)[loop_ss->const_index]) << " = " <<  chain_idx
@@ -85,10 +88,10 @@ Schedule::Schedule( LoopChain& chain, std::string statement_prefix ) :
     }
 
     // end of statement definition
-    statement_string << " } ;";
+    statement_string << "} ;";
 
     // end of this domains map
-    map_string << ";";
+    map_string << ";\n";
 
     this->domains.push_back( statement_string.str() );
     chain_idx += 1;
@@ -103,7 +106,10 @@ Schedule::Schedule( LoopChain& chain, std::string statement_prefix ) :
 }
 
 void Schedule::apply( Transformation& scheduler ){
-  this->append( scheduler.apply(*this) );
+  for( std::string transformation: scheduler.apply(*this) ){
+    this->append( transformation );
+  }
+  this->manager.next_stage();
 }
 
 void Schedule::apply( std::vector<Transformation*> schedulers ){
@@ -255,6 +261,32 @@ bool Schedule::codegenToFile( std::string file_name ){
   return file_stream.good() && !( file_stream.fail() || file_stream.bad() );
 }
 
+std::string Schedule::codegenToISCC( ) const {
+  std::ostringstream os;
+  os << "# Domains:" << std::endl;
+  int stmt_count = 1;
+  for( Schedule::const_iterator it = this->begin_domains(); it != this->end_domains(); ++it ){
+    os << "S" << stmt_count++ << " := " << (*it) << std::endl;
+  }
+
+  os << std::endl << "# Transformations:" << std::endl;
+  int map_count = 1;
+  for( Schedule::const_iterator it = this->begin_transformations(); it != this->end_transformations(); ++it ){
+    os << "M" << map_count++ << " := " <<  (*it) << std::endl;
+  }
+
+  os << "\ncodegen( (";
+  for( int i = 1; i < map_count; i += 1 ){
+    os << ((i>1)?".":"") << "M" << i;
+  }
+  os << ")*(";
+  for( int i = 1; i < stmt_count; i += 1 ){
+    os << ((i>1)?"+":"") << "S" << i;
+  }
+  os << ") );";
+  return std::string( os.str() );
+}
+
 RectangularDomain::size_type Schedule::getIteratorsLength() {
   return (RectangularDomain::size_type) this->manager.size(); //this->iterators_length;
 }
@@ -285,17 +317,20 @@ SubspaceManager& Schedule::getSubspaceManager(){
   return this->manager;
 }
 
+int Schedule::getDepth(){
+  return this->depth;
+}
+
+int Schedule::incrementDepth(){
+  this->depth += 1;
+  return this->getDepth();
+}
+
+int Schedule::decrementDepth(){
+  this->depth -= 1;
+  return this->getDepth();
+}
+
 std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule){
-  os << "Domains:" << std::endl;
-
-  for( Schedule::const_iterator it = schedule.begin_domains(); it != schedule.end_domains(); ++it ){
-    os << (*it) << std::endl;
-  }
-
-  os << std::endl << "Transformations:" << std::endl;
-  for( Schedule::const_iterator it = schedule.begin_transformations(); it != schedule.end_transformations(); ++it ){
-    os << (*it) << std::endl;
-  }
-
-  return os;
+  return os << schedule.codegenToISCC() ;
 }

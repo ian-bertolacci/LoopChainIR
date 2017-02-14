@@ -38,6 +38,9 @@ namespace LoopChainIR {
     TileMap tile_sizes;
     bool uniform;
     mapped_type uniform_size;
+    Transformation* over_tiles;
+    Transformation* within_tiles;
+    static int num_prefixes_used;
 
   public:
     /*!
@@ -58,6 +61,15 @@ namespace LoopChainIR {
     \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
     */
     TileTransformation( LoopChain::size_type loop, TileMap tile_sizes );
+
+    /*!
+    \brief
+    Create tiling schedule with an list of tile size
+
+    \param[in] loop Id of loop to transform;
+    \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
+    */
+    TileTransformation( LoopChain::size_type loop, TileMap tile_sizes, Transformation* over_tiles, Transformation* within_tiles );
 
     /*!
     \brief
@@ -89,7 +101,19 @@ namespace LoopChainIR {
     \returns
     The ISCC code as a string
     */
-    std::string& apply( Schedule& schedule );
+    std::vector<std::string> apply( Schedule& schedule, Subspace* subspace );
+
+    /*!
+    \brief
+    Generate ISCC code for the shift transformation, and append it to the
+    transformation list of schedule (modifies schedule).
+
+    \param[inout] schedule Schedule this transformation is being applied to.
+
+    \returns
+    The ISCC code as a string
+    */
+    std::vector<std::string> apply( Schedule& schedule );
   };
 }
 #endif

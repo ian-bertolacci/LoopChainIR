@@ -55,6 +55,7 @@ namespace LoopChainIR {
     std::string statement_prefix;
     std::string root_statement_symbol;
     SubspaceManager manager;
+    int depth;
 
     /*!
     \brief
@@ -203,10 +204,16 @@ namespace LoopChainIR {
     */
     IslAstRoot* codegenToIslAst();
 
+    std::string codegenToISCC( ) const;
+
     /*!
     \brief Get a reference to the manager.
     */
     SubspaceManager& getSubspaceManager();
+
+    int getDepth();
+    int incrementDepth();
+    int decrementDepth();
 
   public:
     friend std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule);

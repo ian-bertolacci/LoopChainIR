@@ -90,13 +90,16 @@ std::vector<std::string> ShiftTransformation::getSymbols(){
 }
 
 
-std::string& ShiftTransformation::apply( Schedule& schedule ){
+std::vector<std::string> ShiftTransformation::apply( Schedule& schedule ){
   return this->apply( schedule, schedule.getSubspaceManager().get_nest() );
 }
 
-std::string& ShiftTransformation::apply( Schedule& schedule, Subspace* subspace ){
+std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspace* subspace ){
+  vector<std::string> transformations;
 
   SubspaceManager& manager = schedule.getSubspaceManager();
+  Subspace* loops = manager.get_loops();
+
   // Alias the shifting subspace
   subspace->set_aliased();
 
@@ -122,24 +125,36 @@ std::string& ShiftTransformation::apply( Schedule& schedule, Subspace* subspace 
     transformation << "]->";
   }
 
-  transformation << "{ ["
+  transformation << "{ \n\t["
                  << manager.get_input_iterators() << "] -> ["
-                 << manager.get_output_iterators() << "] : ";
+                 << manager.get_output_iterators() << "] : \n\t\t"
+                 << loops->get( loops->const_index, false )
+                 << " = " << this->loop_id << "\n\t\t";
 
 
   std::vector<std::string> extents = this->getExtents();
   for( Subspace::size_type i = 0; i < subspace->complete_size(); ++i ){
     // get aliased symbol
-    transformation << ((i!=0)?" and ":"") << (*subspace)[i] << " = " << subspace->get(i, false);
+    transformation << " and " << (*subspace)[i] << " = " << subspace->get(i, false);
     // add extent
     if( i < this->extents.size() ){
       transformation  << "+(" << this->extents[i] << ")";
     }
   }
 
-  transformation << "};";
+  transformation << ";\n\t";
+
+  subspace->unset_aliased();
+
+  transformation << "["
+                 << manager.get_input_iterators() << "] -> ["
+                 << manager.get_output_iterators() << "] : \n\t\t"
+                 << loops->get( loops->const_index, false )
+                 << " != " << this->loop_id;
+
+  transformation << "; \n};";
 
   //cout << transformation.str() << endl;
-
-  return *(new std::string(transformation.str()));
+  transformations.push_back( transformation.str() );
+  return transformations;
 }

@@ -97,7 +97,7 @@ namespace LoopChainIR {
     \returns
     The ISCC code as a string
     */
-    std::string& apply( Schedule& schedule, Subspace* subspace );
+    std::vector<std::string> apply( Schedule& schedule, Subspace* subspace );
 
     /*!
     \brief
@@ -109,7 +109,7 @@ namespace LoopChainIR {
     \returns
     The ISCC code as a string
     */
-    std::string& apply( Schedule& schedule );
+  std::vector<std::string> apply( Schedule& schedule );
   };
 
 }

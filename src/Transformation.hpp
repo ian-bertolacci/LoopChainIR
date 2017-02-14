@@ -4,6 +4,7 @@
 #include "Schedule.hpp"
 #include "Subspace.hpp"
 #include <string>
+#include <vector>
 
 namespace LoopChainIR {
 
@@ -26,7 +27,7 @@ namespace LoopChainIR {
     \returns
     The ISCC code as a string
     */
-    virtual std::string& apply( Schedule& schedule ) = 0;
+    virtual std::vector<std::string> apply( Schedule& schedule ) = 0;
 
     /*!
     \brief
@@ -36,7 +37,7 @@ namespace LoopChainIR {
     \returns
     The ISCC code as a string
     */
-    virtual std::string& apply( Schedule& schedule, Subspace* subspace ) = 0;
+    virtual std::vector<std::string> apply( Schedule& schedule, Subspace* subspace ) = 0;
   };
 
 }

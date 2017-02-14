@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <limits>
+#include <map>
 
 namespace LoopChainIR {
 
@@ -124,6 +125,8 @@ namespace LoopChainIR {
       Subspace* nest;
       timestamp_t stage;
 
+      std::map<std::string,int> safe_prefixes;
+
     public:
       SubspaceManager( Subspace* loop, Subspace* nest );
 
@@ -135,6 +138,8 @@ namespace LoopChainIR {
       iterator get_cursor_to_subspace( Subspace* subspace );
       Subspace* get_loops();
       Subspace* get_nest();
+
+      std::string get_safe_prefix( std::string basic );
 
       iterator insert_left( Subspace* subpsace, iterator cursor );
       iterator insert_right( Subspace* subpsace, iterator cursor );

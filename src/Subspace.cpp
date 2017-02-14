@@ -213,7 +213,8 @@ ConstSubspaceIterator::base_iterator ConstSubspaceIterator::get_iterator(){
 }
 
 SubspaceManager::SubspaceManager( Subspace* loop, Subspace* nest )
-: subspaces(), loop( loop ), nest( nest ), stage( timestamp_flags::BaseStage )
+: subspaces(), loop( loop ), nest( nest ), stage( timestamp_flags::BaseStage ),
+  safe_prefixes()
 {
   this->loop->set_stage( this->get_current_stage() );
   this->subspaces.push_back( this->loop );
@@ -251,6 +252,21 @@ Subspace* SubspaceManager::get_loops(){
 
 Subspace* SubspaceManager::get_nest(){
   return *( this->get_cursor_to_nest() );
+}
+
+std::string SubspaceManager::get_safe_prefix( std::string base ){
+  if( this->safe_prefixes.count( base ) == 0 ){
+    this->safe_prefixes[base] = 1;
+  }
+
+  std::ostringstream prefix;
+  for( int i = 0; i < this->safe_prefixes[base]; ++i ){
+    prefix << base;
+  }
+
+  this->safe_prefixes[base] += 1;
+
+  return prefix.str();
 }
 
 SubspaceManager::iterator SubspaceManager::insert_left( Subspace* subspace, SubspaceManager::iterator cursor ){
