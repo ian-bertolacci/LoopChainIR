@@ -91,7 +91,7 @@ std::vector<std::string> ShiftTransformation::getSymbols(){
 
 
 std::vector<std::string> ShiftTransformation::apply( Schedule& schedule ){
-  return this->apply( schedule, schedule.getSubspaceManager().get_nest() );
+  return this->apply( schedule, *(std::next(schedule.getSubspaceManager().get_iterator_to_loops())) );
 }
 
 std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspace* subspace ){
