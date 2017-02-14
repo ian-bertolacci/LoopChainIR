@@ -34,8 +34,8 @@ std::vector<std::string> FusionTransformation::apply( Schedule& schedule, Subspa
 
   std::ostringstream transformation;
 
-  assertWithException( std::next(manager.get_cursor_to_subspace( subspace )) != manager.end(), "Given subspace is the last subspace. Cannot form fusion." );
-  Subspace* next_subspace = *(std::next(manager.get_cursor_to_subspace( subspace )));
+  assertWithException( std::next(manager.get_iterator_to_subspace( subspace )) != manager.end(), "Given subspace is the last subspace. Cannot form fusion." );
+  Subspace* next_subspace = *(std::next(manager.get_iterator_to_subspace( subspace )));
 
   subspace->set_aliased();
   next_subspace->set_aliased();

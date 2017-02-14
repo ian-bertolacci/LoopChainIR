@@ -61,7 +61,7 @@ std::vector<std::string> TileTransformation::apply( Schedule& schedule, Subspace
   std::ostringstream transformation;
 
   SubspaceManager& manager = schedule.getSubspaceManager();
-  SubspaceManager::iterator subspace_cursor = manager.get_cursor_to_subspace( subspace );
+  SubspaceManager::iterator subspace_cursor = manager.get_iterator_to_subspace( subspace );
   Subspace* loops = manager.get_loops();
 
   std::ostringstream tile_prefix;

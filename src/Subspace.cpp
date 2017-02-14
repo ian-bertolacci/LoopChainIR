@@ -230,7 +230,7 @@ SubspaceManager::iterator SubspaceManager::end(){
   return this->subspaces.end();
 }
 
-SubspaceManager::iterator SubspaceManager::get_cursor_to_subspace( Subspace* subspace ){
+SubspaceManager::iterator SubspaceManager::get_iterator_to_subspace( Subspace* subspace ){
   SubspaceManager::iterator iter = this->subspaces.begin();
   while( iter != this->subspaces.end() && *iter != subspace ){
     ++iter;
@@ -238,20 +238,20 @@ SubspaceManager::iterator SubspaceManager::get_cursor_to_subspace( Subspace* sub
   return iter;
 }
 
-SubspaceManager::iterator SubspaceManager::get_cursor_to_loops(){
-  return this->get_cursor_to_subspace( this->loop );
+SubspaceManager::iterator SubspaceManager::get_iterator_to_loops(){
+  return this->get_iterator_to_subspace( this->loop );
 }
 
-SubspaceManager::iterator SubspaceManager::get_cursor_to_nest(){
-  return this->get_cursor_to_subspace( this->nest );
+SubspaceManager::iterator SubspaceManager::get_iterator_to_nest(){
+  return this->get_iterator_to_subspace( this->nest );
 }
 
 Subspace* SubspaceManager::get_loops(){
-  return *( this->get_cursor_to_loops() );
+  return *( this->get_iterator_to_loops() );
 }
 
 Subspace* SubspaceManager::get_nest(){
-  return *( this->get_cursor_to_nest() );
+  return *( this->get_iterator_to_nest() );
 }
 
 std::string SubspaceManager::get_safe_prefix( std::string base ){

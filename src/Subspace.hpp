@@ -133,9 +133,9 @@ namespace LoopChainIR {
       iterator begin( bool use_aliases );
       iterator begin();
       iterator end();
-      iterator get_cursor_to_loops();
-      iterator get_cursor_to_nest();
-      iterator get_cursor_to_subspace( Subspace* subspace );
+      iterator get_iterator_to_loops();
+      iterator get_iterator_to_nest();
+      iterator get_iterator_to_subspace( Subspace* subspace );
       Subspace* get_loops();
       Subspace* get_nest();
 

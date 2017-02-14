@@ -350,20 +350,20 @@ TEST( SubspaceManager_test, get_loops ){
   ASSERT_EQ( *loops, *(manager.get_loops()) );
 }
 
-TEST( SubspaceManager_test, get_cursor_to_nest ){
+TEST( SubspaceManager_test, get_iterator_to_nest ){
   Subspace* loops = new Subspace( "loops", 0 );
   Subspace* nest = new Subspace( "i", 2 );
   SubspaceManager manager( loops, nest );
 
-  ASSERT_EQ( *nest, **(manager.get_cursor_to_nest()) );
+  ASSERT_EQ( *nest, **(manager.get_iterator_to_nest()) );
 }
 
-TEST( SubspaceManager_test, get_cursor_to_loops ){
+TEST( SubspaceManager_test, get_iterator_to_loops ){
   Subspace* loops = new Subspace( "loops", 0 );
   Subspace* nest = new Subspace( "i", 2 );
   SubspaceManager manager( loops, nest );
 
-  ASSERT_EQ( *loops, **(manager.get_cursor_to_loops()) );
+  ASSERT_EQ( *loops, **(manager.get_iterator_to_loops()) );
 }
 
 TEST( SubspaceManager_test, get_in_out_advance_stages ){
@@ -442,25 +442,25 @@ TEST( SubspaceManager_test, insert_right_3 ){
   ASSERT_EQ( **(std::prev(manager.end())), *test );
 }
 
-TEST( SubspaceManager_test, insert_get_cursor_to_nest ){
+TEST( SubspaceManager_test, insert_get_iterator_to_nest ){
   Subspace* loops = new Subspace( "loops", 0 );
   Subspace* nest = new Subspace( "i", 2 );
   SubspaceManager manager( loops, nest );
   Subspace* test = new Subspace( "t", 1 );
 
-  manager.insert_left( test, manager.get_cursor_to_nest() );
-  ASSERT_EQ( *test, **( std::prev(manager.get_cursor_to_nest()) ) );
+  manager.insert_left( test, manager.get_iterator_to_nest() );
+  ASSERT_EQ( *test, **( std::prev(manager.get_iterator_to_nest()) ) );
   ASSERT_EQ( manager.get_iterators( timestamp_flags::AllStages, true), "loops_c,t_0,t_c,i_0,i_1,i_c" );
 }
 
-TEST( SubspaceManager_test, insert_get_cursor_to_loops ){
+TEST( SubspaceManager_test, insert_get_iterator_to_loops ){
   Subspace* loops = new Subspace( "loops", 0 );
   Subspace* nest = new Subspace( "i", 2 );
   SubspaceManager manager( loops, nest );
   Subspace* test = new Subspace( "t", 1 );
 
-  manager.insert_left( test, manager.get_cursor_to_loops() );
-  ASSERT_EQ( *test, **( std::prev(manager.get_cursor_to_loops()) ) );
+  manager.insert_left( test, manager.get_iterator_to_loops() );
+  ASSERT_EQ( *test, **( std::prev(manager.get_iterator_to_loops()) ) );
   ASSERT_EQ( manager.get_iterators( timestamp_flags::AllStages, true), "t_0,t_c,loops_c,i_0,i_1,i_c" );
 }
 
@@ -577,14 +577,14 @@ TEST( SubspaceManager_test, demo_1 ){
   manager.next_stage();
 
   Subspace* tiles = new Subspace( "t", 2, *manager.get_nest() );
-  manager.insert_left( tiles, manager.get_cursor_to_nest() );
+  manager.insert_left( tiles, manager.get_iterator_to_nest() );
   ASSERT_EQ( manager.get_input_iterators( ), "loops_c,i_0,i_1,i_c" );
   ASSERT_EQ( manager.get_output_iterators(), "loops_c,t_i_0,t_i_1,t_i_c,i_0,i_1,i_c" );
 
   manager.next_stage();
 
   Subspace* chunk = new Subspace( "t", 1, *tiles );
-  manager.insert_left( chunk, manager.get_cursor_to_subspace(tiles) );
+  manager.insert_left( chunk, manager.get_iterator_to_subspace(tiles) );
   ASSERT_EQ( manager.get_input_iterators( ), "loops_c,t_i_0,t_i_1,t_i_c,i_0,i_1,i_c" );
   ASSERT_EQ( manager.get_output_iterators(), "loops_c,t_t_i_0,t_t_i_c,t_i_0,t_i_1,t_i_c,i_0,i_1,i_c" );
 
