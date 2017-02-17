@@ -204,15 +204,19 @@ namespace LoopChainIR {
     */
     IslAstRoot* codegenToIslAst();
 
+    /*! \brief Generates ISCC code that can be used by the ISCC interpreter to generate code equivalent to the output of ISL */
     std::string codegenToISCC( ) const;
 
-    /*!
-    \brief Get a reference to the manager.
-    */
+    /*! \brief Get a reference to the manager. */
     SubspaceManager& getSubspaceManager();
 
+    /*! \brief Get the current depth of nested transformations. */
     int getDepth();
+
+    /*! \brief Increase depth of nested transformations. */
     int incrementDepth();
+
+    /*! \brief Decrease depth of nested transformations. */
     int decrementDepth();
 
   public:
