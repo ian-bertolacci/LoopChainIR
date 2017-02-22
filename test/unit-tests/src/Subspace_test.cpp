@@ -1,6 +1,6 @@
 /*! ****************************************************************************
 \file Subspace_test.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 To perform unit testsing on the Iterator, Subspace, and SubspaceTree classes.

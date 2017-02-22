@@ -1,12 +1,12 @@
 /*! ****************************************************************************
 \file DefaultSequentialTransformation_test.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 To perform unit testsing on the DefaultSequentialTransformation code generator.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "gtest/gtest.h"
