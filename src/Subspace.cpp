@@ -7,6 +7,7 @@ Implements classes required for representing, managing, and iterating over Subsp
 
 \copyright
 Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #include "Subspace.hpp"

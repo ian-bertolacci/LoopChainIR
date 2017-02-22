@@ -7,6 +7,7 @@ Fuses a series of loops nests.
 
 \copyright
 Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #include "FusionTransformation.hpp"
@@ -42,14 +43,17 @@ std::vector<std::string> FusionTransformation::apply( Schedule& schedule, Subspa
 
   bool is_first;
 
+  // Create map headder
   transformation << "{ \n\t["
                  << manager.get_input_iterators() << "] -> ["
                  << manager.get_output_iterators() << "] : \n\t\t"
+  // Map the const index of the fused space to
                  << subspace->get(subspace->const_index, true) << " = 0 and "
+  // Create condition to move the value of the const iterator fused space to the next subspaces const iterator
                  << next_subspace->get(next_subspace->const_index, true)
                  << " = " << subspace->get(subspace->const_index, false);
 
-  // Only map to listed loops
+  // Only map to target loops
   transformation << " and (";
   is_first = true;
   for( LoopChain::size_type loop_idx : *this ){
@@ -97,7 +101,6 @@ std::vector<std::string> FusionTransformation::apply( Schedule& schedule, Subspa
   transformations.push_back( transformation.str() );
 
   return transformations;
-
 }
 
 FusionTransformation::iterator FusionTransformation::begin(){

@@ -7,6 +7,7 @@ Generate a simple sequential, non-parallel schedule.
 
 \copyright
 Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #include "DefaultSequentialTransformation.hpp"

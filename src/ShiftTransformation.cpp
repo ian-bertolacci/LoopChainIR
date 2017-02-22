@@ -7,6 +7,7 @@ Shift a single loop nest by some extent
 
 \copyright
 Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #include "ShiftTransformation.hpp"
@@ -103,6 +104,7 @@ std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspac
   // Alias the shifting subspace
   subspace->set_aliased();
 
+  // Assert that there are the same number of extents as there are variable iterators in the shifted subspace.
   assertWithException( this->extents.size() == subspace->size() ,
                        SSTR( "Dimensionality of extent of ShiftTransformation on loop "
                            << this->loop_id << " is not equal ("
@@ -111,9 +113,10 @@ std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspac
                            << subspace->size() << ")"  )
                      )
 
+  // String stream transformation will be created in.
   ostringstream transformation;
 
-  // symbolic constants
+  // Put in sumbolic constraints (eg "[N,M]->")
   if( !this->symbols.empty() ){
     transformation << "[";
     for( std::vector<std::string>::iterator it = this->symbols.begin(); it != this->symbols.end(); it++ ){
@@ -125,13 +128,15 @@ std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspac
     transformation << "]->";
   }
 
-  transformation << "{ \n\t["
-                 << manager.get_input_iterators() << "] -> ["
-                 << manager.get_output_iterators() << "] : \n\t\t"
-                 << loops->get( loops->const_index, false )
-                 << " = " << this->loop_id << "\n\t\t";
+  // Create funtion header,
+  transformation  << "{ \n\t["
+                  << manager.get_input_iterators() << "] -> ["
+                  << manager.get_output_iterators() << "] : \n\t\t"
+  // Create condition to only map target loop
+                  << loops->get( loops->const_index, false )
+                  << " = " << this->loop_id << "\n\t\t";
 
-
+  // Create conditions to shift subspace
   std::vector<std::string> extents = this->getExtents();
   for( Subspace::size_type i = 0; i < subspace->complete_size(); ++i ){
     // get aliased symbol
@@ -142,19 +147,25 @@ std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspac
     }
   }
 
+  // End shift component of mapping
   transformation << ";\n\t";
 
+  // Start pass-through component of mapping
+  // Unalias subspace
   subspace->unset_aliased();
 
-  transformation << "["
-                 << manager.get_input_iterators() << "] -> ["
-                 << manager.get_output_iterators() << "] : \n\t\t"
-                 << loops->get( loops->const_index, false )
-                 << " != " << this->loop_id;
-
+  // Create map header
+  transformation  << "["
+                  << manager.get_input_iterators() << "] -> ["
+                  << manager.get_output_iterators() << "] : \n\t\t"
+  // Create condition to map non-target loops
+                  << loops->get( loops->const_index, false )
+                  << " != " << this->loop_id;
+  // End mapping
   transformation << "; \n};";
 
-  //cout << transformation.str() << endl;
+  // Add transformation to our list
   transformations.push_back( transformation.str() );
+  // Return list of created transformations.
   return transformations;
 }
