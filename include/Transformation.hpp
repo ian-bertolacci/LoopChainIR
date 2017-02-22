@@ -1,3 +1,15 @@
+/*! ****************************************************************************
+\file Transformation.hpp
+\authors Ian J. Bertolacci
+
+\brief
+Defines the abstract class Transformation
+
+\copyright
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
+*******************************************************************************/
+
 #ifndef TRANSFORMATION_HPP
 #define TRANSFORMATION_HPP
 

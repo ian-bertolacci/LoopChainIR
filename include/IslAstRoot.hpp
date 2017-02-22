@@ -1,3 +1,15 @@
+/*! ****************************************************************************
+\file IslAstRoot.hpp
+\authors Ian J. Bertolacci
+
+\brief
+Defines the IslAstRoot class
+
+\copyright
+Copyright 2016 Colorado State University
+Copyright 2017 Universiy of Arizona
+*******************************************************************************/
+
 #ifndef ISLASTROOT_HPP
 #define ISLASTROOT_HPP
 

@@ -1,12 +1,13 @@
 /*! ****************************************************************************
 \file LoopChain.hpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Contains an ordered sequence of loop nests.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #ifndef LOOPCHAIN_HPP

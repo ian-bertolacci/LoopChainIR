@@ -1,13 +1,13 @@
 /*! ****************************************************************************
 \file LoopNest.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Contains a set of bounds and and the access pattern of a single, arbitarily deep
 loop nest.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "LoopNest.hpp"

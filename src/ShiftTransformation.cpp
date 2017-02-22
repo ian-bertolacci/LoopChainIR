@@ -1,12 +1,12 @@
 /*! ****************************************************************************
 \file ShiftTransformation.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Shift a single loop nest by some extent
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "ShiftTransformation.hpp"

@@ -1,12 +1,12 @@
 /*! ****************************************************************************
 \file TileTransformation.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Tile a loop nest
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "TileTransformation.hpp"

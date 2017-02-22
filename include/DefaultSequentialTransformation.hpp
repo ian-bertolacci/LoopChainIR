@@ -1,12 +1,13 @@
 /*! ****************************************************************************
 \file DefaultSequentialTransformation.hpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Generate a simple sequential, non-parallel schedule from a LoopChain.
 
 \copyright
 Copyright 2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #ifndef DEFAULT_SEQUENTIAL_SCHEDULE_HPP

@@ -1,3 +1,15 @@
+/*! ****************************************************************************
+\file Subspace.hpp
+\authors Ian J. Bertolacci
+
+\brief
+Defines classes required for representing, managing, and iterating over Subspaces
+
+\copyright
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
+*******************************************************************************/
+
 #ifndef SUBSPACE_HPP
 #define SUBSPACE_HPP
 

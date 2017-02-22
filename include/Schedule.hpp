@@ -1,12 +1,13 @@
 /*! ****************************************************************************
 \file Schedule.hpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Defines the Schedule class
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 #ifndef SCHEDULE_HPP
 #define SCHEDULE_HPP

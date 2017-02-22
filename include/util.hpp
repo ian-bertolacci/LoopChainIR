@@ -1,13 +1,15 @@
 /*! ****************************************************************************
 \file util.hpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Contains a number of utility fuctions.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
+
 #ifndef UTIL_HPP
 #define UTIL_HPP
 

@@ -1,6 +1,6 @@
 /*! ****************************************************************************
 \file RectangularDomain.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Contains the bounds on a loop nest.
@@ -9,7 +9,7 @@ expression that gives that bound. For example the bounds 0 <= x <= N+M would be
 "0" for the lower bound, and "N+M" for the upper bound.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "RectangularDomain.hpp"

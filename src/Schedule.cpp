@@ -1,12 +1,12 @@
 /*! ****************************************************************************
 \file Schedule.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Generate a simple sequential, non-parallel schedule from a LoopChain.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "Schedule.hpp"

@@ -1,3 +1,13 @@
+/*! ****************************************************************************
+\file Subspace.cpp
+\authors Ian J. Bertolacci
+
+\brief
+Implements classes required for representing, managing, and iterating over Subspaces.
+
+\copyright
+Copyright 2015-2016 Colorado State University
+*******************************************************************************/
 
 #include "Subspace.hpp"
 #include "util.hpp"

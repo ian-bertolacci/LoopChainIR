@@ -1,12 +1,12 @@
 /*! ****************************************************************************
 \file FusionTransformation.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Fuses a series of loops nests.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "FusionTransformation.hpp"
