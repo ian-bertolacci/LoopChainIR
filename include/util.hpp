@@ -39,10 +39,8 @@ public:
 };
 
 /*!
-Macro to test a condition and throw an assert_exception if it failed.
+Function to test a condition and throw an assert_exception if it failed.
 */
-#define assertWithException(condition,message )\
-  if( !(condition) ){ throw assert_exception( SSTR( "\"" << message << "\" " << __FILE__ << ":" << __LINE__ ) ); }
-//void assertWithException( bool condition, const std::string& message );
+void assertWithException( bool condition, const std::string& message );
 
 #endif

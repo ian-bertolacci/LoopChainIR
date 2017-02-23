@@ -111,7 +111,7 @@ std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspac
                            << this->extents.size()
                            << ") to the dimensionality of the Subspace ("
                            << subspace->size() << ")"  )
-                     )
+                     );
 
   // String stream transformation will be created in.
   ostringstream transformation;
