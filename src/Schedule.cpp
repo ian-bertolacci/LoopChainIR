@@ -11,6 +11,7 @@ Copyright 2015-2016 Colorado State University
 
 #include "Schedule.hpp"
 #include "all_isl.hpp"
+#include "util.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>

@@ -11,6 +11,7 @@ Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #include "FusionTransformation.hpp"
+#include "util.hpp"
 #include <iostream>
 #include <sstream>
 

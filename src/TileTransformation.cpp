@@ -12,6 +12,7 @@ Copyright 2017 Universiy of Arizona
 
 #include "TileTransformation.hpp"
 #include "DefaultSequentialTransformation.hpp"
+#include "util.hpp"
 #include <iostream>
 #include <sstream>
 #include <iostream>

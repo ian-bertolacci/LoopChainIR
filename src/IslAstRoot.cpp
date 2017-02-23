@@ -11,5 +11,6 @@ Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #include "IslAstRoot.hpp"
+#include "util.hpp"
 
 IslAstRoot::IslAstRoot( isl_ast_node* root, isl_ctx* ctx ): root(root), ctx(ctx) {}

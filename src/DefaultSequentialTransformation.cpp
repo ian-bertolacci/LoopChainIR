@@ -11,6 +11,7 @@ Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #include "DefaultSequentialTransformation.hpp"
+#include "util.hpp"
 #include <iostream>
 
 using namespace LoopChainIR;
