@@ -1,12 +1,13 @@
 /*! ****************************************************************************
 \file ShiftTransformation.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Shift a single loop nest by some extent
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #include "ShiftTransformation.hpp"
@@ -15,6 +16,7 @@ Copyright 2015 Colorado State University
 #include "util.hpp"
 
 using namespace LoopChainIR;
+using namespace std;
 
 /*!
 \brief
@@ -89,87 +91,32 @@ std::vector<std::string> ShiftTransformation::getSymbols(){
 }
 
 
-std::string& ShiftTransformation::apply( Schedule& schedule ){
-  LoopChain chain = schedule.getChain();
+std::vector<std::string> ShiftTransformation::apply( Schedule& schedule ){
+  return this->apply( schedule, *(std::next(schedule.getSubspaceManager().get_iterator_to_loops())) );
+}
 
-  assertWithException( this->extents.size() == chain.getNest(this->loop_id).getDomain().dimensions(),
+std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspace* subspace ){
+  vector<std::string> transformations;
+
+  SubspaceManager& manager = schedule.getSubspaceManager();
+  Subspace* loops = manager.get_loops();
+
+  // Alias the shifting subspace
+  subspace->set_aliased();
+
+  // Assert that there are the same number of extents as there are variable iterators in the shifted subspace.
+  assertWithException( this->extents.size() == subspace->size() ,
                        SSTR( "Dimensionality of extent of ShiftTransformation on loop "
-                           << this->loop_id << " is greater ("
+                           << this->loop_id << " is not equal ("
                            << this->extents.size()
-                           << ") than the dimensionality of the domain ("
-                           << chain.getNest(this->loop_id).getDomain().dimensions() << ")"  )
-                     )
+                           << ") to the dimensionality of the Subspace ("
+                           << subspace->size() << ")"  )
+                     );
 
-  /*
-  HowItWorks: ShiftTransformation
-  In ISCC, a shift transformation on a loop nest [l,i,ii,...,s]
-  is the mapping from an input iteration [t,i,...,ii] to an output iteration
-  where the extent of the shift for each dimension is added to that dimension's
-  iterator, [t,i+(e_i),...ii+(e_ii),s], where t is the loop being shifted.
-  We can keep all other iterators general, as their specific values are
-  1) unknown, and 2) unimportant
+  // String stream transformation will be created in.
+  ostringstream transformation;
 
-  For example, a shift of 5 on a 1N_1D chain:
-  # Loop
-  S := [N]->{ [0,i,0] : 1 <= i <= N};
-  M := { [0,i,ii] -> [0,i+5,ii]};
-
-  Note that the last iteartor, ii, is the sataement position and has no shift
-  applied to it.
-
-  For arbitrary nests we need a pass-through mapping as well, to preserve
-  iterations not touched by the shift.
-
-  For example, a shift of k on some loop chain, where the target loop
-  (loop 1) is 1D:
-  M := [k]->{
-              [t,i,ii] -> [t,i+(K),ii] : t = 1; # Transformation mapping
-              [t,i,ii] -> [t,i,ii] : t != 1 ; # Identity (pass-through mapping)
-            };
-
-  Runable ISCC Example:
-    # 2N_1D loop nest
-    S := [N]->{s1[i] : 1 <= i <= N} + [M]->{s2[j] : 1 <= j <= M };
-    # Map Statements into loops
-    M1 := {s1[i] -> [0,i,0] ; s2[i]->[1,i,0]};
-    # Shift loop 0 by 10
-    M2 := {
-    [t,i,ii]->[t,i+10,ii] : (t=0);
-    [t,i,ii]->[t,i,ii] : (t!=0)
-    };
-    codegen ((M1.M2)*S);
-
-  Output:
-    {
-    for (int c1 = 11; c1 <= N + 10; c1 += 1)
-      s1(c1 - 10);
-    for (int c1 = 1; c1 <= M; c1 += 1)
-      s2(c1);
-    }
-
-  */
-
-  std::ostringstream input_iteration;
-  std::ostringstream output_iteration;
-
-  input_iteration << "t";
-  output_iteration << "t";
-
-  // goes to getIteratorsLength()-1 because we alreay put t on.
-  // But, still need to index into extent (extent[i])
-  for( RectangularDomain::size_type i = 0; i < schedule.getIteratorsLength()-1; i += 1 ){
-    input_iteration << ",i" << i;
-    output_iteration << ",i" << i;
-
-    // Add this dimension's extent to the iterator
-    if( i < this->extents.size() ){
-      output_iteration << "+(" << this->extents[i] << ")";
-    }
-  }
-
-  std::ostringstream transformation;
-
-  // Prepend symbols to mapping expression (e.g. "[N,M,K]->")
+  // Put in sumbolic constraints (eg "[N,M]->")
   if( !this->symbols.empty() ){
     transformation << "[";
     for( std::vector<std::string>::iterator it = this->symbols.begin(); it != this->symbols.end(); it++ ){
@@ -181,14 +128,44 @@ std::string& ShiftTransformation::apply( Schedule& schedule ){
     transformation << "]->";
   }
 
-  // Create our mapping expression from the input iteration
-  // to the output iteration.
-  transformation << "{" << "\n"
-                 // Shift transformation for targeted loops
-                 << "[" << input_iteration.str() << "]->[" << output_iteration.str() << "] : " << "(t = " << this->loop_id << ")" << ";\n"
-                 // Identity transformation for pass-through
-                 << "[" << input_iteration.str() << "]->[" << input_iteration.str() << "] : " << "(t != " << this->loop_id << ")" << ";\n"
-                 << "}";
+  // Create funtion header,
+  transformation  << "{ \n\t["
+                  << manager.get_input_iterators() << "] -> ["
+                  << manager.get_output_iterators() << "] : \n\t\t"
+  // Create condition to only map target loop
+                  << loops->get( loops->const_index, false )
+                  << " = " << this->loop_id << "\n\t\t";
 
-  return *(new std::string(transformation.str()));
+  // Create conditions to shift subspace
+  std::vector<std::string> extents = this->getExtents();
+  for( Subspace::size_type i = 0; i < subspace->complete_size(); ++i ){
+    // get aliased symbol
+    transformation << " and " << (*subspace)[i] << " = " << subspace->get(i, false);
+    // add extent
+    if( i < this->extents.size() ){
+      transformation  << "+(" << this->extents[i] << ")";
+    }
+  }
+
+  // End shift component of mapping
+  transformation << ";\n\t";
+
+  // Start pass-through component of mapping
+  // Unalias subspace
+  subspace->unset_aliased();
+
+  // Create map header
+  transformation  << "["
+                  << manager.get_input_iterators() << "] -> ["
+                  << manager.get_output_iterators() << "] : \n\t\t"
+  // Create condition to map non-target loops
+                  << loops->get( loops->const_index, false )
+                  << " != " << this->loop_id;
+  // End mapping
+  transformation << "; \n};";
+
+  // Add transformation to our list
+  transformations.push_back( transformation.str() );
+  // Return list of created transformations.
+  return transformations;
 }

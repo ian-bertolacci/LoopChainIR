@@ -1,13 +1,15 @@
 /*! ****************************************************************************
 \file util.hpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Contains a number of utility fuctions.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
+
 #ifndef UTIL_HPP
 #define UTIL_HPP
 
@@ -37,10 +39,8 @@ public:
 };
 
 /*!
-Macro to test a condition and throw an assert_exception if it failed.
+Function to test a condition and throw an assert_exception if it failed.
 */
-#define assertWithException(condition,message )\
-  if( !(condition) ){ throw assert_exception( SSTR( "\"" << message << "\" " << __FILE__ << ":" << __LINE__ ) ); }
-//void assertWithException( bool condition, const std::string& message );
+void assertWithException( bool condition, const std::string& message );
 
 #endif

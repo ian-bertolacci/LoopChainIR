@@ -1,12 +1,13 @@
 /*! ****************************************************************************
 \file LoopChain.hpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Contains an ordered sequence of loop nests.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #ifndef LOOPCHAIN_HPP
@@ -25,6 +26,8 @@ Copyright 2015 Colorado State University
 
   public:
     typedef std::vector<LoopNest>::size_type size_type;
+    typedef std::vector<LoopNest>::iterator iterator;
+    typedef std::vector<LoopNest>::const_iterator const_iterator;
 
     LoopChain();
 
@@ -51,6 +54,11 @@ Copyright 2015 Colorado State University
     */
     RectangularDomain::size_type maxDimension();
 
+    iterator begin();
+    const_iterator begin() const;
+
+    iterator end();
+    const_iterator end() const;
   };
 
 }

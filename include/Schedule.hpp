@@ -1,12 +1,13 @@
 /*! ****************************************************************************
 \file Schedule.hpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Defines the Schedule class
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 #ifndef SCHEDULE_HPP
 #define SCHEDULE_HPP
@@ -16,6 +17,7 @@ Copyright 2015 Colorado State University
 #include "Transformation.hpp"
 #include "IslAstRoot.hpp"
 #include "all_isl.hpp"
+#include "Subspace.hpp"
 #include "util.hpp"
 #include <string>
 #include <vector>
@@ -53,6 +55,8 @@ namespace LoopChainIR {
     std::vector<std::string> domains;
     std::string statement_prefix;
     std::string root_statement_symbol;
+    SubspaceManager manager;
+    int depth;
 
     /*!
     \brief
@@ -85,9 +89,7 @@ namespace LoopChainIR {
     /*!
     \brief returns the original loop chain
     */
-    LoopChain getChain(){
-      return LoopChain(this->chain);
-    }
+    LoopChain getChain();
 
     /*!
     \brief
@@ -202,6 +204,21 @@ namespace LoopChainIR {
     Pointer to isl_ast_node struct.
     */
     IslAstRoot* codegenToIslAst();
+
+    /*! \brief Generates ISCC code that can be used by the ISCC interpreter to generate code equivalent to the output of ISL */
+    std::string codegenToISCC( ) const;
+
+    /*! \brief Get a reference to the manager. */
+    SubspaceManager& getSubspaceManager();
+
+    /*! \brief Get the current depth of nested transformations. */
+    int getDepth();
+
+    /*! \brief Increase depth of nested transformations. */
+    int incrementDepth();
+
+    /*! \brief Decrease depth of nested transformations. */
+    int decrementDepth();
 
   public:
     friend std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule);

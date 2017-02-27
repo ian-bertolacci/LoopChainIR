@@ -1,16 +1,17 @@
 /*! ****************************************************************************
 \file LoopChain.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Contains an ordered sequence of loop nests.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "LoopChain.hpp"
-#include "algorithm"
+#include "util.hpp"
+#include <algorithm>
 
 using namespace LoopChainIR;
 
@@ -42,4 +43,20 @@ RectangularDomain::size_type LoopChain::maxDimension(){
   }
 
   return maximum;
+}
+
+LoopChain::iterator LoopChain::begin(){
+  return this->chain.begin();
+}
+
+LoopChain::const_iterator LoopChain::begin() const{
+  return this->chain.begin();
+}
+
+LoopChain::iterator LoopChain::end(){
+  return this->chain.end();
+}
+
+LoopChain::const_iterator LoopChain::end() const{
+  return this->chain.end();
 }

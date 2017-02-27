@@ -1,12 +1,13 @@
 /*! ****************************************************************************
 \file FusionTransformation.hpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Fuses a series of loops nests.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #ifndef FUSION_SCHEDULE_HPP
@@ -63,7 +64,8 @@ namespace LoopChainIR {
     \returns
     The ISCC code as a string
     */
-    std::string& apply( Schedule& schedule );
+    std::vector<std::string> apply( Schedule& schedule );
+    std::vector<std::string> apply( Schedule& schedule, Subspace* subspace );
   };
 
 }

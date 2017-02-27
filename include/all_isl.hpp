@@ -1,6 +1,6 @@
 /*! ****************************************************************************
 \file all_isl.hpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 ISL has many headers, which have many depenencies.
@@ -8,6 +8,7 @@ This header brings them all together, in a simpler package.
 
 \copyright
 Copyright 2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #ifndef ALL_ISL_HPP

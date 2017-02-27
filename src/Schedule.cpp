@@ -1,16 +1,17 @@
 /*! ****************************************************************************
 \file Schedule.cpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Generate a simple sequential, non-parallel schedule from a LoopChain.
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "Schedule.hpp"
 #include "all_isl.hpp"
+#include "util.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -18,95 +19,98 @@ Copyright 2015 Colorado State University
 #include <unistd.h>
 
 using namespace LoopChainIR;
+using namespace std;
 
 Schedule::Schedule( LoopChain& chain, std::string statement_prefix ) :
   chain(chain), statement_prefix(statement_prefix),
-  root_statement_symbol( SSTR(statement_prefix << "statement_" ) )
+  root_statement_symbol( SSTR(statement_prefix << "statement_" ) ),
+  manager( new Subspace("loop", 0), new Subspace("i", chain.maxDimension() )),
+  depth(0)
   {
 
-  // String of domains mapping to chain
-  std::ostringstream ordering_string;
-  ordering_string << "{";
+  // Synthesize the loop statements and the primary maps
+  // primary map(s) needs to occur all at once, across all nests
+  this->manager.get_safe_prefix( "loop" );
+  this->manager.get_safe_prefix( "i" );
 
-  // The maximum dimensionality of all the domains in the chain.
-  // this is used to pad iterations that are of lower dimensionality.
-  RectangularDomain::size_type max_dims = this->chain.maxDimension();
+  ostringstream map_string;
+  map_string << "{\n";
 
-  for( LoopChain::size_type nest_idx = 0; nest_idx < this->chain.length(); nest_idx += 1 ){
-    LoopNest& nest = this->chain.getNest( nest_idx );
+  Subspace* nest_ss = this->manager.get_nest();
+  Subspace* loop_ss = this->manager.get_loops();
+  nest_ss->set_aliased();
+  int chain_idx = 0;
+  for( LoopNest nest : this->chain ){
     RectangularDomain& domain = nest.getDomain();
 
-    // String of statement
-    std::ostringstream statement_string;
+    ostringstream statement_string;
 
-    // String of padding for statement;
-    std::ostringstream padding_string;
-
-    // String of symbolic bounds
-    std::ostringstream symbolic_string;
-
+    // synth. the symbolic constants
+    statement_string << "[";
     bool is_not_first_symbolic = false; // for comma insertion
     for( auto symbol : domain.getSymbols() ){
-      if( is_not_first_symbolic ){
-        symbolic_string << ",";
-      }
-      symbolic_string << symbol;
+      statement_string << (is_not_first_symbolic?",":"") << symbol;
       is_not_first_symbolic = true;
     }
 
-    // String of bounds inequalities
-    std::ostringstream inequalities_string;
+    statement_string << "]->{" << root_statement_symbol << chain_idx << "[";
+    // add statement name into map_string;
+    map_string << "\t" << root_statement_symbol << chain_idx << "[";
 
+    // build the iterators for the statement (and the map)
     for( RectangularDomain::size_type dimension = 0; dimension < domain.dimensions(); dimension += 1 ){
-      std::string lower = domain.getLowerBound( dimension );
-      std::string upper = domain.getUpperBound( dimension );
-
-      std::string index_symbol = SSTR( "idx_" << dimension );
-
-      // add index to statement string
-      if( dimension > 0 ) statement_string << ",";
-      statement_string << index_symbol;
-
-      // add to inequalities string
-      if( dimension > 0 ) inequalities_string << " and ";
-      inequalities_string << lower << " <= " << index_symbol << " <= " << upper;
-
-    }// for_each dimension
-
-    // Expand the iterator string if necessary
-    for( RectangularDomain::size_type dimension = domain.dimensions(); dimension < max_dims; dimension += 1 ){
-      padding_string << ",0";
+      statement_string << ((dimension > 0)?",":"") << "i_" << dimension;
+      map_string << ((dimension > 0)?",":"") << "i_" << dimension;
     }
 
-    // Create the full string representing an ISL Domain
-    std::string domain_string = SSTR( "[" << symbolic_string.str() << "] -> {"
-                                          << root_statement_symbol << nest_idx << "[" << statement_string.str() << "] : "
-                                          << inequalities_string.str() << "}"
-                                    );
+    statement_string << "] :";
 
-    // Construct actual ISL domain and append it.
-    domains.push_back( domain_string.c_str() );
+    // Create maping tuple
+    map_string << "] -> [" << this->manager.get_output_iterators() << "] : \n\t\t"
+    // Map the loop constant iterator to the chain index,
+    // and the nest constant to 0 i_0 .. i_n will be maped later
+               << ((*loop_ss)[loop_ss->const_index]) << " = " <<  chain_idx
+               << " and " << ((*nest_ss)[nest_ss->const_index]) << " = 0";
 
-    // Create expansion transformation string (i.e. { [i,j] -> [$k,i,j,0] })
-    // where $k is the loop's position in the chain.
-    std::string expanded_form = SSTR( "[" << nest_idx << "," << statement_string.str() << ",0" << padding_string.str() << "]" );
+    // build the conditions for the statement and map
+    for( RectangularDomain::size_type dimension = 0; dimension < domain.dimensions(); dimension += 1 ){
+      // statement conditions (loop bounds)
+      statement_string << ((dimension > 0)?" and ":"")
+                       << domain.getLowerBound( dimension ) << " <= "
+                       << "i_" << dimension
+                       << " <= " << domain.getUpperBound( dimension );
+      // map conditions
+      map_string << " and i_" << dimension << " = " << (*nest_ss)[dimension];
+    }
 
-    // Create the loop chain map string
-    ordering_string << root_statement_symbol << nest_idx << "[" << statement_string.str() << "]"
-               << " -> " << expanded_form << "; ";
+    // map higher dimensions to 0
+    for( RectangularDomain::size_type dimension = domain.dimensions(); dimension < nest_ss->size(); dimension += 1 ){
+      map_string << " and " << (*nest_ss)[dimension] << " = 0";
+    }
 
-  }// for_each nest
+    // end of statement definition
+    statement_string << "} ;";
 
-  ordering_string << "}";
+    // end of this domains map
+    map_string << ";\n";
 
-  this->append( ordering_string.str() );
+    this->domains.push_back( statement_string.str() );
+    chain_idx += 1;
+  }
 
-  this->iterators_length = max_dims + 2;
+  map_string << "} ;";
+  transformations.push_back( map_string.str() );
+
+  nest_ss->unset_aliased();
+  loop_ss->unset_aliased();
 
 }
 
 void Schedule::apply( Transformation& scheduler ){
-  this->append( scheduler.apply(*this) );
+  for( std::string transformation: scheduler.apply(*this) ){
+    this->append( transformation );
+  }
+  this->manager.next_stage();
 }
 
 void Schedule::apply( std::vector<Transformation*> schedulers ){
@@ -258,8 +262,34 @@ bool Schedule::codegenToFile( std::string file_name ){
   return file_stream.good() && !( file_stream.fail() || file_stream.bad() );
 }
 
+std::string Schedule::codegenToISCC( ) const {
+  std::ostringstream os;
+  os << "# Domains:" << std::endl;
+  int stmt_count = 1;
+  for( Schedule::const_iterator it = this->begin_domains(); it != this->end_domains(); ++it ){
+    os << "S" << stmt_count++ << " := " << (*it) << std::endl;
+  }
+
+  os << std::endl << "# Transformations:" << std::endl;
+  int map_count = 1;
+  for( Schedule::const_iterator it = this->begin_transformations(); it != this->end_transformations(); ++it ){
+    os << "M" << map_count++ << " := " <<  (*it) << std::endl;
+  }
+
+  os << "\ncodegen( (";
+  for( int i = 1; i < map_count; i += 1 ){
+    os << ((i>1)?".":"") << "M" << i;
+  }
+  os << ")*(";
+  for( int i = 1; i < stmt_count; i += 1 ){
+    os << ((i>1)?"+":"") << "S" << i;
+  }
+  os << ") );";
+  return std::string( os.str() );
+}
+
 RectangularDomain::size_type Schedule::getIteratorsLength() {
-  return this->iterators_length;
+  return (RectangularDomain::size_type) this->manager.size(); //this->iterators_length;
 }
 
 RectangularDomain::size_type Schedule::modifyIteratorsLength( int delta ){
@@ -271,6 +301,10 @@ RectangularDomain::size_type Schedule::modifyIteratorsLength( int delta ){
   return this->getIteratorsLength();
 }
 
+LoopChain Schedule::getChain(){
+  return LoopChain(this->chain);
+}
+
 std::string Schedule::getStatementPrefix(){
   return std::string(this->statement_prefix);
 }
@@ -279,17 +313,25 @@ std::string Schedule::getRootStatementSymbol(){
   return std::string(this->root_statement_symbol);
 }
 
+
+SubspaceManager& Schedule::getSubspaceManager(){
+  return this->manager;
+}
+
+int Schedule::getDepth(){
+  return this->depth;
+}
+
+int Schedule::incrementDepth(){
+  this->depth += 1;
+  return this->getDepth();
+}
+
+int Schedule::decrementDepth(){
+  this->depth -= 1;
+  return this->getDepth();
+}
+
 std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule){
-  os << "Domains:" << std::endl;
-
-  for( Schedule::const_iterator it = schedule.begin_domains(); it != schedule.end_domains(); ++it ){
-    os << (*it) << std::endl;
-  }
-
-  os << std::endl << "Transformations:" << std::endl;
-  for( Schedule::const_iterator it = schedule.begin_transformations(); it != schedule.end_transformations(); ++it ){
-    os << (*it) << std::endl;
-  }
-
-  return os;
+  return os << schedule.codegenToISCC() ;
 }

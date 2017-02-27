@@ -1,12 +1,13 @@
 /*! ****************************************************************************
-\file ShiftTransformation.cpp
-\autors Ian J. Bertolacci
+\file ShiftTransformation.hpp
+\authors Ian J. Bertolacci
 
 \brief
 Shift a single loop nest by some extent
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #ifndef SHIFT_TRANSFORMATION_HPP
@@ -97,7 +98,19 @@ namespace LoopChainIR {
     \returns
     The ISCC code as a string
     */
-    std::string& apply( Schedule& schedule );
+    std::vector<std::string> apply( Schedule& schedule, Subspace* subspace );
+
+    /*!
+    \brief
+    Generate ISCC code for the shift transformation, and append it to the
+    transformation list of schedule (modifies schedule).
+
+    \param[inout] schedule Schedule this transformation is being applied to.
+
+    \returns
+    The ISCC code as a string
+    */
+  std::vector<std::string> apply( Schedule& schedule );
   };
 
 }

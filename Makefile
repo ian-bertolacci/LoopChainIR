@@ -3,6 +3,7 @@ PROJECT_DIR ?= $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 BIN=$(PROJECT_DIR)/bin
 SRC=$(PROJECT_DIR)/src
+INCLUDE=$(PROJECT_DIR)/include
 UTIL=$(PROJECT_DIR)/util
 LIB=$(PROJECT_DIR)/lib
 
@@ -29,8 +30,8 @@ MAKE_JOBS=2
 
 # Compiler and flags
 CXX=g++
-CXXFLAGS += -g -Wall -Wextra -Werror -pthread
-CPPFLAGS += --std=c++11 -isystem $(SOURCE_INC)
+CXXFLAGS += -g -Wall -Wextra -pthread
+CPPFLAGS += --std=c++11 -isystem $(SOURCE_INC) -I$(SOURCE_INC) -I$(INCLUDE)
 
 # Test Variables
 GTEST_DIR=$(THIRD_PARTY_INSTALL)/gtest
@@ -38,50 +39,52 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
-UNIT_TESTS = RectangularDomain_test \
-						 LoopNest_test \
-						 LoopChain_test \
-						 Schedule_test \
-						 DefaultSequentialTransformation_test \
-						 FusionTransformation_test \
-						 ShiftTransformation_test \
-						 TileTransformation_test
+UNIT_TESTS = 	RectangularDomain_test \
+							LoopNest_test \
+							LoopChain_test \
+							Subspace_test \
+							Schedule_test \
+							DefaultSequentialTransformation_test \
+							FusionTransformation_test \
+							ShiftTransformation_test \
+							TileTransformation_test
 
-INT_TEST = 1N_1D_shift_1.test\
-						1N_1D_shift_K.test\
-						1N_1D.test\
-						1N_2D_shift_1_2.test\
-						1N_2D_shift_K_exp.test\
-						1N_2D.test\
-						1N_2D_tile.test\
-						1N_3D.test\
-						2N_1D_2D.test\
-						2N_1D_2D_tile_1.test\
-						2N_1D_2D_tile_2.test\
-						2N_1D_2D_tile_all.test\
-						2N_1D_fuse.test\
-						2N_1D_shift_1.test\
-						2N_1D_shift_fuse.test\
-						2N_1D_shift_K.test\
-						2N_1D.test\
-						2N_2D_fuse.test\
-						2N_2D_fuse_tile.test\
-						2N_2D.test\
-						2N_3D_fuse.test\
-						2N_3D.test\
-						3N_1D_2D_3D.test\
-						3N_3D_2D_1D.test\
-						example.test\
+INT_TEST = 	1N_1D_shift_1.test \
+						1N_2D_shift_1_2.test \
+						1N_2D_tile.test \
+						2N_1D_2D_tile_1.test \
+						2N_1D_fuse.test \
+						2N_1D_shift_K.test \
+						2N_2D_fuse_tile.test \
+						2N_3D.test \
+						example.test \
+						1N_1D_shift_K.test \
+						1N_2D_shift_K_exp.test \
+						1N_3D.test \
+						2N_1D_2D_tile_2.test \
+						2N_1D_shift_1.test \
+						2N_1D.test \
+						2N_2D.test \
+						3N_1D_2D_3D.test \
+						1N_1D.test \
+						1N_2D.test \
+						2N_1D_2D.test \
+						2N_1D_2D_tile_all.test \
+						2N_1D_shift_fuse.test \
+						2N_2D_fuse.test \
+						2N_3D_fuse.test \
+						3N_3D_2D_1D.test
 
 # Project object files and executable
 OBJS = $(BIN)/RectangularDomain.o \
        $(BIN)/LoopChain.o \
 			 $(BIN)/LoopNest.o \
 			 $(BIN)/Schedule.o \
+			 $(BIN)/Subspace.o \
 			 $(BIN)/DefaultSequentialTransformation.o \
-			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/ShiftTransformation.o \
 			 $(BIN)/TileTransformation.o \
+			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/IslAstRoot.o \
 			 $(BIN)/util.o
 
@@ -95,8 +98,8 @@ $(EXE): $(OBJS) $(INITED_FILE)
 	$(AR) $(ARFLAGS) $@ $^
 
 # Building the Ojbect Files
-$(OBJS): $(BIN)/%.o : $(SRC)/%.cpp $(SRC)/%.hpp $(INITED_FILE)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) $< -c -o $@
+$(OBJS): $(BIN)/%.o : $(SRC)/%.cpp $(INCLUDE)/%.hpp $(INITED_FILE)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -c -o $@
 
 # Testing
 test: unit-tests integration-tests
@@ -107,12 +110,12 @@ integration-tests: $(EXE)
 	python $(UTIL)/integration-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(addprefix $(REG_TEST_DIR)/,$(INT_TEST))
 
 $(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(SOURCE_LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(SOURCE_LIB) -o $(UNIT_TEST_BIN)/$@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -Wl,-rpath -Wl,$(SOURCE_LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(SOURCE_LIB) -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
 
 $(INT_TEST): $(EXE)
-	python $(UTIL)/integration-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(REG_TEST_DIR)/$@
+	python $(UTIL)/integration-util.py -r $(UTIL)/resources -se -p $(PROJECT_DIR) $(REG_TEST_DIR)/$@
 
 #Building the Google Test framework
 $(GTEST_SRCS_): $(INITED_FILE)

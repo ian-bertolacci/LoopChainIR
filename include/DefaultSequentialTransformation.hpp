@@ -1,12 +1,13 @@
 /*! ****************************************************************************
 \file DefaultSequentialTransformation.hpp
-\autors Ian J. Bertolacci
+\authors Ian J. Bertolacci
 
 \brief
 Generate a simple sequential, non-parallel schedule from a LoopChain.
 
 \copyright
 Copyright 2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #ifndef DEFAULT_SEQUENTIAL_SCHEDULE_HPP
@@ -37,10 +38,16 @@ namespace LoopChainIR {
 
   public:
     DefaultSequentialTransformation( );
+
     /*!
     \returns Reference to schedule which has been transformed.
     */
-    std::string& apply( Schedule& schedule );
+    std::vector<std::string> apply( Schedule& schedule, Subspace* subspace);
+
+    /*!
+    \returns Reference to schedule which has been transformed.
+    */
+    std::vector<std::string> apply( Schedule& schedule );
   };
 
 }

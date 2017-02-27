@@ -1,12 +1,13 @@
 /*! ****************************************************************************
-\file TileTransformation.cpp
-\autors Ian J. Bertolacci
+\file TileTransformation.hpp
+\authors Ian J. Bertolacci
 
 \brief
 Tile a loop nest
 
 \copyright
-Copyright 2015 Colorado State University
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
 #ifndef TILE_SCHEDULE_HPP
@@ -38,6 +39,9 @@ namespace LoopChainIR {
     TileMap tile_sizes;
     bool uniform;
     mapped_type uniform_size;
+    Transformation* over_tiles;
+    Transformation* within_tiles;
+    static int num_prefixes_used;
 
   public:
     /*!
@@ -58,6 +62,15 @@ namespace LoopChainIR {
     \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
     */
     TileTransformation( LoopChain::size_type loop, TileMap tile_sizes );
+
+    /*!
+    \brief
+    Create tiling schedule with an list of tile size
+
+    \param[in] loop Id of loop to transform;
+    \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
+    */
+    TileTransformation( LoopChain::size_type loop, TileMap tile_sizes, Transformation* over_tiles, Transformation* within_tiles );
 
     /*!
     \brief
@@ -89,7 +102,19 @@ namespace LoopChainIR {
     \returns
     The ISCC code as a string
     */
-    std::string& apply( Schedule& schedule );
+    std::vector<std::string> apply( Schedule& schedule, Subspace* subspace );
+
+    /*!
+    \brief
+    Generate ISCC code for the shift transformation, and append it to the
+    transformation list of schedule (modifies schedule).
+
+    \param[inout] schedule Schedule this transformation is being applied to.
+
+    \returns
+    The ISCC code as a string
+    */
+    std::vector<std::string> apply( Schedule& schedule );
   };
 }
 #endif
