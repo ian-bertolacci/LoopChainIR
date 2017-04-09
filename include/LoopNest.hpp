@@ -14,7 +14,9 @@ Copyright 2017 Universiy of Arizona
 #ifndef LOOPNEST_HPP
 #define LOOPNEST_HPP
 
+#include <list>
 #include "RectangularDomain.hpp"
+#include "Accesses.hpp"
 
 namespace LoopChainIR{
 
@@ -24,6 +26,7 @@ namespace LoopChainIR{
   class LoopNest{
   private:
     RectangularDomain bounds;
+    std::list<Dataspace> dataspaces;
 
   public:
 
@@ -31,11 +34,18 @@ namespace LoopChainIR{
     \param[in] loop_bounds Domain of the loop nest
     */
     LoopNest( RectangularDomain loop_bounds );
+    LoopNest( RectangularDomain loop_bounds, std::list<Dataspace> dataspaces );
+
 
     /*!
     \returns reference to this LoopNest's RectangularDomain.
     */
     RectangularDomain& getDomain();
+
+    /*!
+    \returnst a copy of the LoopNest's Dataspaces.
+    */
+    std::list<Dataspace> getDataspaces() const;
   };
 
 }
