@@ -1142,3 +1142,88 @@ TEST( computeShiftTuplesForFusion_test, unrolled_jacobi_2D ){
     ASSERT_EQ( *test_it, *actual_it );
   }
 }
+
+
+TEST( computeShiftForFusion_test, unrolled_jacobi_2D_with_transforms ){
+
+  LoopChain chain;
+  string lower[2] = { "1", "1" };
+  string upper[2] = { "N", "N" };
+
+  chain.append(
+    LoopNest(
+      RectangularDomain( lower, upper, 2 ),
+      {
+        Dataspace(
+          "B",
+          // Reads
+          TupleCollection({
+            Tuple({ -1,  0 }),
+            Tuple({  0, -1 }),
+            Tuple({  0,  0 }),
+            Tuple({  1,  0 }),
+            Tuple({  0,  1 }),
+          }),
+          // writes
+          TupleCollection( 2 )
+        ),
+        Dataspace(
+          "A",
+          // Reads
+          TupleCollection( 2 ),
+          // writes
+          TupleCollection({
+            Tuple({ 0, 0 })
+          })
+        )
+      }
+    )
+  );
+
+  chain.append(
+    LoopNest(
+      RectangularDomain( lower, upper, 2 ),
+      {
+        Dataspace(
+          "A",
+          // Reads
+          TupleCollection({
+            Tuple({ -1,  0 }),
+            Tuple({  0, -1 }),
+            Tuple({  0,  0 }),
+            Tuple({  1,  0 }),
+            Tuple({  0,  1 }),
+          }),
+          // writes
+          TupleCollection( 2 )
+        ),
+        Dataspace(
+          "B",
+          // Reads
+          TupleCollection( 2 ),
+          // writes
+          TupleCollection({
+            Tuple({ 0, 0 })
+          })
+        )
+      }
+    )
+  );
+
+  ASSERT_NO_THROW({
+    list<ShiftTransformation*> test = computeShiftForFusion( chain );
+  });
+
+  /*
+  // actually writing a test for this is burdensom
+  for( list<ShiftTransformation*>::iterator test_it = test.begin();
+       test_it != test.end();
+       ++test_it){
+    cout << "( ";
+    for( string extent : (*test_it)->getExtents() ){
+      cout << extent << " ";
+    }
+    cout << ")" << endl;
+  }
+  */
+}
