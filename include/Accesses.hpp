@@ -1,3 +1,15 @@
+/*! ****************************************************************************
+\file Accesses.hpp
+\authors Ian J. Bertolacci
+
+\brief
+Classes to record regular accesses into a dataspace
+
+\copyright
+Copyright 2015-2016 Colorado State University
+Copyright 2017 Universiy of Arizona
+*******************************************************************************/
+
 #ifndef ACCESSES_HPP
 #define ACCESSES_HPP
 
