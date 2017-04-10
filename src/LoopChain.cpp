@@ -31,7 +31,7 @@ LoopNest& LoopChain::getNest( LoopChain::size_type index ){
   return this->chain[index];
 }
 
-LoopChain::size_type LoopChain::length(){
+LoopChain::size_type LoopChain::length() const {
   return this->chain.size();
 }
 
