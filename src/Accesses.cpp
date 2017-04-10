@@ -171,6 +171,16 @@ TupleCollection::TupleCollection( const TupleCollection& that )
 : TupleCollection( that.tuples, that.dimensions_var )
 { }
 
+TupleCollection::TupleCollection( const TupleCollection& left, const TupleCollection& right )
+: TupleCollection(
+    []( std::set<Tuple> s_left, std::set<Tuple> s_right ){
+      std::set<Tuple> tmp( s_left );
+      tmp.insert( s_right.begin(), s_right.end() );
+      return tmp;
+    }( left.tuples, right.tuples )
+  )
+{ }
+
 
 Tuple::size_type TupleCollection::dimensions() const {
   return this->dimensions_var;

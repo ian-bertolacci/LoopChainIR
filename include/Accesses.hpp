@@ -64,6 +64,7 @@ namespace LoopChainIR {
       TupleCollection( Tuple::size_type dimensions );
       TupleCollection( std::set<Tuple> tuples, signed int dimensions = -1 );
       TupleCollection( const TupleCollection& that );
+      TupleCollection( const TupleCollection& left, const TupleCollection& right );
       Tuple::size_type dimensions() const;
       iterator begin();
       iterator end();
