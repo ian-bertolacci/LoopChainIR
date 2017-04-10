@@ -19,6 +19,18 @@ Copyright 2017 Universiy of Arizona
 using namespace LoopChainIR;
 using namespace std;
 
+ShiftTransformation::ShiftTransformation( LoopChain::size_type loop, Tuple extent )
+: loop_id( loop ),
+  extents( []( Tuple in ){
+        vector<string> _tmp( in.dimensions(), "" );
+        transform( in.begin(), in.end(),
+                   _tmp.begin(),
+                   [](int i){ return to_string( i ); }
+               );
+        return _tmp;
+      }( extent ) )
+{ }
+
 /*!
 \brief
 Shift all loops specified in nest by the extents.
@@ -387,7 +399,21 @@ std::list<Tuple> LoopChainIR::computeShiftTuplesForFusion( const LoopChain& chai
 std::list<ShiftTransformation*> LoopChainIR::computeShiftForFusion( const LoopChain& chain ){
   std::list<ShiftTransformation*> transformations;
 
-  std::list<Tuple> tuples = computeShiftTuplesForFusion( chain );
+  std::list<Tuple> extents = computeShiftTuplesForFusion( chain );
+  assertWithException(  extents.size() == chain.length(),
+                        SSTR( "Number of shift extents, " << extents.size()
+                              << " is not equal to the number of nests in the loop chain, "
+                              << chain.length() ) );
+  {
+    LoopChain::size_type id = 0;
+    std::list<Tuple>::iterator tuple_it = extents.begin();
+    while( id != chain.length() && tuple_it != extents.end() ){
+      transformations.push_back( new ShiftTransformation( id, *tuple_it) );
+
+      ++id;
+      ++tuple_it;
+    }
+  }
 
   return transformations;
 }

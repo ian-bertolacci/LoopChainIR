@@ -38,7 +38,18 @@ namespace LoopChainIR {
     \brief
     Shift all loops specified in nest by the extents.
     \param[in] loop The id of the loop-nest within the chain to be shifted
-    \param[in] extents The extent by which the loops are shifted by.
+    \param[in] extent The extent to shift the loop by.
+               Note that extents.dimensions() must be equal to
+               chain.getNest( loop ).getDomain().dimensions(), where chain is the
+               LoopChain on which the transformations are being applied to.
+    */
+    ShiftTransformation( LoopChain::size_type loop, Tuple extent );
+
+    /*!
+    \brief
+    Shift all loops specified in nest by the extents.
+    \param[in] loop The id of the loop-nest within the chain to be shifted
+    \param[in] extents The extent by which the loop is shifted by.
                Note that extents.size() must be equal to
                chain.getNest( loop ).getDomain().dimensions(), where chain is the
                LoopChain on which the transformations are being applied to.
@@ -49,7 +60,7 @@ namespace LoopChainIR {
     \brief
     Shift all loops specified in nest by the extents.
     \param[in] loop The id of the loop-nest within the chain to be shifted
-    \param[in] extents The extent by which the loops are shifted by.
+    \param[in] extents The extent by which the loop is shifted by.
                Note that extents.size() must be equal to
                chain.getNest( loop ).getDomain().dimensions(), where chain is the
                LoopChain on which the transformations are being applied to.
