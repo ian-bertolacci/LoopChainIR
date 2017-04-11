@@ -23,7 +23,6 @@ Create a 4 loop chain of 1 dimension (4N_1D)
 
 TEST(LoopChainTest, Test_Getters_4N_1D) {
   LoopChain chain;
-
   {
     // Create and append the first loop nest on {0..J}
     string lower[1] = { "0" };

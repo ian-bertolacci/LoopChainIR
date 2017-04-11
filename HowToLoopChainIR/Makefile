@@ -2,6 +2,7 @@ PROJECT_DIR=..
 SRC=$(PROJECT_DIR)/src
 BIN=$(PROJECT_DIR)/bin
 LIB=$(PROJECT_DIR)/lib
+INCLUDE=$(PROJECT_DIR)/include
 
 THIRD_PARTY=$(PROJECT_DIR)/third-party
 THIRD_PARTY_SRC=$(THIRD_PARTY)/source
@@ -36,7 +37,7 @@ all: $(LONG_EXAMPLES)
 $(EXAMPLES):  % : $(EX_BIN)/%
 
 $(LONG_EXAMPLES): $(EX_BIN)/% : $(EX_SRC)/%.cpp $(LCIR_LIB)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -isystem $(T_INC) -I$(SRC) -Wl,-rpath -Wl,$(T_LIB) $^ -L$(T_LIB) -lisl -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -isystem $(T_INC) -I$(INCLUDE) -Wl,-rpath -Wl,$(T_LIB) $^ -L$(T_LIB) -lisl -o $@
 
 clean:
 	- rm $(EX_BIN)/*

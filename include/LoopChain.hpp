@@ -47,7 +47,7 @@ Copyright 2017 Universiy of Arizona
     /*!
     \returns number of LoopNest objects in chain.
     */
-    size_type length();
+    size_type length() const;
 
     /*
     \returns the maximum dimensionality of all the loop-nests in the chain.

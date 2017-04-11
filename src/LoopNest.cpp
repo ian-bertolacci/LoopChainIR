@@ -15,10 +15,18 @@ Copyright 2015-2016 Colorado State University
 
 using namespace LoopChainIR;
 
-LoopNest::LoopNest( RectangularDomain loop_bounds ): bounds( loop_bounds ){
+LoopNest::LoopNest( RectangularDomain loop_bounds )
+: bounds( loop_bounds ), dataspaces( )
+{ }
 
-}
+LoopNest::LoopNest( RectangularDomain loop_bounds, std::list<Dataspace> dataspaces )
+: bounds( loop_bounds ), dataspaces( dataspaces )
+{ }
 
 RectangularDomain& LoopNest::getDomain(){
   return this->bounds;
+}
+
+std::list<Dataspace> LoopNest::getDataspaces() const {
+  return std::list<Dataspace>( this->dataspaces );
 }

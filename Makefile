@@ -42,6 +42,7 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 UNIT_TESTS = 	RectangularDomain_test \
 							LoopNest_test \
 							LoopChain_test \
+							Accesses_test \
 							Subspace_test \
 							Schedule_test \
 							DefaultSequentialTransformation_test \
@@ -86,6 +87,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/TileTransformation.o \
 			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/IslAstRoot.o \
+			 $(BIN)/Accesses.o \
 			 $(BIN)/util.o
 
 
