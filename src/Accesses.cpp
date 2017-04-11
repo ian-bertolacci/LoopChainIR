@@ -260,14 +260,20 @@ std::ostream& LoopChainIR::operator<<( std::ostream& os, const TupleCollection& 
 Dataspace::Dataspace( std::string name, std::set<Tuple> reads, std::set<Tuple> writes )
 : name( name ), read_collection( reads ), write_collection( writes )
 {
-  assertWithException( read_collection.dimensions() == write_collection.dimensions(), "Read/Write sets are of different dimensionality" );
+  assertWithException(  read_collection.dimensions() == write_collection.dimensions(),
+                        SSTR( "Read/Write sets are of different dimensionality: "
+                              << read_collection.dimensions() << ", " << write_collection.dimensions() )
+                      );
   this->dimensions_var = read_collection.dimensions();
 }
 
 Dataspace::Dataspace( std::string name, const TupleCollection& reads, const TupleCollection& writes )
 : name( name ), read_collection( reads ), write_collection( writes ), dimensions_var( reads.dimensions() )
 {
-  assertWithException( read_collection.dimensions() == write_collection.dimensions(), "Read/Write sets are of different dimensionality" );
+  assertWithException(  read_collection.dimensions() == write_collection.dimensions(),
+                        SSTR( "Read/Write sets are of different dimensionality: "
+                              << read_collection.dimensions() << ", " << write_collection.dimensions() )
+                      );
 }
 
 TupleCollection Dataspace::reads() const {
