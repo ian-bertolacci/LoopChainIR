@@ -176,12 +176,10 @@ TupleCollection::TupleCollection( const TupleCollection& left, const TupleCollec
                       std::set<Tuple> tmp( s_left );
                       tmp.insert( s_right.begin(), s_right.end() );
                       return tmp;
-                    }( left.tuples, right.tuples )
-                  ),
-  dimensions_var( left.dimensions() | right.dimensions() )
-{
-  assertWithException( left.dimensions() == right.dimensions(), "Attempting to create TupleCollection from TupleCollections of different dimensionality." );
-}
+                    }( left.tuples, right.tuples ),
+                    left.dimensions() | right.dimensions()
+                  )
+{ }
 
 
 Tuple::size_type TupleCollection::dimensions() const {
