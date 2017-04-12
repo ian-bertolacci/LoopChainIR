@@ -78,6 +78,8 @@ Schedule::Schedule( LoopChain& chain, std::string statement_prefix ) :
       statement_string << ((dimension > 0)?" and ":"")
                        << domain.getLowerBound( dimension ) << " <= "
                        << "i_" << dimension
+                       << " <= " << domain.getUpperBound( dimension )
+                       << " and " << domain.getLowerBound( dimension )
                        << " <= " << domain.getUpperBound( dimension );
       // map conditions
       map_string << " and i_" << dimension << " = " << (*nest_ss)[dimension];
@@ -185,11 +187,18 @@ IslAstRoot* Schedule::codegenToIslAst(){
   }
 
   // Apply transformation to schedule
-  isl_union_map* schedule = isl_union_map_intersect_domain(transformation, full_domain);
+  isl_union_map* schedule_map = isl_union_map_intersect_domain(transformation, full_domain);
+  //isl_union_set* schedule_set = isl_union_map_domain( schedule_map );
+  //isl_schedule* schedule = isl_schedule_from_domain( schedule_set );
+
+  // Apply separation
+  enum isl_ast_loop_type type = isl_ast_loop_separate;
+  //schedule = isl_schedule_map_schedule_node_bottom_up( schedule, &node_set_options, &type );
 
   // Create AST
   isl_ast_build* build = isl_ast_build_alloc(ctx);
-  isl_ast_node* tree = isl_ast_build_node_from_schedule_map(build, schedule);
+  //build = isl_build_set_options
+  isl_ast_node* tree = isl_ast_build_node_from_schedule_map( build, schedule_map );
 
   // free ISL objects
   isl_ast_build_free( build );
@@ -334,4 +343,21 @@ int Schedule::decrementDepth(){
 
 std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule){
   return os << schedule.codegenToISCC() ;
+}
+
+// This is _directly_ coppied from codegen.c of barvinok calulator
+__isl_give isl_schedule_node *node_set_options(
+	__isl_take isl_schedule_node *node, void *user)
+{
+	enum isl_ast_loop_type *type = (isl_ast_loop_type *) user;
+	int i, n;
+
+	if (isl_schedule_node_get_type(node) != isl_schedule_node_band)
+		return node;
+
+	n = isl_schedule_node_band_n_member(node);
+	for (i = 0; i < n; ++i)
+		node = isl_schedule_node_band_member_set_ast_loop_type(node,
+								i, *type);
+	return node;
 }
