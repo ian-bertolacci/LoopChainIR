@@ -191,13 +191,20 @@ IslAstRoot* Schedule::codegenToIslAst(){
   //isl_union_set* schedule_set = isl_union_map_domain( schedule_map );
   //isl_schedule* schedule = isl_schedule_from_domain( schedule_set );
 
-  // Apply separation
-  enum isl_ast_loop_type type = isl_ast_loop_separate;
-  //schedule = isl_schedule_map_schedule_node_bottom_up( schedule, &node_set_options, &type );
+  // Create separation option map
+  SubspaceManager& manager = this->getSubspaceManager();
+  Subspace* nest = manager.get_nest();
+
+  isl_union_map* separate_map = isl_union_map_read_from_str(
+    ctx,
+    SSTR( "{ [" << manager.get_input_iterators() << "] -> "
+        << "separate[" << nest->get( nest->size() , false ) << "] };"
+    ).c_str()
+  );
 
   // Create AST
   isl_ast_build* build = isl_ast_build_alloc(ctx);
-  //build = isl_build_set_options
+  build = isl_ast_build_set_options( build, separate_map );
   isl_ast_node* tree = isl_ast_build_node_from_schedule_map( build, schedule_map );
 
   // free ISL objects
