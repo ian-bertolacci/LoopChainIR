@@ -278,7 +278,7 @@ bool Schedule::codegenToFile( std::string file_name ){
   return file_stream.good() && !( file_stream.fail() || file_stream.bad() );
 }
 
-std::string Schedule::codegenToISCC( ) const {
+std::string Schedule::codegenToISCC( ) {
   std::ostringstream os;
   os << "# Domains:" << std::endl;
   int stmt_count = 1;
@@ -300,7 +300,14 @@ std::string Schedule::codegenToISCC( ) const {
   for( int i = 1; i < stmt_count; i += 1 ){
     os << ((i>1)?"+":"") << "S" << i;
   }
-  os << ") );";
+  os << ") )";
+
+  SubspaceManager& manager = this->getSubspaceManager();
+  Subspace* nest = manager.get_nest();
+
+  os << "{ [" << manager.get_input_iterators() << "] -> "
+     << "separate[" << nest->get( nest->size() , false ) << "] };";
+
   return std::string( os.str() );
 }
 
@@ -348,7 +355,7 @@ int Schedule::decrementDepth(){
   return this->getDepth();
 }
 
-std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule){
+std::ostream& LoopChainIR::operator<<( std::ostream& os, Schedule& schedule){
   return os << schedule.codegenToISCC() ;
 }
 
