@@ -209,7 +209,7 @@ namespace LoopChainIR {
     IslAstRoot* codegenToIslAst();
 
     /*! \brief Generates ISCC code that can be used by the ISCC interpreter to generate code equivalent to the output of ISL */
-    std::string codegenToISCC( );
+    std::string codegenToISCC( ) const;
 
     /*! \brief Get a reference to the manager. */
     SubspaceManager& getSubspaceManager();
@@ -224,7 +224,7 @@ namespace LoopChainIR {
     int decrementDepth();
 
   public:
-    friend std::ostream& LoopChainIR::operator<<( std::ostream& os, Schedule& schedule);
+    friend std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule);
 
   };
 
