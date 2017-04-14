@@ -39,8 +39,6 @@ namespace LoopChainIR {
 
 namespace LoopChainIR {
 
-  __isl_give isl_schedule_node *node_set_options( __isl_take isl_schedule_node *node, void *user );
-
   /*!
   \brief
   Encapsulates a loop chain and its transformation schedules.
