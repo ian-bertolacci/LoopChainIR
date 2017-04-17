@@ -39,6 +39,16 @@ bool Tuple::isEmptyTuple() const {
   return this->dimensions() == 0;
 }
 
+bool Tuple::isZeroTuple() const {
+  for( int element : this->tuple ){
+    if( element != 0 ){
+      return false;
+    }
+  }
+
+  return true;
+}
+
 Tuple::iterator Tuple::begin(){
   return this->tuple.begin();
 }
@@ -282,6 +292,10 @@ TupleCollection Dataspace::reads() const {
 
 TupleCollection Dataspace::writes() const {
   return TupleCollection( this->write_collection );
+}
+
+TupleCollection Dataspace::allAccesses() const {
+  return TupleCollection( this->reads(), this->writes() );
 }
 
 Tuple::size_type Dataspace::dimensions() const {

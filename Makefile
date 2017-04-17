@@ -30,7 +30,7 @@ MAKE_JOBS=2
 
 # Compiler and flags
 CXX=g++
-CXXFLAGS += -g -Wall -Wextra -pthread
+CXXFLAGS += -g -DUSE_CBC -DUSE_CLP -DUSE_GLOP -Wall -Wno-deprecated -Wextra -lortools -lz -lrt -pthread
 CPPFLAGS += --std=c++11 -isystem $(SOURCE_INC) -I$(SOURCE_INC) -I$(INCLUDE)
 
 # Test Variables
@@ -48,6 +48,7 @@ UNIT_TESTS = 	RectangularDomain_test \
 							DefaultSequentialTransformation_test \
 							FusionTransformation_test \
 							ShiftTransformation_test \
+							AutomaticShiftTransformation_test \
 							TileTransformation_test
 
 INT_TEST = 	1N_1D_shift_1.test \
@@ -84,6 +85,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/Subspace.o \
 			 $(BIN)/DefaultSequentialTransformation.o \
 			 $(BIN)/ShiftTransformation.o \
+			 $(BIN)/AutomaticShiftTransformation.o \
 			 $(BIN)/TileTransformation.o \
 			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/IslAstRoot.o \
@@ -113,7 +115,7 @@ integration-tests: $(EXE)
 
 $(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -Wl,-rpath -Wl,$(SOURCE_LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -L$(SOURCE_LIB) -o $(UNIT_TEST_BIN)/$@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -Wl,-rpath -Wl,$(SOURCE_LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -lortools -lz -lrt -lpthread -L$(SOURCE_LIB) -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
 
 $(INT_TEST): $(EXE)

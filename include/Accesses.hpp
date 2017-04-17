@@ -34,6 +34,7 @@ namespace LoopChainIR {
 
       size_type dimensions() const;
       bool isEmptyTuple() const;
+      bool isZeroTuple() const;
       iterator begin();
       iterator end();
 
@@ -89,6 +90,7 @@ namespace LoopChainIR {
 
       TupleCollection reads() const;
       TupleCollection writes() const;
+      TupleCollection allAccesses() const;
       Tuple::size_type dimensions() const;
 
       std::string str() const;

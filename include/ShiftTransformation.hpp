@@ -125,57 +125,6 @@ namespace LoopChainIR {
     std::vector<std::string> apply( Schedule& schedule );
   };
 
-  class DataspaceMinMax {
-    public:
-      const std::string name;
-    private:
-      Tuple maxReads_tuple,
-            minReads_tuple,
-            maxWrites_tuple,
-            minWrites_tuple;
-    public:
-      DataspaceMinMax( const Dataspace& dataspace );
-      DataspaceMinMax( const DataspaceMinMax& that );
-
-      Tuple maxRead() const;
-      Tuple minRead() const;
-      Tuple maxWrite() const;
-      Tuple minWrite() const;
-
-      void postShiftUpdate( const Tuple& extent );
-      void selfUnion( const DataspaceMinMax& dataspace_minmax );
-      void selfUnion( const Dataspace& dataspace );
-
-      std::string str() const;
-      friend std::ostream& LoopChainIR::operator<<( std::ostream& os, const DataspaceMinMax& dataspace );
-  };
-
-  class DataspaceMinMaxCollection {
-    private:
-      std::map< std::string, DataspaceMinMax > dataspaces;
-    public:
-      typedef std::map< std::string, DataspaceMinMax >::iterator iterator;
-      DataspaceMinMaxCollection( );
-      DataspaceMinMaxCollection( std::list<DataspaceMinMax> dataspaces );
-      DataspaceMinMaxCollection( std::list<Dataspace> dataspaces );
-      void postShiftUpdate( const Tuple& extent );
-      void selfUnion( const DataspaceMinMax& dataspace_minmax );
-      void selfUnion( const Dataspace& dataspace );
-
-      iterator begin();
-      iterator end();
-      bool contains( std::string name ) const;
-      DataspaceMinMax& operator[]( std::string name );
-      const DataspaceMinMax& operator[]( std::string name ) const;
-
-      std::string str() const;
-      friend std::ostream& LoopChainIR::operator<<( std::ostream& os, const DataspaceMinMaxCollection& collection );
-  };
-
-  std::list<Tuple> computeShiftTuplesForFusion( const LoopChain& chain );
-
-  std::list<ShiftTransformation*> computeShiftForFusion( const LoopChain& chain );
-
 }
 
 #endif

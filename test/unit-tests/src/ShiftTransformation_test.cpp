@@ -607,6 +607,7 @@ TEST(ShiftTransformationTest, Assertion_Test_extents_gt_domain) {
   ASSERT_THROW( sched.apply( schedulers ), assert_exception );
 }
 
+/*
 TEST( DataSpaceMinMax_test, construct ){
   Dataspace dataspace_b(  "B",
                           TupleCollection( {
@@ -769,6 +770,7 @@ TEST( DataspaceMinMax_test, postShiftUpdate_empty ){
   EXPECT_EQ( min_max.maxWrite(), Tuple::createMagicEmptyTuple() );
   EXPECT_EQ( min_max.minWrite(), Tuple::createMagicEmptyTuple() );
 }
+
 TEST( DataspaceMinMax_test, selfUnion_empty ){
   Dataspace dataspace_a(  "A",
                           // reads
@@ -1058,6 +1060,79 @@ TEST( computeShiftTuplesForFusion_test, unrolled_jacobi_1D ){
   list<Tuple> test = computeShiftTuplesForFusion( chain );
   list<Tuple> actual = { Tuple({0}), Tuple({1}) };
 
+  //ASSERT_EQ( test.size(), actual.size() );
+  for( list<Tuple>::iterator test_it = test.begin(), actual_it = actual.begin();
+       test_it != test.end() && actual_it != actual.end();
+       ++test_it, ++actual_it ){
+    //ASSERT_EQ( *test_it, *actual_it );
+  }
+}
+
+TEST( computeShiftTuplesForFusion_test, unrolled_jacobi_1D ){
+
+  LoopChain chain;
+  string lower[1] = { "1" };
+  string upper[1] = { "N" };
+
+  chain.append(
+    LoopNest(
+      RectangularDomain( lower, upper, 1 ),
+      {
+        Dataspace(
+          "B",
+          // Reads
+          TupleCollection({
+            Tuple({ -1 }),
+            Tuple({  0 }),
+            Tuple({  1 }),
+          }),
+          // writes
+          TupleCollection( 1 )
+        ),
+        Dataspace(
+          "A",
+          // Reads
+          TupleCollection( 1 ),
+          // writes
+          TupleCollection({
+            Tuple({ 0 })
+          })
+        )
+      }
+    )
+  );
+
+  chain.append(
+    LoopNest(
+      RectangularDomain( lower, upper, 1 ),
+      {
+        Dataspace(
+          "A",
+          // Reads
+          TupleCollection({
+            Tuple({ -1 }),
+            Tuple({  0 }),
+            Tuple({  1 }),
+          }),
+          // writes
+          TupleCollection( 1 )
+        ),
+        Dataspace(
+          "B",
+          // Reads
+          TupleCollection( 1 ),
+          // writes
+          TupleCollection({
+            Tuple({ 0 })
+          })
+        )
+      }
+    )
+  );
+
+  list<Tuple> test = computeShiftTuplesForFusion( chain );
+  list<Tuple> actual = { Tuple({0}), Tuple({1}) };
+
   ASSERT_EQ( test.size(), actual.size() );
   for( list<Tuple>::iterator test_it = test.begin(), actual_it = actual.begin();
        test_it != test.end() && actual_it != actual.end();
@@ -1143,7 +1218,6 @@ TEST( computeShiftTuplesForFusion_test, unrolled_jacobi_2D ){
   }
 }
 
-
 TEST( computeShiftForFusion_test, unrolled_jacobi_2D_with_transforms ){
 
   LoopChain chain;
@@ -1225,5 +1299,5 @@ TEST( computeShiftForFusion_test, unrolled_jacobi_2D_with_transforms ){
     }
     cout << ")" << endl;
   }
-  */
 }
+*/
