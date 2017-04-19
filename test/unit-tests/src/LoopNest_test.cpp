@@ -78,41 +78,34 @@ TEST(LoopNestTest, Test_Getters_1D_Symbols) {
 }
 
 TEST( LoopNestTest, construct_dataspaces ){
-  // Construct domain
-  string lower[1] = { "0" };
-  string upper[1] = { "N" };
-  string symbols[1] = { "N" };
-
-  RectangularDomain domain( lower, upper, 1, symbols, 1 );
-
-  Dataspace dataspace_a(  "A",
-                          TupleCollection( {
-                            Tuple( {  0, -1 } ),
-                            Tuple( { -1,  0 } ),
-                            Tuple( {  0,  0 } ),
-                            Tuple( {  0,  1 } ),
-                            Tuple( {  1,  0 } )
-                          } ),
-                          TupleCollection( {
-                            Tuple( {  0,  0 } )
-                          } )
-                      );
-
-  Dataspace dataspace_b(  "B",
-                          TupleCollection( {
-                            Tuple( {  0, -1 } ),
-                            Tuple( { -1,  0 } ),
-                            Tuple( {  0,  0 } ),
-                            Tuple( {  0,  1 } ),
-                            Tuple( {  1,  0 } )
-                          } ),
-                          TupleCollection( {
-                            Tuple( {  0,  0 } )
-                          } )
-                      );
-
-
-
   // COnstruct LoopNest from domain
-  LoopNest nest( domain, { dataspace_a, dataspace_b } );
+  LoopNest nest(
+      RectangularDomain( { make_pair( "0", "N") }, {"N" } ),
+      {
+        Dataspace(  "A",
+                    TupleCollection( {
+                      Tuple( {  0, -1 } ),
+                      Tuple( { -1,  0 } ),
+                      Tuple( {  0,  0 } ),
+                      Tuple( {  0,  1 } ),
+                      Tuple( {  1,  0 } )
+                    } ),
+                    TupleCollection( {
+                      Tuple( {  0,  0 } )
+                    } )
+                ),
+        Dataspace(  "B",
+                    TupleCollection( {
+                      Tuple( {  0, -1 } ),
+                      Tuple( { -1,  0 } ),
+                      Tuple( {  0,  0 } ),
+                      Tuple( {  0,  1 } ),
+                      Tuple( {  1,  0 } )
+                    } ),
+                    TupleCollection( {
+                      Tuple( {  0,  0 } )
+                    } )
+                )
+      }
+  );
 }

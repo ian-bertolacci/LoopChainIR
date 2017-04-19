@@ -35,7 +35,7 @@ TEST(TileTransformationTest, GEN_1N_1D_Empty_Loop) {
 
   // Create tiling extents
   TileTransformation::TileMap extents;
-  extents[1] = "10";
+  extents[0] = "10";
   schedulers.push_back( new TileTransformation(0, extents) );
 
   // Create Schedule object from chain
@@ -66,7 +66,7 @@ TEST(TileTransformationTest, GEN_1N_1D) {
 
   // Create tiling extents
   TileTransformation::TileMap extents;
-  extents[1] = "10";
+  extents[0] = "10";
   schedulers.push_back( new TileTransformation(0, extents) );
 
   // Create Schedule object from chain
@@ -104,7 +104,7 @@ TEST(TileTransformationTest, GEN_2N_1D_0) {
 
   // Create tiling extents
   TileTransformation::TileMap extents;
-  extents[1] = "10";
+  extents[0] = "10";
   schedulers.push_back( new TileTransformation(0, extents) );
 
   // Create Schedule object from chain
@@ -142,7 +142,7 @@ TEST(TileTransformationTest, GEN_2N_1D_1) {
 
   // Create tiling extents
   TileTransformation::TileMap extents;
-  extents[1] = "10";
+  extents[0] = "10";
   schedulers.push_back( new TileTransformation(1, extents) );
 
   // Create Schedule object from chain
@@ -172,8 +172,8 @@ TEST(TileTransformationTest, GEN_1N_2D) {
 
   // Create tiling extents
   TileTransformation::TileMap extents;
+  extents[0] = "10";
   extents[1] = "10";
-  extents[2] = "10";
   schedulers.push_back( new TileTransformation(0, extents) );
 
   // Create Schedule object from chain
@@ -211,8 +211,8 @@ TEST(TileTransformationTest, GEN_2N_2D_0) {
 
   // Create tiling extents
   TileTransformation::TileMap extents;
+  extents[0] = "10";
   extents[1] = "10";
-  extents[2] = "10";
   schedulers.push_back( new TileTransformation(0, extents) );
 
   // Create Schedule object from chain
@@ -250,8 +250,8 @@ TEST(TileTransformationTest, GEN_2N_2D_1) {
 
   // Create tiling extents
   TileTransformation::TileMap extents;
+  extents[0] = "10";
   extents[1] = "10";
-  extents[2] = "10";
   schedulers.push_back( new TileTransformation(1, extents) );
 
   // Create Schedule object from chain
@@ -290,14 +290,14 @@ TEST(TileTransformationTest, GEN_2N_2D_2) {
   // Create tiling extents
   {
     TileTransformation::TileMap extents;
+    extents[0] = "10";
     extents[1] = "10";
-    extents[2] = "10";
     schedulers.push_back( new TileTransformation(0, extents) );
   }
   {
     TileTransformation::TileMap extents;
+    extents[0] = "10";
     extents[1] = "10";
-    extents[2] = "10";
     schedulers.push_back( new TileTransformation(1, extents) );
   }
   // Create Schedule object from chain
@@ -327,8 +327,8 @@ TEST(TileTransformationTest, GEN_1N_2D_multi_extent) {
 
   // Create tiling extents
   TileTransformation::TileMap extents;
-  extents[1] = "2";
-  extents[2] = "5";
+  extents[0] = "2";
+  extents[1] = "5";
 
   // Append the Default Sequential transformation to the list. (It's first)
   schedulers.push_back( new TileTransformation(0, extents ) );
@@ -359,7 +359,7 @@ TEST(TileTransformationTest, GEN_1N_2D_fewer_extents) {
 
   // Create tiling extents
   TileTransformation::TileMap extents;
-  extents[1] = "12345";
+  extents[0] = "12345";
 
   // Append the Default Sequential transformation to the list. (It's first)
   schedulers.push_back( new TileTransformation(0, extents ) );
@@ -389,7 +389,7 @@ TEST( TileTransformation_test, 1N_1D_shift_within ){
 
   // Create tiling extents
   TileTransformation::TileMap extents;
-  extents[1] = "10";
+  extents[0] = "10";
   schedulers.push_back( new TileTransformation(0, extents, new DefaultSequentialTransformation(), new ShiftTransformation( 0, "5" ) ) );
 
   // Create Schedule object from chain
@@ -417,7 +417,7 @@ TEST( TileTransformation_test, 1N_1D_shift_over ){
 
   // Create tiling extents
   TileTransformation::TileMap extents;
-  extents[1] = "10";
+  extents[0] = "10";
   schedulers.push_back( new TileTransformation(0, extents, new ShiftTransformation( 0, "5" ), new DefaultSequentialTransformation() ) );
 
   // Create Schedule object from chain
@@ -444,7 +444,7 @@ TEST( TileTransformation_test, 1N_1D_shift_both ){
 
   // Create tiling extents
   TileTransformation::TileMap extents;
-  extents[1] = "10";
+  extents[0] = "10";
   schedulers.push_back( new TileTransformation(0, extents, new ShiftTransformation( 0, "5" ), new ShiftTransformation( 0, "5" ) ) );
 
   // Create Schedule object from chain
@@ -476,7 +476,7 @@ TEST( TileTransformation_test, 2N_1D_tile_one_shift_within ){
 
   // Create tiling extents
   TileTransformation::TileMap extents;
-  extents[1] = "10";
+  extents[0] = "10";
   schedulers.push_back( new TileTransformation(0, extents, new DefaultSequentialTransformation(), new ShiftTransformation( 0, "5" ) ) );
 
   // Create Schedule object from chain
@@ -503,10 +503,10 @@ TEST( TileTransformation_test, 1N_2D_nested_1 ){
 
   // Create tiling extents
   TileTransformation::TileMap extents_1, extents_2;
+  extents_1[0] = "2";
   extents_1[1] = "2";
-  extents_1[2] = "2";
 
-  extents_2[1] = "2";
+  extents_2[0] = "2";
 
   schedulers.push_back(
     new TileTransformation(0, extents_1,
@@ -539,10 +539,10 @@ TEST( TileTransformation_test, 1N_2D_nested_2 ){
 
   // Create tiling extents
   TileTransformation::TileMap extents_1, extents_2;
+  extents_1[0] = "2";
   extents_1[1] = "2";
-  extents_1[2] = "2";
 
-  extents_2[1] = "4";
+  extents_2[0] = "4";
 
   schedulers.push_back(
     new TileTransformation(0, extents_2,

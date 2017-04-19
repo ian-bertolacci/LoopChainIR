@@ -47,6 +47,7 @@ UNIT_TESTS = 	RectangularDomain_test \
 							Schedule_test \
 							DefaultSequentialTransformation_test \
 							FusionTransformation_test \
+							AutomaticShiftTransformation_test \
 							ShiftTransformation_test \
 							TileTransformation_test
 
@@ -88,6 +89,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/IslAstRoot.o \
 			 $(BIN)/Accesses.o \
+			 $(BIN)/AutomaticShiftTransformation.o \
 			 $(BIN)/util.o
 
 
