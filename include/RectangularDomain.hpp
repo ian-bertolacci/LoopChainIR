@@ -76,6 +76,20 @@ namespace LoopChainIR{
     RectangularDomain( std::string input_lower_bounds[], std::string input_upper_bounds[], size_type dimensions );
 
     /*!
+    \param[in] lower_bounds ordered vector of lower bounds
+    \param[in] upper_bounds ordered vector of upper bounds
+    \param[in] symbols the set of symbols found in the bounds
+    */
+    RectangularDomain( std::vector<std::string> lower_bounds, std::vector<std::string> upper_bounds, std::set<std::string> symbols );
+
+    /*!
+    \param[in] bounds ordered vector of pairs of bounds (lower, upper)
+    \param[in] symbols the set of symbols found in the bounds
+    */
+    RectangularDomain( std::vector< std::pair<std::string,std::string> > bounds, std::set<std::string> symbols );
+
+
+    /*!
     \param[in] RectangularDomain to append
     */
     void append(RectangularDomain d);

@@ -38,6 +38,7 @@ namespace LoopChainIR {
 }
 
 namespace LoopChainIR {
+
   /*!
   \brief
   Encapsulates a loop chain and its transformation schedules.
@@ -55,6 +56,7 @@ namespace LoopChainIR {
     std::vector<std::string> domains;
     std::string statement_prefix;
     std::string root_statement_symbol;
+    std::string iterator_prefix;
     SubspaceManager manager;
     int depth;
 
@@ -68,7 +70,7 @@ namespace LoopChainIR {
     size_type append( std::string text );
 
   public:
-    Schedule( LoopChain& chain, std::string statement_prefix = std::string("") );
+    Schedule( LoopChain& chain, std::string statement_prefix = std::string(""), std::string iterator_prefix = "c" );
     /*!
     \returns The length (in symbols) of the loop chain's iterator.
     */
@@ -182,6 +184,8 @@ namespace LoopChainIR {
     std::string copy of the root statement symbol.
     */
     std::string getRootStatementSymbol();
+
+    std::string getIteratorPrefix();
 
     /*!
     \brief

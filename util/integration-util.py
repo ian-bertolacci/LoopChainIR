@@ -999,7 +999,7 @@ class ExecutableRegressionTest( RegressionTest ):
           "{",
           "TileTransformation::TileMap extents;"
         ] \
-        + map( lambda i: "extents[{0}] = \"{1}\";".format(i[0], i[1]), extents.items() ) \
+        + map( lambda i: "extents[{0}] = \"{1}\";".format( str( int(i[0])-1), i[1]), extents.items() ) \
         + [
           "schedulers.push_back( new TileTransformation({0}, extents) );".format(loopid),
           "}"
