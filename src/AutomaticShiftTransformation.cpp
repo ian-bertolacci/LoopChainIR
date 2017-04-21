@@ -42,8 +42,12 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
   std::vector< MPConstraint* > constraints;
 
   int max_on_dims[dimensions];
+  int min_on_dims[dimensions];
   for( int& initial_max : max_on_dims ){
     initial_max = numeric_limits<int>::min();
+  }
+  for( int& initial_min : min_on_dims ){
+    initial_min = numeric_limits<int>::max();
   }
 
   std::map< LoopChain::size_type, std::map<std::string, Dataspace> > dataspaces;
@@ -53,7 +57,7 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
     // Make shift tuple for this nest
     std::vector<MPVariable*>* nest_shifts = new std::vector<MPVariable*>();
     solver.MakeIntVarArray( dimensions,
-                            0, infinity,
+                            -infinity, infinity,
                             SSTR("shift_" << nest_idx << "_"),
                             nest_shifts
                           );
@@ -61,7 +65,7 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
 
     // Setup objective SUM( S_yd - S_xd )
     for( MPVariable* variable : *nest_shifts ){
-      //objective->SetCoefficient( variable, 2*((double)nest_idx) - ((double)chain.length())+1 );
+      //objective->SetCoefficient( variable, 2*((double)nest_idx) - ((double)chain.length()) + 1 );
       objective->SetCoefficient( variable, 1 );
     }
 
@@ -122,6 +126,9 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
                 if( max_on_dims[d] < constant ){
                   max_on_dims[d] = constant;
                 }
+                if( min_on_dims[d] > constant ){
+                  min_on_dims[d] = constant;
+                }
                 // Construct constraint constant <= nest_shift_d - prev_shift
                 MPConstraint* constraint = solver.MakeRowConstraint( constant , infinity);
                 constraint->SetCoefficient(     (*nest_shifts)[d],  1 );
@@ -161,7 +168,7 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
     } // for( previous_idx )
   } // for( nest_idx )
 
-
+  cout << "max on dims ";
   for( int& max : max_on_dims ){
     cout << max << " ";
   }
@@ -171,6 +178,7 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
     std::vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
     for( Subspace::size_type d = 0; d < dimensions; ++d  ){
       nests_shifts->operator[]( d )->SetUB( max_on_dims[d] );
+      nests_shifts->operator[]( d )->SetLB( min_on_dims[d] );
     }
     for( MPVariable* var : *nests_shifts ){
       cout << var->lb() << " <= " << var->name() << " <= " << var->ub() << endl;
@@ -215,7 +223,7 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
   std::vector<ShiftTransformation*> transformations;
   if( constraints.size() > 0 ){
     objective->SetMinimization();
-    cout << "Objective is " << ( objective->minimization()?"":"not ") << " minimization problem" << endl;
+    cout << "Objective is a " << ( objective->minimization()?"minimization":"maximization") << " problem" << endl;
     MPSolver::ResultStatus result_status = solver.Solve();
 
     // Check that the problem has an optimal solution.

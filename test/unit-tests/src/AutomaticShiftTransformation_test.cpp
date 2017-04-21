@@ -256,7 +256,7 @@ TEST( AutomaticShiftTransformation_test, MFD_TripleCache ){
       LoopNest(
         RectangularDomain( lower, upper, 3, symbols ),
         {
-          Dataspace(  "NEW_2",
+          Dataspace(  "NEW",
                       TupleCollection( 3 ),
                       TupleCollection({ Tuple({ 0,0,0 }) })
                     ),
@@ -321,7 +321,7 @@ TEST( AutomaticShiftTransformation_test, MFD_TripleCache ){
       LoopNest(
         RectangularDomain( lower, upper, 3, symbols ),
         {
-          Dataspace(  "NEW_5",
+          Dataspace(  "NEW",
                       TupleCollection( 3 ),
                       TupleCollection({ Tuple({ 0,0,0 }) })
                     ),
@@ -386,7 +386,7 @@ TEST( AutomaticShiftTransformation_test, MFD_TripleCache ){
       LoopNest(
         RectangularDomain( lower, upper, 3, symbols ),
         {
-          Dataspace(  "NEW_8",
+          Dataspace(  "NEW",
                       TupleCollection( 3 ),
                       TupleCollection({ Tuple({ 0,0,0 }) })
                     ),
@@ -403,5 +403,5 @@ TEST( AutomaticShiftTransformation_test, MFD_TripleCache ){
 
   Schedule sched( chain );
   sched.apply( transformations );
-  cout << sched << endl;
+  //cout << sched << endl;
 }
