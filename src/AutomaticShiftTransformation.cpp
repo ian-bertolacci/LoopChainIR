@@ -31,7 +31,7 @@ vector<string> AutomaticShiftTransformation::apply( Schedule& schedule, Subspace
 }
 
 
-vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion( Subspace::size_type dimensions, LoopChain chain ){
+vector<Tuple> AutomaticShiftTransformation::computeShiftTuplesForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple ) {
   const bool debug = false;
   MPSolver solver("ShiftSolver", MPSolver::CBC_MIXED_INTEGER_PROGRAMMING);
 
@@ -154,12 +154,8 @@ vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion
     } // for( previous_idx )
   } // for( nest_idx )
 
-  cout << endl;
-
-  vector<ShiftTransformation*> transformations;
-
   if( debug )
-    cout << "=========================================" << endl;
+    cout << endl << "=========================================" << endl;
 
   for( map< pair<MPVariable*,MPVariable*>, int >::value_type key_value : max_difference_map ){
     MPVariable* prev_shift = key_value.first.first;
@@ -192,7 +188,6 @@ vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion
   }
 
   if( debug ){
-
     cout << "Num constraints: " << constraints.size() << endl;
     cout << "Constraints:" << endl;
     for( MPConstraint* constraint : constraints ){
@@ -228,6 +223,7 @@ vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion
     }
   }
 
+  vector<Tuple> shift_tuples;
 
   if( constraints.size() > 0 ){
     objective->SetMinimization();
@@ -238,18 +234,20 @@ vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion
 
     // Check that the problem has an optimal solution.
     if( result_status != MPSolver::OPTIMAL ) {
-      cerr << "The problem does not have an optimal solution!" << endl;
-      cerr << "it is ";
+      ostringstream error_stream;
+      error_stream << "The problem does not have an optimal solution!" << endl
+                   << "it is ";
       switch( result_status ){
-        case MPSolver::FEASIBLE : { cerr << " FEASIBLE." << endl; break; }
-        case MPSolver::INFEASIBLE : { cerr << " INFEASIBLE." << endl; break; }
-        case MPSolver::UNBOUNDED : { cerr << " UNBOUNDED." << endl; break; }
-        case MPSolver::ABNORMAL : { cerr << " ABNORMAL." << endl; break; }
-        case MPSolver::MODEL_INVALID : { cerr << " MODEL_INVALID." << endl; break; }
-        case MPSolver::NOT_SOLVED : { cerr << " NOT_SOLVED." << endl; break; }
+        case MPSolver::FEASIBLE : { error_stream << " FEASIBLE." << endl; break; }
+        case MPSolver::INFEASIBLE : { error_stream << " INFEASIBLE." << endl; break; }
+        case MPSolver::UNBOUNDED : { error_stream << " UNBOUNDED." << endl; break; }
+        case MPSolver::ABNORMAL : { error_stream << " ABNORMAL." << endl; break; }
+        case MPSolver::MODEL_INVALID : { error_stream << " MODEL_INVALID." << endl; break; }
+        case MPSolver::NOT_SOLVED : { error_stream << " NOT_SOLVED." << endl; break; }
         default:
-          cerr << " something??? " << result_status << endl;
+          error_stream << " some unlisted status: " << result_status << endl;
       }
+      assertWithException( result_status == MPSolver::OPTIMAL, error_stream.str() );
     } else {
       if( debug )
         cout << "Optimal objective value = " << objective->Value() << endl;
@@ -278,11 +276,24 @@ vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion
 
         Tuple tuple( extents );
 
-        if( !tuple.isZeroTuple() ){
-          transformations.push_back( new ShiftTransformation( nest_id, tuple ) );
+        if( include_zero_tuple || !tuple.isEmptyTuple() ){
+          shift_tuples.push_back( tuple );
         }
       }
     }
+  }
+
+  return shift_tuples;
+}
+
+vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple ){
+  vector<Tuple> shift_tuples = computeShiftTuplesForFusion( dimensions, chain );
+  vector<ShiftTransformation*> transformations;
+
+  LoopChain::size_type nest_id = 0;
+  for( Tuple tuple : shift_tuples ){
+    transformations.push_back( new ShiftTransformation( nest_id, tuple ) );
+    ++nest_id;
   }
 
   return transformations;

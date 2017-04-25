@@ -56,8 +56,9 @@ namespace LoopChainIR {
     */
     std::vector<std::string> apply( Schedule& schedule );
 
-  private:
-    std::vector<ShiftTransformation*> computeShiftForFusion( Subspace::size_type dimensions, LoopChain chain );
+    public:
+      static std::vector<ShiftTransformation*> computeShiftForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple = false );
+      static std::vector<Tuple> computeShiftTuplesForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple = false  );
 
   };
 
