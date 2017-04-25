@@ -56,7 +56,54 @@ TEST( AutomaticShiftTransformation_test, noshift){
 
   Schedule sched( chain );
   sched.apply( transformations );
+  cout << sched << endl;
+}
 
+TEST( AutomaticShiftTransformation_test, negative){
+  LoopChain chain;
+
+  string lower[1] = {"0"};
+  string upper[1] = {"10"};
+
+  chain.append(
+    LoopNest(
+      RectangularDomain( lower, upper, 1 ),
+      {
+        Dataspace(
+          "A",
+          // Reads
+          TupleCollection( 1 ),
+          // writes
+          TupleCollection({
+            Tuple({ 0 }),
+          })
+        )
+      }
+    )
+  );
+
+  chain.append(
+    LoopNest(
+      RectangularDomain( lower, upper, 1 ),
+      {
+        Dataspace(
+          "A",
+          // Reads
+          TupleCollection({
+            Tuple({ -1 }),
+          }),
+          // writes
+          TupleCollection( 1 )
+        )
+      }
+    )
+  );
+
+  std::vector<Transformation*> transformations = { new AutomaticShiftTransformation() };
+
+  Schedule sched( chain );
+  sched.apply( transformations );
+  cout << sched << endl;
 }
 
 TEST( AutomaticShiftTransformation_test, jacobi1d_unrolled){
@@ -147,6 +194,8 @@ TEST( AutomaticShiftTransformation_test, jacobi2d_unrolled){
             Tuple({  1,  0 }),
             Tuple({  0,  1 }),
             Tuple({  0,  0 }),
+            Tuple({  0,  2 }),
+            Tuple({  2,  0 }),
           }),
           // writes
           TupleCollection( 2 )
@@ -177,6 +226,8 @@ TEST( AutomaticShiftTransformation_test, jacobi2d_unrolled){
             Tuple({  1,  0 }),
             Tuple({  0,  1 }),
             Tuple({  0,  0 }),
+            Tuple({  0,  2 }),
+            Tuple({  2,  0 }),
           }),
           // writes
           TupleCollection( 2 )
@@ -403,5 +454,148 @@ TEST( AutomaticShiftTransformation_test, MFD_TripleCache ){
 
   Schedule sched( chain );
   sched.apply( transformations );
+  cout << sched << endl;
+}
+
+/*
+TEST( AutomaticShiftTransformation_test, MFD_2D_TripleCache ){
+  LoopChain chain;
+
+  std::set<std::string> symbols = { "numcells" };
+
+  {
+    string lower[2] = { "0", "0" };
+    string upper[2] = { "numCell-1", "numCell" };
+
+    // L0
+    chain.append(
+      LoopNest(
+        RectangularDomain( lower, upper, 2, symbols ),
+        {
+          Dataspace(  "CACHEX",
+                      TupleCollection( 2 ),
+                      TupleCollection({ Tuple({ 0,0 }) })
+                    ),
+          Dataspace(  "OLD",
+                      TupleCollection({ Tuple({ 0,-2 }), Tuple({ 0,-1 }), Tuple({ 0,0 }), Tuple({ 0,1 }) }),
+                      TupleCollection( 2 )
+                    )
+        }
+      )
+    );
+  }
+
+  // L1
+  {
+    string lower[2] = { "0", "0" };
+    string upper[2] = { "numCell-1", "numCell-1" };
+
+    chain.append(
+      LoopNest(
+        RectangularDomain( lower, upper, 2, symbols ),
+        {
+          Dataspace(  "CACHEX",
+                      TupleCollection({ Tuple({ 0,0 }) }),
+                      TupleCollection({ Tuple({ 0,0 }) })
+                    )
+        }
+      )
+    );
+  }
+
+
+  // L2
+  {
+    string lower[2] = { "0", "0" };
+    string upper[2] = { "numCell", "numCell-1" };
+
+    chain.append(
+      LoopNest(
+        RectangularDomain( lower, upper, 2, symbols ),
+        {
+          Dataspace(  "NEW",
+                      TupleCollection( 2 ),
+                      TupleCollection({ Tuple({ 0,0 }) })
+                    ),
+          Dataspace(  "CACHEX",
+                      TupleCollection({ Tuple({ 0,1 }), Tuple({ 0,0 }) }),
+                      TupleCollection( 2 )
+                    )
+        }
+      )
+    );
+  }
+
+
+  // L3
+  {
+    string lower[2] = { "0", "0" };
+    string upper[2] = { "numCell", "numCell-1" };
+
+    chain.append(
+      LoopNest(
+        RectangularDomain( lower, upper, 2, symbols ),
+        {
+          Dataspace( "CACHEY",
+                      TupleCollection( 2 ),
+                      TupleCollection({ Tuple({ 0,0 }) })
+                    ),
+          Dataspace(  "OLD",
+                      TupleCollection({ Tuple({ -2,0 }),Tuple({ -1,0 }),Tuple({ 0,0 }),Tuple({ 1,0 }) }),
+                      TupleCollection( 2 )
+                    )
+        }
+      )
+    );
+  }
+
+
+  // L4
+  {
+    string lower[2] = { "0", "0" };
+    string upper[2] = { "numCell-1", "numCell-1" };
+
+    chain.append(
+      LoopNest(
+        RectangularDomain( lower, upper, 2, symbols ),
+        {
+          Dataspace(  "CACHEY",
+                      TupleCollection({ Tuple({ 0,0 }) }),
+                      TupleCollection({ Tuple({ 0,0 }) })
+                    )
+        }
+      )
+    );
+  }
+
+
+  // L5
+  {
+    string lower[2] = { "0", "0" };
+    string upper[2] = { "numCell-1", "numCell-1" };
+
+    chain.append(
+      LoopNest(
+        RectangularDomain( lower, upper, 2, symbols ),
+        {
+          Dataspace(  "NEW",
+                      TupleCollection( 2 ),
+                      TupleCollection({ Tuple({ 0,0 }) })
+                    ),
+          Dataspace(  "CACHEY",
+                      TupleCollection({ Tuple({ 1,0 }),Tuple({ 0,0 }) }),
+                      TupleCollection( 2 )
+                    )
+        }
+      )
+    );
+  }
+
+
+  std::vector<Transformation*> transformations = { new AutomaticShiftTransformation() };
+
+  Schedule sched( chain );
+  sched.apply( transformations );
   //cout << sched << endl;
 }
+*/

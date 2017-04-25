@@ -14,16 +14,16 @@ using namespace operations_research;
 
 AutomaticShiftTransformation::AutomaticShiftTransformation(){ }
 
-std::vector<std::string> AutomaticShiftTransformation::apply( Schedule& schedule ){
-  return this->apply( schedule, *(std::next(schedule.getSubspaceManager().get_iterator_to_loops())));
+vector<string> AutomaticShiftTransformation::apply( Schedule& schedule ){
+  return this->apply( schedule, *(next(schedule.getSubspaceManager().get_iterator_to_loops())));
 }
 
-std::vector<std::string> AutomaticShiftTransformation::apply( Schedule& schedule, Subspace* subspace ){
-  std::vector<std::string> transformations;
+vector<string> AutomaticShiftTransformation::apply( Schedule& schedule, Subspace* subspace ){
+  vector<string> transformations;
 
-  std::vector<ShiftTransformation*> shift_transformations = this->computeShiftForFusion( subspace->size() , schedule.getChain() );
+  vector<ShiftTransformation*> shift_transformations = this->computeShiftForFusion( subspace->size() , schedule.getChain() );
   for( ShiftTransformation* shift : shift_transformations ){
-    std::vector<std::string> shifts = shift->apply( schedule );
+    vector<string> shifts = shift->apply( schedule );
     transformations.insert( transformations.end(), shifts.begin(), shifts.end() );
   }
 
@@ -31,31 +31,24 @@ std::vector<std::string> AutomaticShiftTransformation::apply( Schedule& schedule
 }
 
 
-std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion( Subspace::size_type dimensions, LoopChain chain ){
+vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion( Subspace::size_type dimensions, LoopChain chain ){
+  const bool debug = false;
   MPSolver solver("ShiftSolver", MPSolver::CBC_MIXED_INTEGER_PROGRAMMING);
 
   const double infinity = solver.infinity();
 
-  std::map< LoopChain::size_type, std::vector<MPVariable*>* > shift_variables;
+  map< LoopChain::size_type, vector<MPVariable*>* > shift_variables;
+  map< pair<MPVariable*,MPVariable*>, int> max_difference_map;
 
   MPObjective* objective = solver.MutableObjective();
-  std::vector< MPConstraint* > constraints;
+  vector< MPConstraint* > constraints;
 
-  int max_on_dims[dimensions];
-  int min_on_dims[dimensions];
-  for( int& initial_max : max_on_dims ){
-    initial_max = numeric_limits<int>::min();
-  }
-  for( int& initial_min : min_on_dims ){
-    initial_min = numeric_limits<int>::max();
-  }
-
-  std::map< LoopChain::size_type, std::map<std::string, Dataspace> > dataspaces;
-  std::map< LoopChain::size_type, std::set<std::string> > dataspace_names;
+  map< LoopChain::size_type, map<string, Dataspace> > dataspaces;
+  map< LoopChain::size_type, set<string> > dataspace_names;
 
   for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
     // Make shift tuple for this nest
-    std::vector<MPVariable*>* nest_shifts = new std::vector<MPVariable*>();
+    vector<MPVariable*>* nest_shifts = new vector<MPVariable*>();
     solver.MakeIntVarArray( dimensions,
                             -infinity, infinity,
                             SSTR("shift_" << nest_idx << "_"),
@@ -63,15 +56,14 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
                           );
     shift_variables[nest_idx] = nest_shifts;
 
-    // Setup objective SUM( S_yd - S_xd )
+    // Setup objective initial coeffecients
     for( MPVariable* variable : *nest_shifts ){
-      //objective->SetCoefficient( variable, 2*((double)nest_idx) - ((double)chain.length()) + 1 );
       objective->SetCoefficient( variable, 1 );
     }
 
-    std::list<Dataspace> nest_unnamed_dataspaces = chain.getNest(nest_idx).getDataspaces();
-    std::map< std::string, Dataspace > nest_dataspaces;
-    std::set<std::string> nest_dataspace_names;
+    list<Dataspace> nest_unnamed_dataspaces = chain.getNest(nest_idx).getDataspaces();
+    map< string, Dataspace > nest_dataspaces;
+    set<string> nest_dataspace_names;
 
     for( Dataspace dataspace : nest_unnamed_dataspaces ){
       nest_dataspace_names.insert( dataspace.name );
@@ -83,20 +75,20 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
 
     // Doing things with respect to the previous nests
     for( LoopChain::size_type previous_idx = 0; previous_idx < nest_idx; ++previous_idx ){
-      std::vector<MPVariable*>* previous_shifts = shift_variables[previous_idx];
+      vector<MPVariable*>* previous_shifts = shift_variables[previous_idx];
 
       // Setup constraints: c_ywd - C_xwd <= S_yd - S_xd
-      std::map<std::string, Dataspace> previous_dataspaces = dataspaces[previous_idx];
+      map<string, Dataspace> previous_dataspaces = dataspaces[previous_idx];
 
-      std::set<std::string> previous_dataspace_names;
-      for( std::map<std::string, Dataspace>::iterator iter = previous_dataspaces.begin(); iter != previous_dataspaces.end(); ++iter ){
+      set<string> previous_dataspace_names;
+      for( map<string, Dataspace>::iterator iter = previous_dataspaces.begin(); iter != previous_dataspaces.end(); ++iter ){
         previous_dataspace_names.insert( iter->first );
       }
 
       // Determine what dataspaces the pair of loops share
-      std::vector<std::string> common( previous_dataspace_names.size() + nest_dataspace_names.size(), "" );
+      vector<string> common( previous_dataspace_names.size() + nest_dataspace_names.size(), "" );
 
-      std::vector<std::string>::iterator last_insert = std::set_intersection(
+      vector<string>::iterator last_insert = set_intersection(
                             previous_dataspace_names.begin(), previous_dataspace_names.end(),
                             nest_dataspace_names.begin(), nest_dataspace_names.end(),
                             common.begin()
@@ -108,122 +100,140 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
       if( common.size() < 1 ){
         continue;
       }
-      cout << "=========================================\n"
-           << nest_idx << " vs " << previous_idx << endl;
-      for( std::string name : common ){
+
+      if( debug ){
+        cout << "=========================================\n"
+             << nest_idx << " vs " << previous_idx << endl;
+      }
+
+      for( string name : common ){
 
         auto calc_func = [&](TupleCollection nest_collection, TupleCollection prev_collection) {
-
           for( Tuple nest_access_tuple : nest_collection ){
             for( Tuple previous_access_tuple : prev_collection ){
-              cout << nest_access_tuple << " - " << previous_access_tuple << " = ( ";
-
-              bool not_first = false;
-
               for( Subspace::size_type d = 0; d < dimensions; ++d ){
                 // Calculate constant lower bound
-                int constant = nest_access_tuple[d] - previous_access_tuple[d];
-                if( max_on_dims[d] < constant ){
-                  max_on_dims[d] = constant;
-                }
-                if( min_on_dims[d] > constant ){
-                  min_on_dims[d] = constant;
-                }
+                int difference = nest_access_tuple[d] - previous_access_tuple[d];
                 // Construct constraint constant <= nest_shift_d - prev_shift
-                MPConstraint* constraint = solver.MakeRowConstraint( constant , infinity);
-                constraint->SetCoefficient(     (*nest_shifts)[d],  1 );
-                constraint->SetCoefficient( (*previous_shifts)[d], -1 );
-                constraints.push_back( constraint );
 
-                if( not_first ) cout << ", ";
-                not_first = true;
-                cout << constant;
+                auto map_index = make_pair( previous_shifts->at(d), nest_shifts->at(d) );
+                if( max_difference_map.find(map_index) == max_difference_map.end() ){
+                  max_difference_map[map_index] = difference;
+                } else {
+                  max_difference_map[map_index] = max( max_difference_map[map_index], difference );
+                }
+
               } // for d
-
-              cout << " )" << endl;
             } // for previous_access_tuple
           } // for nest_access_tuple
 
         }; // lambda function calc_func
 
-        cout << name << endl;
+        if( debug )
+          cout << name << endl;
+
         Dataspace nest_dataspace = nest_dataspaces.find(name)->second;
         Dataspace previous_dataspace = previous_dataspaces.find(name)->second;
 
         // Writes - writes
-        cout << "Writes - Writes" << endl;
+        if( debug )
+          cout << "Writes - Writes" << endl;
         calc_func( nest_dataspace.writes(), previous_dataspace.writes() );
 
         // Writes - Reads
-        cout << "Writes - Reads" << endl;
+        if( debug )
+          cout << "Writes - Reads" << endl;
         calc_func( nest_dataspace.writes(), previous_dataspace.reads() );
 
         // Reads - Writes
-        cout << "Reads - Writes" << endl;
+        if( debug )
+          cout << "Reads - Writes" << endl;
         calc_func( nest_dataspace.reads(), previous_dataspace.writes() );
-
-
 
       } // for( name : common )
     } // for( previous_idx )
   } // for( nest_idx )
 
-  cout << "max on dims ";
-  for( int& max : max_on_dims ){
-    cout << max << " ";
-  }
   cout << endl;
 
-  for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
-    std::vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
-    for( Subspace::size_type d = 0; d < dimensions; ++d  ){
-      nests_shifts->operator[]( d )->SetUB( max_on_dims[d] );
-      nests_shifts->operator[]( d )->SetLB( min_on_dims[d] );
-    }
-    for( MPVariable* var : *nests_shifts ){
-      cout << var->lb() << " <= " << var->name() << " <= " << var->ub() << endl;
-    }
+  vector<ShiftTransformation*> transformations;
+
+  if( debug )
+    cout << "=========================================" << endl;
+
+  for( map< pair<MPVariable*,MPVariable*>, int >::value_type key_value : max_difference_map ){
+    MPVariable* prev_shift = key_value.first.first;
+    MPVariable* next_shift = key_value.first.second;
+    int max_difference = key_value.second;
+    MPConstraint* constraint = solver.MakeRowConstraint( max_difference, max_difference );
+    constraint->SetCoefficient( next_shift,  1 );
+    constraint->SetCoefficient( prev_shift, -1 );
+    constraints.push_back( constraint );
   }
 
+  for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
+    vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
+    if( debug )
+      cout << "Loop " << nest_idx << endl;
+    for( Subspace::size_type d = 0; d < dimensions; ++d  ){
+      MPVariable* shift = nests_shifts->at( d );
+      shift->SetLB( 0 );
+    }
 
-  cout << "Num constraints: " << constraints.size() << endl;
-  cout << "Constraints:" << endl;
-
-  for( MPConstraint* constraint : constraints ){
-    cout << constraint->lb() << " <= ";
-    bool not_first = false;
-    for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
-      std::vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
-      for( MPVariable* variable : *nests_shifts ){
-        if( constraint->GetCoefficient( variable ) != 0.0 ){
-          if( not_first ) cout << " + ";
-          not_first = true;
-          cout << "( " << constraint->GetCoefficient( variable ) << " * "
-               << variable->name() << " )";
-        }
+    if( debug ){
+      cout << endl;
+      for( MPVariable* var : *nests_shifts ){
+        cout << var->lb() << " <= " << var->name() << " <= " << var->ub() << endl;
       }
     }
-    cout << endl;
+
+    if( debug )
+      cout << "=========================================" << endl;
   }
 
+  if( debug ){
 
-  cout << "coeffecients:" << endl;
-  for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
-    std::vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
-    bool not_first = false;
-    cout << "( ";
-    for( MPVariable* v : *nests_shifts ){
-      if( not_first ) cout << ", ";
-      not_first = true;
-      cout << objective->GetCoefficient( v ) << "*" << v->name();
+    cout << "Num constraints: " << constraints.size() << endl;
+    cout << "Constraints:" << endl;
+    for( MPConstraint* constraint : constraints ){
+      cout << constraint->lb() << " <= ";
+      bool not_first = false;
+      for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
+        vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
+        for( MPVariable* variable : *nests_shifts ){
+          if( constraint->GetCoefficient( variable ) != 0.0 ){
+            if( not_first ) cout << " + ";
+            not_first = true;
+            cout << "( " << constraint->GetCoefficient( variable ) << " * "
+                 << variable->name() << " )";
+          }
+        }
+      }
+      cout << " <= " << constraint->ub() << endl;
     }
-    cout << " )" << endl;
   }
 
-  std::vector<ShiftTransformation*> transformations;
+  if( debug ){
+    cout << "coeffecients:" << endl;
+    for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
+      vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
+      bool not_first = false;
+      cout << "( ";
+      for( MPVariable* v : *nests_shifts ){
+        if( not_first ) cout << ", ";
+        not_first = true;
+        cout << objective->GetCoefficient( v ) << "*" << v->name();
+      }
+      cout << " )" << endl;
+    }
+  }
+
+
   if( constraints.size() > 0 ){
     objective->SetMinimization();
-    cout << "Objective is a " << ( objective->minimization()?"minimization":"maximization") << " problem" << endl;
+    if( debug )
+      cout << "Objective is a " << (objective->minimization()?"minimization":"maximization") << " problem" << endl;
+
     MPSolver::ResultStatus result_status = solver.Solve();
 
     // Check that the problem has an optimal solution.
@@ -241,24 +251,30 @@ std::vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForF
           cerr << " something??? " << result_status << endl;
       }
     } else {
-      cout << "Optimal objective value = " << objective->Value() << endl;
+      if( debug )
+        cout << "Optimal objective value = " << objective->Value() << endl;
 
-      for( std::map< LoopChain::size_type, std::vector<MPVariable*>* >::iterator it = shift_variables.begin();
+      for( map< LoopChain::size_type, vector<MPVariable*>* >::iterator it = shift_variables.begin();
             it != shift_variables.end();
             ++it ){
         LoopChain::size_type nest_id = it->first;
-        std::vector<MPVariable*>* nests_shifts = it->second;
-        std::vector<int> extents;
+        vector<MPVariable*>* nests_shifts = it->second;
+        vector<int> extents;
 
-        cout << nest_id << ": (";
+        if( debug )
+          cout << nest_id << ": (";
         bool not_first = false;
         for( MPVariable* var : *nests_shifts ){
-          if( not_first ) cout << ", ";
-          not_first = true;
-          cout << var->solution_value();
+          if( debug ){
+            if( not_first ) cout << ", ";
+            not_first = true;
+            cout << var->solution_value();
+          }
           extents.push_back( (int) var->solution_value() );
         }
-        cout << ")" << endl;
+
+        if( debug )
+          cout << ")" << endl;
 
         Tuple tuple( extents );
 
