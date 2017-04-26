@@ -6,6 +6,5 @@ TEST_BINARIES = code_generator \
 								new_order_graph_generator \
 								test_exe
 
-$(TEST_BINARIES): %: $(EXE) %.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -c $@.cpp -o $@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(SRC) -Wl,-rpath -Wl,$(SOURCE_LIB) $@.o $(EXE) -L$(SOURCE_LIB) -L$(LIB) -lisl -o $@
+$(TEST_BINARIES): %: %.cpp $(EXE)
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $< -l$(LIBNAME) $(LDFLAGS) -L$(LIB) -o $@

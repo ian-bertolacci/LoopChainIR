@@ -30,8 +30,9 @@ MAKE_JOBS=2
 
 # Compiler and flags
 CXX=g++
-CXXFLAGS += -g -DUSE_CBC -DUSE_CLP -DUSE_GLOP -Wall -Wno-deprecated -Wextra -lortools -lz -lrt -pthread
-CPPFLAGS += --std=c++11 -isystem $(SOURCE_INC) -I$(SOURCE_INC) -I$(INCLUDE)
+LDFLAGS += -lisl -lortools -lz -lrt -pthread -L$(SOURCE_LIB)
+INCFLAGS += -isystem $(SOURCE_INC) -I$(SOURCE_INC) -I$(INCLUDE)
+CPPFLAGS += -g -DUSE_CBC -DUSE_CLP -DUSE_GLOP -Wall -Wno-deprecated -Wextra --std=c++11
 
 # Test Variables
 GTEST_DIR=$(THIRD_PARTY_INSTALL)/gtest
@@ -47,7 +48,6 @@ UNIT_TESTS = 	RectangularDomain_test \
 							Schedule_test \
 							DefaultSequentialTransformation_test \
 							FusionTransformation_test \
-							AutomaticShiftTransformation_test \
 							ShiftTransformation_test \
 							AutomaticShiftTransformation_test \
 							TileTransformation_test
@@ -86,7 +86,6 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/Subspace.o \
 			 $(BIN)/DefaultSequentialTransformation.o \
 			 $(BIN)/ShiftTransformation.o \
-			 $(BIN)/AutomaticShiftTransformation.o \
 			 $(BIN)/TileTransformation.o \
 			 $(BIN)/FusionTransformation.o \
 			 $(BIN)/IslAstRoot.o \
@@ -96,7 +95,8 @@ OBJS = $(BIN)/RectangularDomain.o \
 
 
 # Linkable library
-EXE=$(LIB)/libloopchainIR.a
+LIBNAME=loopchainIR
+EXE=$(LIB)/lib$(LIBNAME).a
 
 all: $(EXE)
 
@@ -105,7 +105,7 @@ $(EXE): $(OBJS) $(INITED_FILE)
 
 # Building the Ojbect Files
 $(OBJS): $(BIN)/%.o : $(SRC)/%.cpp $(INCLUDE)/%.hpp $(INITED_FILE)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -c -o $@
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $< -c -o $@
 
 # Testing
 test: unit-tests integration-tests
@@ -115,9 +115,8 @@ unit-tests: $(UNIT_TESTS)
 integration-tests: $(EXE)
 	python $(UTIL)/integration-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(addprefix $(REG_TEST_DIR)/,$(INT_TEST))
 
-$(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(UNIT_TEST_SRC)/$@.cpp -o $(UNIT_TEST_BIN)/$@.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -Wl,-rpath -Wl,$(SOURCE_LIB) -lpthread $(UNIT_TEST_BIN)/$@.o $^ -lisl -lortools -lz -lrt -lpthread -L$(SOURCE_LIB) -o $(UNIT_TEST_BIN)/$@
+$(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/libgtest_main.a
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(UNIT_TEST_SRC)/$@.cpp -l$(LIBNAME) -lgtest_main $(LDFLAGS) -L$(UNIT_TEST_BIN) -L$(LIB) -o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
 
 $(INT_TEST): $(EXE)
@@ -128,17 +127,17 @@ $(GTEST_SRCS_): $(INITED_FILE)
 $(GTEST_HEADERS): $(INITED_FILE)
 
 $(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
+	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(INCFLAGS) -c \
             ${GTEST_DIR}/src/gtest-all.cc -o $@
 
 $(UNIT_TEST_BIN)/gtest_main.o : $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
+	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(INCFLAGS) -c \
             $(GTEST_DIR)/src/gtest_main.cc -o $@
 
 $(UNIT_TEST_BIN)/gtest.a : $(UNIT_TEST_BIN)/gtest-all.o
 	$(AR) $(ARFLAGS) $@ $^
 
-$(UNIT_TEST_BIN)/gtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)/gtest_main.o
+$(UNIT_TEST_BIN)/libgtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)/gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
 # Building documentation

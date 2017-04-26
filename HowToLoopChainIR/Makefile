@@ -19,6 +19,12 @@ T_INC=$(THIRD_PARTY_INSTALL)/include
 EX_SRC=./src
 EX_BIN=./bin
 
+CXX=g++
+LDFLAGS += -lloopchainIR -lisl -lortools -lz -lrt -pthread -L$(T_LIB)  -L$(LIB)
+INCFLAGS += -isystem $(SOURCE_INC) -I$(T_INC) -I$(INCLUDE)
+CPPFLAGS += -g -DUSE_CBC -DUSE_CLP -DUSE_GLOP -Wall -Wno-deprecated -Wextra --std=c++11
+
+
 EXAMPLES = RectangularDomainHowTo \
 					 LoopNestHowTo \
 					 LoopChainHowTo \
@@ -38,7 +44,7 @@ all: $(LONG_EXAMPLES)
 $(EXAMPLES):  % : $(EX_BIN)/%
 
 $(LONG_EXAMPLES): $(EX_BIN)/% : $(EX_SRC)/%.cpp $(LCIR_LIB)
-	$(CXX) --std=c++11 -isystem $(T_INC) -I$(INCLUDE) -Wl,-rpath -Wl,$(T_LIB) $^ -L$(T_LIB) -lisl -o $@
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $< $(LDFLAGS) -o $@
 
 clean:
 	- rm $(EX_BIN)/*
