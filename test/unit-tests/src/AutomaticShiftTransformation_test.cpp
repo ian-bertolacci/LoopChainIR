@@ -52,7 +52,7 @@ TEST( AutomaticShiftTransformation_test, noshift){
     )
   );
 
-  std::vector<Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 1, chain, true );
+  std::map<LoopChain::size_type, Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 1, chain, true );
   ASSERT_EQ( shift_tuples.size(), 0 );
 }
 
@@ -96,14 +96,14 @@ TEST( AutomaticShiftTransformation_test, negative){
     )
   );
 
-  std::vector<Tuple> actual = {
-                                Tuple({1}),
-                                Tuple({0}),
-                              };
-  std::vector<Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 1, chain, true );
+  std::map<LoopChain::size_type, Tuple> actual = {
+                                                    make_pair<LoopChain::size_type, Tuple>( 0, Tuple({1}) ),
+                                                    make_pair<LoopChain::size_type, Tuple>( 1, Tuple({0}) ),
+                                                  };
+  std::map<LoopChain::size_type, Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 1, chain, true );
 
   ASSERT_EQ( actual.size(), shift_tuples.size() );
-  for(  std::vector<Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
+  for(  std::map<LoopChain::size_type, Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
         a_it != actual.end() && s_it != shift_tuples.end();
         ++a_it, ++s_it ){
     EXPECT_EQ( *a_it, *s_it );
@@ -173,15 +173,15 @@ TEST( AutomaticShiftTransformation_test, jacobi1d_unrolled){
     )
   );
 
-  std::vector<Tuple> actual = {
-                                Tuple({0}),
-                                Tuple({1}),
+  std::map<LoopChain::size_type, Tuple> actual = {
+                                make_pair<LoopChain::size_type, Tuple>( 0, Tuple({0}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 1, Tuple({1}) ),
                               };
 
-  std::vector<Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 1, chain, true );
+  std::map<LoopChain::size_type, Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 1, chain, true );
 
   ASSERT_EQ( actual.size(), shift_tuples.size() );
-  for(  std::vector<Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
+  for(  std::map<LoopChain::size_type, Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
         a_it != actual.end() && s_it != shift_tuples.end();
         ++a_it, ++s_it ){
     EXPECT_EQ( *a_it, *s_it );
@@ -253,15 +253,15 @@ TEST( AutomaticShiftTransformation_test, jacobi2d_unrolled){
     )
   );
 
-  std::vector<Tuple> actual = {
-    Tuple({0, 0}),
-    Tuple({1, 1}),
+  std::map<LoopChain::size_type, Tuple> actual = {
+    make_pair<LoopChain::size_type, Tuple>( 0, Tuple({0, 0}) ),
+    make_pair<LoopChain::size_type, Tuple>( 1, Tuple({1, 1}) ),
   };
 
-  std::vector<Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 2, chain, true );
+  std::map<LoopChain::size_type, Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 2, chain, true );
 
   ASSERT_EQ( actual.size(), shift_tuples.size() );
-  for(  std::vector<Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
+  for(  std::map<LoopChain::size_type, Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
         a_it != actual.end() && s_it != shift_tuples.end();
         ++a_it, ++s_it ){
     EXPECT_EQ( *a_it, *s_it );
@@ -337,15 +337,15 @@ TEST( AutomaticShiftTransformation_test, jacobi2d_unrolled_2forward){
     )
   );
 
-  std::vector<Tuple> actual = {
-    Tuple({0, 0}),
-    Tuple({2, 2}),
+  std::map<LoopChain::size_type, Tuple> actual = {
+    make_pair<LoopChain::size_type, Tuple>( 0, Tuple({0, 0}) ),
+    make_pair<LoopChain::size_type, Tuple>( 1, Tuple({2, 2}) ),
   };
 
-  std::vector<Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 2, chain, true );
+  std::map<LoopChain::size_type, Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 2, chain, true );
 
   ASSERT_EQ( actual.size(), shift_tuples.size() );
-  for(  std::vector<Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
+  for(  std::map<LoopChain::size_type, Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
         a_it != actual.end() && s_it != shift_tuples.end();
         ++a_it, ++s_it ){
     EXPECT_EQ( *a_it, *s_it );
@@ -485,19 +485,19 @@ TEST( AutomaticShiftTransformation_test, MFD_2D_TripleCache ){
     );
   }
 
-  std::vector<Tuple> actual = {
-                                Tuple({1, 0}),
-                                Tuple({1, 0}),
-                                Tuple({1, 1}),
-                                Tuple({0, 1}),
-                                Tuple({0, 1}),
-                                Tuple({1, 1}),
+  std::map<LoopChain::size_type, Tuple> actual = {
+                                make_pair<LoopChain::size_type, Tuple>( 0, Tuple({1, 0}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 1, Tuple({1, 0}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 2, Tuple({1, 1}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 3, Tuple({0, 1}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 4, Tuple({0, 1}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 5, Tuple({1, 1}) ),
                               };
 
-  std::vector<Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 2, chain, true );
+  std::map<LoopChain::size_type, Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 2, chain, true );
 
   ASSERT_EQ( actual.size(), shift_tuples.size() );
-  for(  std::vector<Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
+  for(  std::map<LoopChain::size_type, Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
         a_it != actual.end() && s_it != shift_tuples.end();
         ++a_it, ++s_it ){
     EXPECT_EQ( *a_it, *s_it );
@@ -702,22 +702,22 @@ TEST( AutomaticShiftTransformation_test, MFD_TripleCache ){
     );
   }
 
-  std::vector<Tuple> actual = {
-                                Tuple({1, 1, 0}),
-                                Tuple({1, 1, 0}),
-                                Tuple({1, 1, 1}),
-                                Tuple({1, 0, 1}),
-                                Tuple({1, 0, 1}),
-                                Tuple({1, 1, 1}),
-                                Tuple({0, 1, 1}),
-                                Tuple({0, 1, 1}),
-                                Tuple({1, 1, 1}),
+  std::map<LoopChain::size_type, Tuple> actual = {
+                                make_pair<LoopChain::size_type, Tuple>( 0, Tuple({1, 1, 0}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 1, Tuple({1, 1, 0}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 2, Tuple({1, 1, 1}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 3, Tuple({1, 0, 1}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 4, Tuple({1, 0, 1}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 5, Tuple({1, 1, 1}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 6, Tuple({0, 1, 1}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 7, Tuple({0, 1, 1}) ),
+                                make_pair<LoopChain::size_type, Tuple>( 8, Tuple({1, 1, 1}) ),
                               };
 
-  std::vector<Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 3, chain, true );
+  std::map<LoopChain::size_type, Tuple> shift_tuples = AutomaticShiftTransformation::computeShiftTuplesForFusion( 3, chain, true );
 
   ASSERT_EQ( actual.size(), shift_tuples.size() );
-  for(  std::vector<Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
+  for(  std::map<LoopChain::size_type, Tuple>::iterator a_it = actual.begin(), s_it = shift_tuples.begin();
         a_it != actual.end() && s_it != shift_tuples.end();
         ++a_it, ++s_it ){
     EXPECT_EQ( *a_it, *s_it );

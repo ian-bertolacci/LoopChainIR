@@ -20,6 +20,7 @@ Copyright 2017 Universiy of Arizona
 #include "Accesses.hpp"
 #include <string>
 #include <vector>
+#include <map>
 #include <iostream>
 #include <sstream>
 #include "stdio.h"
@@ -58,7 +59,7 @@ namespace LoopChainIR {
 
     public:
       static std::vector<ShiftTransformation*> computeShiftForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple = false );
-      static std::vector<Tuple> computeShiftTuplesForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple = false  );
+      static std::map<LoopChain::size_type, Tuple> computeShiftTuplesForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple = false  );
 
   };
 

@@ -31,7 +31,7 @@ vector<string> AutomaticShiftTransformation::apply( Schedule& schedule, Subspace
 }
 
 
-vector<Tuple> AutomaticShiftTransformation::computeShiftTuplesForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple ) {
+map<LoopChain::size_type, Tuple> AutomaticShiftTransformation::computeShiftTuplesForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple ) {
   const bool debug = false;
   MPSolver solver("ShiftSolver", MPSolver::CBC_MIXED_INTEGER_PROGRAMMING);
 
@@ -223,7 +223,7 @@ vector<Tuple> AutomaticShiftTransformation::computeShiftTuplesForFusion( Subspac
     }
   }
 
-  vector<Tuple> shift_tuples;
+  map<LoopChain::size_type, Tuple> shift_tuples;
 
   if( constraints.size() > 0 ){
     objective->SetMinimization();
@@ -277,7 +277,7 @@ vector<Tuple> AutomaticShiftTransformation::computeShiftTuplesForFusion( Subspac
         Tuple tuple( extents );
 
         if( include_zero_tuple || !tuple.isEmptyTuple() ){
-          shift_tuples.push_back( tuple );
+          shift_tuples.emplace( nest_id, tuple );
         }
       }
     }
@@ -287,13 +287,13 @@ vector<Tuple> AutomaticShiftTransformation::computeShiftTuplesForFusion( Subspac
 }
 
 vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple ){
-  vector<Tuple> shift_tuples = computeShiftTuplesForFusion( dimensions, chain );
+  map<LoopChain::size_type, Tuple> shift_tuples = computeShiftTuplesForFusion( dimensions, chain );
   vector<ShiftTransformation*> transformations;
 
-  LoopChain::size_type nest_id = 0;
-  for( Tuple tuple : shift_tuples ){
+  for( map<LoopChain::size_type, Tuple>::value_type key_value : shift_tuples ){
+    LoopChain::size_type nest_id = key_value.first;
+    Tuple tuple = key_value.second;
     transformations.push_back( new ShiftTransformation( nest_id, tuple ) );
-    ++nest_id;
   }
 
   return transformations;
