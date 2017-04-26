@@ -122,7 +122,7 @@ std::vector<std::string> TileTransformation::apply( Schedule& schedule, Subspace
   for( Subspace::size_type i = 0; i < subspace->size(); ++i ){
     // Create tile condition for dimensions of the tile
     if( i < tile_subspace->size() ){
-      auto tile_size = this->getSize((key_type) i+1);
+      auto tile_size = this->getSize((key_type) i);
       transformation << " and\n\t\t" << tile_subspace->get(i,true) << " * "
                      << tile_size << " <= " << subspace->get( i, false )
                      << " < (" << tile_subspace->get(i,true) << " + 1 ) * "

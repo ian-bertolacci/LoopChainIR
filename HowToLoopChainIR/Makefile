@@ -26,7 +26,8 @@ EXAMPLES = RectangularDomainHowTo \
 					 FusionTransformationHowTo \
 					 ShiftTransformationHowTo \
 					 TileTransformationHowTo \
-					 MultipleTransformations
+					 MultipleTransformations \
+					 Example
 
 LONG_EXAMPLES=$(addprefix $(EX_BIN)/,$(EXAMPLES))
 
@@ -37,7 +38,7 @@ all: $(LONG_EXAMPLES)
 $(EXAMPLES):  % : $(EX_BIN)/%
 
 $(LONG_EXAMPLES): $(EX_BIN)/% : $(EX_SRC)/%.cpp $(LCIR_LIB)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -isystem $(T_INC) -I$(INCLUDE) -Wl,-rpath -Wl,$(T_LIB) $^ -L$(T_LIB) -lisl -o $@
+	$(CXX) --std=c++11 -isystem $(T_INC) -I$(INCLUDE) -Wl,-rpath -Wl,$(T_LIB) $^ -L$(T_LIB) -lisl -o $@
 
 clean:
 	- rm $(EX_BIN)/*

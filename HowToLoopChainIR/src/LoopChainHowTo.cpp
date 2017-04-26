@@ -76,9 +76,11 @@ int main(){
 
     // Print domain information
     cout << "\tThere are " << gotDomain.symbolics() << " symbols: ";
-    for( RectangularDomain::size_type s = 0; s < gotDomain.symbolics(); s++ ){
-      if( s != 0 ) cout << ", ";
-      cout <<  gotDomain.getSymbol(s);
+    bool not_first = false;
+    for( string symbol : gotDomain.getSymbols() ){
+      if( not_first ) cout << ", ";
+      not_first = true;
+      cout <<  symbol;
     }
 
     cout << endl;

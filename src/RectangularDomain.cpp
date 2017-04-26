@@ -18,6 +18,20 @@ Copyright 2015-2016 Colorado State University
 using namespace LoopChainIR;
 
 
+RectangularDomain::RectangularDomain( std::vector<std::string> lower_bounds, std::vector<std::string> upper_bounds, std::set<std::string> symbols )
+: upper_bounds( upper_bounds ), lower_bounds( lower_bounds ), symbols( symbols )
+{ }
+
+RectangularDomain::RectangularDomain( std::vector< std::pair<std::string,std::string> > bounds, std::set<std::string> symbols )
+: upper_bounds(), lower_bounds(), symbols( symbols )
+{
+  for( std::pair<std::string, std::string> bound_pair : bounds ){
+    this->lower_bounds.push_back( bound_pair.first );
+    this->upper_bounds.push_back( bound_pair.second );
+  }
+}
+
+
 RectangularDomain::RectangularDomain( std::string input_lower_bounds, std::string input_upper_bounds ){
 
   this->lower_bounds.push_back( input_lower_bounds );

@@ -21,9 +21,10 @@ Copyright 2015-2016 Colorado State University
 using namespace LoopChainIR;
 using namespace std;
 
-Schedule::Schedule( LoopChain& chain, std::string statement_prefix ) :
+Schedule::Schedule( LoopChain& chain, std::string statement_prefix, std::string iterator_prefix ) :
   chain(chain), statement_prefix(statement_prefix),
   root_statement_symbol( SSTR(statement_prefix << "statement_" ) ),
+  iterator_prefix( iterator_prefix ),
   manager( new Subspace("loop", 0), new Subspace("i", chain.maxDimension() )),
   depth(0)
   {
@@ -205,6 +206,17 @@ IslAstRoot* Schedule::codegenToIslAst(){
   // Create AST
   isl_ast_build* build = isl_ast_build_alloc(ctx);
   build = isl_ast_build_set_options( build, separate_map );
+
+  // Create iterator names by the thousands
+  int dims = 100;
+  isl_id_list* names = isl_id_list_alloc( ctx, dims );
+  for( int d = 0; d < dims; ++d ){
+    isl_id* id = isl_id_alloc( ctx, (this->getIteratorPrefix() + to_string(d)).c_str(), NULL );
+    names = isl_id_list_add( names, id );
+  }
+  build = isl_ast_build_set_iterators( build, names );
+
+
   isl_ast_node* tree = isl_ast_build_node_from_schedule_map( build, schedule_map );
 
   // free ISL objects
@@ -329,6 +341,9 @@ std::string Schedule::getRootStatementSymbol(){
   return std::string(this->root_statement_symbol);
 }
 
+std::string Schedule::getIteratorPrefix(){
+  return std::string( this->iterator_prefix );
+}
 
 SubspaceManager& Schedule::getSubspaceManager(){
   return this->manager;

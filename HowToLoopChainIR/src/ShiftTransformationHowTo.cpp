@@ -191,6 +191,7 @@ int main(){
     vector<string> extents;
     extents.push_back("10");
     extents.push_back("K");
+    extents.push_back("0");
 
     // Because we have a symbolic, we also need to create a symbolics vector.
     vector<string> symbols;

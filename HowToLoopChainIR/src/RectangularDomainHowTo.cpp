@@ -120,10 +120,11 @@ int main(){
 
     // Print the number of symbols
     cout << "There are " << domain.symbolics() << " symbols: ";
-    for( RectangularDomain::size_type s = 0; s < domain.symbolics(); s++ ){
-      if( s != 0 ) cout << ", ";
-      // Print the s'th symbolic
-      cout <<  domain.getSymbol(s);
+    bool not_first = false;
+    for( string symbol : domain.getSymbols() ){
+      if( not_first ) cout << ", ";
+      not_first = true;
+      cout <<  symbol;
     }
     cout << endl << endl;
 

@@ -58,8 +58,8 @@ int main(){
     No symbols or evaluated expressions allowed.
     */
     TileTransformation::TileMap extents;
+    extents[0] = "10";
     extents[1] = "10";
-    extents[2] = "10";
     TileTransformation transformation( 0, extents );
     transformations.push_back( &transformation );
 
@@ -155,8 +155,8 @@ int main(){
     transformations.push_back( new FusionTransformation( fuse_these ) );
 
     TileTransformation::TileMap extents1;
+    extents1[0] = "10";
     extents1[1] = "10";
-    extents1[2] = "10";
     TileTransformation transformation1( 0, extents1 );
     transformations.push_back( &transformation1 );
 
