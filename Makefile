@@ -147,7 +147,7 @@ documentation: clean-doc
 
 # Initialize the project and install third-party materials
 init: initialize
-initialize: $(INITED_FILE) $(UNIT_TEST_BIN)/gtest_main.a
+initialize: $(INITED_FILE)
 
 $(INITED_FILE): $(THIRD_PARTY)
 	mkdir $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
