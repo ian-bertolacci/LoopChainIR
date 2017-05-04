@@ -149,7 +149,7 @@ documentation: clean-doc
 init: initialize
 initialize: $(INITED_FILE)
 
-$(INITED_FILE): $(THIRD_PARTY)
+$(INITED_FILE): $(THIRD_PARTY_SRC)
 	mkdir $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
 	mkdir $(SOURCE_LIB)
 	mkdir $(SOURCE_INC)
