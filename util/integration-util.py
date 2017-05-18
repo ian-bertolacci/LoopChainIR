@@ -978,12 +978,10 @@ class ExecutableRegressionTest( RegressionTest ):
         return  [
           "{",
           "vector<string> extents;",
-          "vector<string> symbols;"
         ] \
         + map( lambda i: "extents.push_back(\"{0}\");".format(i), extents ) \
-        + map( lambda i: "symbols.push_back(\"{0}\");".format(i), symbols ) \
         + [
-          "schedulers.push_back( new ShiftTransformation({0}, extents, symbols) );".format(loopid),
+          "schedulers.push_back( new ShiftTransformation({0}, extents) );".format(loopid),
           "}"
         ]
 

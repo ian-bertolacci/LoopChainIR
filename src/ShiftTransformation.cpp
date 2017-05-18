@@ -20,87 +20,24 @@ using namespace LoopChainIR;
 using namespace std;
 
 ShiftTransformation::ShiftTransformation( LoopChain::size_type loop, Tuple extent )
-: loop_id( loop ),
-  extents( []( Tuple in ){
-        vector<string> _tmp( in.dimensions(), "" );
-        transform( in.begin(), in.end(),
-                   _tmp.begin(),
-                   [](int i){ return to_string( i ); }
-               );
-        return _tmp;
-      }( extent ) )
+: loop_id( loop ), extent( extent )
 { }
 
-/*!
-\brief
-Shift all loops specified in nest by the extents.
-\param[in] loop The id of the loop-nest within the chain to be shifted
-\param[in] extents The extent by which the loops are shifted by.
-           Note that extents.size() must be equal to
-           chain.getNest( loop ).getDomain().dimensions(), where chain is the
-           LoopChain on which the transformations are being applied to.
-*/
-ShiftTransformation::ShiftTransformation( LoopChain::size_type loop, std::vector<std::string> extents )
-  : loop_id(loop), extents(extents)
-  { }
-
-
-/*!
-\brief
-Shift all loops specified in nest by the extents.
-\param[in] loop The id of the loop-nest within the chain to be shifted
-\param[in] extents The extent by which the loops are shifted by.
-           Note that extents.size() must be equal to
-           chain.getNest( loop ).getDomain().dimensions(), where chain is the
-           LoopChain on which the transformations are being applied to.
-\param[in] symbols Symbols found within any of the extent expressions.
-*/
-ShiftTransformation::ShiftTransformation( LoopChain::size_type loop, std::vector<std::string> extents, std::vector<std::string> symbols )
-  : loop_id(loop), extents(extents), symbols(symbols)
-  { }
-
-
-/*!
-\brief
-Shift all loops specified in nest by the extent.
-\param[in] loop The id of the loop-nest within the chain to be shifted
-\param[in] extent The extent by which the loops are shifted by
-*/
 ShiftTransformation::ShiftTransformation( LoopChain::size_type loop, std::string extent )
-  : loop_id(loop), extents(1, extent)
-  { }
+: ShiftTransformation( loop, Tuple( { extent } ) )
+{ }
 
-/*!
-\brief
-Shift all loops specified in nest by the extent.
-\param[in] loop The id of the loop-nest within the chain to be shifted
-\param[in] extent The extent by which the loops are shifted by
-\param[in] symbols Symbols found within the extent expression.
-*/
-ShiftTransformation::ShiftTransformation( LoopChain::size_type loop, std::string extent, std::vector<std::string> symbols )
-  : loop_id(loop), extents(1, extent), symbols(symbols)
-  { }
+ShiftTransformation::ShiftTransformation( LoopChain::size_type loop, std::vector<std::string> extents )
+: ShiftTransformation( loop, Tuple( extents ) )
+{ }
 
 
-/*!
-\returns The loop id within the associated loop chain.
-*/
 LoopChain::size_type ShiftTransformation::getLoopId(){
   return this->loop_id;
 }
 
-/*!
-\returns A vector of the extents;
-*/
-std::vector<std::string> ShiftTransformation::getExtents(){
-  return std::vector<std::string>(this->extents);
-}
-
-/*!
-\returns A vector of the symbols within the extents;
-*/
-std::vector<std::string> ShiftTransformation::getSymbols(){
-  return std::vector<std::string>(this->symbols);
+Tuple ShiftTransformation::getExtents(){
+  return this->extent;
 }
 
 
@@ -118,10 +55,10 @@ std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspac
   subspace->set_aliased();
 
   // Assert that there are the same number of extents as there are variable iterators in the shifted subspace.
-  assertWithException( this->extents.size() == subspace->size() ,
+  assertWithException( this->extent.dimensions() == subspace->size() ,
                        SSTR( "Dimensionality of extent of ShiftTransformation on loop "
                            << this->loop_id << " is not equal ("
-                           << this->extents.size()
+                           << this->extent.dimensions()
                            << ") to the dimensionality of the Subspace ("
                            << subspace->size() << ")"  )
                      );
@@ -129,6 +66,7 @@ std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspac
   // String stream transformation will be created in.
   ostringstream transformation;
 
+  /*
   // Put in sumbolic constraints (eg "[N,M]->")
   if( !this->symbols.empty() ){
     transformation << "[";
@@ -140,6 +78,7 @@ std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspac
     }
     transformation << "]->";
   }
+  */
 
   // Create funtion header,
   transformation  << "{ \n\t["
@@ -150,13 +89,12 @@ std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspac
                   << " = " << this->loop_id << "\n\t\t";
 
   // Create conditions to shift subspace
-  std::vector<std::string> extents = this->getExtents();
   for( Subspace::size_type i = 0; i < subspace->complete_size(); ++i ){
     // get aliased symbol
     transformation << " and " << (*subspace)[i] << " = " << subspace->get(i, false);
     // add extent
-    if( i < this->extents.size() ){
-      transformation  << "+(" << this->extents[i] << ")";
+    if( i < this->extent.dimensions() ){
+      transformation  << "+(" << this->extent[i] << ")";
     }
   }
 
@@ -179,6 +117,10 @@ std::vector<std::string> ShiftTransformation::apply( Schedule& schedule, Subspac
 
   // Add transformation to our list
   transformations.push_back( transformation.str() );
+
+  // Modify shifts
+  schedule.getChain().getNest( this->loop_id ).shiftDataspaces( this->extent );
+
   // Return list of created transformations.
   return transformations;
 }

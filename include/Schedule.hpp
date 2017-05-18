@@ -91,7 +91,11 @@ namespace LoopChainIR {
     /*!
     \brief returns the original loop chain
     */
-    LoopChain getChain();
+    LoopChain& getChain();
+
+    /*!
+    \brief returns the original loop chain
+    */
 
     /*!
     \brief

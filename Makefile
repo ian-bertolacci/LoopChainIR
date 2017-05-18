@@ -57,12 +57,9 @@ INT_TEST = 	1N_1D_shift_1.test \
 						1N_2D_tile.test \
 						2N_1D_2D_tile_1.test \
 						2N_1D_fuse.test \
-						2N_1D_shift_K.test \
 						2N_2D_fuse_tile.test \
 						2N_3D.test \
 						example.test \
-						1N_1D_shift_K.test \
-						1N_2D_shift_K_exp.test \
 						1N_3D.test \
 						2N_1D_2D_tile_2.test \
 						2N_1D_shift_1.test \

@@ -23,6 +23,22 @@ Tuple::Tuple( vector<int> values )
 : tuple( values.begin(), values.end() )
 { }
 
+Tuple::Tuple( vector<string> values )
+: tuple()
+{
+  for( string value : values ){
+    this->tuple.push_back( stoi( value ) );
+  }
+}
+
+Tuple::Tuple( std::initializer_list<int> values )
+: Tuple( vector<int>( values ) )
+{ }
+
+Tuple::Tuple( std::initializer_list<std::string> values )
+: Tuple( vector<string>( values ) )
+{ }
+
 Tuple::Tuple( const Tuple& that )
 : Tuple( that.tuple )
 { }
