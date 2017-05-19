@@ -16,6 +16,7 @@ Copyright 2017 Universiy of Arizona
 #include <iostream>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 
 using namespace LoopChainIR;
 
@@ -50,6 +51,11 @@ TileTransformation::mapped_type TileTransformation::getSize( TileTransformation:
 TileTransformation::TileMap TileTransformation::getSizes(){
   return std::map<TileTransformation::key_type, TileTransformation::mapped_type>( this->tile_sizes );
 }
+
+LoopChain::size_type TileTransformation::getLoopId(){
+  return this->loop;
+}
+
 
 std::vector<std::string> TileTransformation::apply( Schedule& schedule){
   return this->apply( schedule, schedule.getSubspaceManager().get_nest() );
@@ -174,6 +180,47 @@ std::vector<std::string> TileTransformation::apply( Schedule& schedule, Subspace
   transformations.insert( transformations.end(), within_transformations.begin(), within_transformations.end() );
 
   manager.next_stage();
+
+  // Modify accesses of dataspaces
+  std::list<Dataspace> new_dataspaces;
+
+  auto func = []( int value ){
+    if( value > 0 )  return 1;
+    else if( value == 0 ) return 0;
+    else /* value < 0 */ return -1;
+  };
+
+  for( Dataspace dataspace : schedule.getChain().getNest( this->getLoopId() ).getDataspaces() ){
+
+    std::set<Tuple> read_set;
+    std::set<Tuple> write_set;
+
+    for( Tuple access : dataspace.reads() ){
+      std::vector<int> values( access.begin(), access.end() );
+
+      std::transform( access.begin(), access.end(),
+                      values.begin(),
+                      func );
+      read_set.insert( Tuple( values ) );
+
+    }
+
+    for( Tuple access : dataspace.writes() ){
+      std::vector<int> values( access.begin(), access.end() );
+
+      std::transform( access.begin(), access.end(),
+                      values.begin(),
+                      func );
+      write_set.insert( Tuple( values ) );
+    }
+
+    TupleCollection reads( read_set, dataspace.reads().dimensions() );
+    TupleCollection writes( write_set, dataspace.writes().dimensions() );
+
+    new_dataspaces.push_back( Dataspace( dataspace.name, reads, writes ) );
+  }
+
+  schedule.getChain().getNest( this->getLoopId() ).replaceDataspaces( new_dataspaces );
 
   // Return all transformations
   return transformations;

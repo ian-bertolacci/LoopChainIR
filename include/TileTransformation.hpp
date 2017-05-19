@@ -92,6 +92,8 @@ namespace LoopChainIR {
     */
     TileMap getSizes();
 
+    LoopChain::size_type getLoopId();
+
     /*!
     \brief
     Generate ISCC code for the shift transformation, and append it to the
