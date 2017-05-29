@@ -946,8 +946,10 @@ class ExecutableRegressionTest( RegressionTest ):
     def generate_transformation( schedule_text ):
       original_rx = re.compile( r"original" )
       fusion_rx = re.compile( r"fuse\s+(?P<list>(?:\d+)(?:\s*,\s*\d+){1,})" )
+      autoshift_rx = re.compile( r"autoshift" )
       shift_rx = re.compile( r"shift\s+(?P<loopid>\d+)\s+\(\s*(?P<extents>.+)\s*\)")
       tile_rx = re.compile( r"tile\s+(?P<loopid>\d+)\s+\{\s*(?P<extents>\d+\s*:\s*\d+(?:\s*,\s*\d+\s*:\s*\d+)*)\s*\}")
+      wavefront_rx = re.compile( r"wavefront" )
       symbols_rx = re.compile( r"[_a-zA-Z][_a-zA-Z0-9]*" )
 
       if original_rx.match( schedule_text ):
@@ -968,6 +970,9 @@ class ExecutableRegressionTest( RegressionTest ):
           "schedulers.push_back( new FusionTransformation( fuse_these ) );",
           "}"
         ]
+
+      elif autoshift_rx.match( schedule_text ):
+        return [ "schedulers.push_back( new AutomaticShiftTransformation() );"]
 
       elif shift_rx.match( schedule_text ):
         match = shift_rx.match( schedule_text )
@@ -1003,6 +1008,8 @@ class ExecutableRegressionTest( RegressionTest ):
           "}"
         ]
 
+      elif wavefront_rx.match( schedule_text ):
+        return [ "schedulers.push_back( new WavefrontTransformation() );" ]
 
       else:
         raise TestMalformedException( "Malformed schedule string: \"{0}\"".format( schedule_text) )

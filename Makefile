@@ -50,7 +50,8 @@ UNIT_TESTS = 	RectangularDomain_test \
 							FusionTransformation_test \
 							ShiftTransformation_test \
 							AutomaticShiftTransformation_test \
-							TileTransformation_test
+							TileTransformation_test \
+							WavefrontTransformation_test
 
 INT_TEST = 	1N_1D_shift_1.test \
 						1N_2D_shift_1_2.test \
@@ -85,6 +86,7 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/ShiftTransformation.o \
 			 $(BIN)/TileTransformation.o \
 			 $(BIN)/FusionTransformation.o \
+			 $(BIN)/WavefrontTransformation.o \
 			 $(BIN)/IslAstRoot.o \
 			 $(BIN)/Accesses.o \
 			 $(BIN)/AutomaticShiftTransformation.o \
