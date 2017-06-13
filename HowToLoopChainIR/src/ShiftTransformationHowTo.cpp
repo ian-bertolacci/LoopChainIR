@@ -190,16 +190,11 @@ int main(){
     */
     vector<string> extents;
     extents.push_back("10");
-    extents.push_back("K");
+    extents.push_back("5");
     extents.push_back("0");
 
-    // Because we have a symbolic, we also need to create a symbolics vector.
-    vector<string> symbols;
-    symbols.push_back("K");
-
-
     // Create the transformation
-    ShiftTransformation transformation(1, extents, symbols);
+    ShiftTransformation transformation(1, extents );
     transformations.push_back( &transformation );
 
     // Apply the transformations
@@ -260,33 +255,16 @@ int main(){
     // Lets create a dummy transformation that won't be applied to a schedule.
     vector<string> extents;
     extents.push_back("11");
-    extents.push_back("1+K*K");
-
-    vector<string> symbols;
-    symbols.push_back("K");
+    extents.push_back("12");
 
     // Create the transformation
-    ShiftTransformation transformation(1, extents, symbols);
+    ShiftTransformation transformation(1, extents );
 
     // We can get the id of the loop we will be transforming using getLoopId()
     cout << "Loop id: " << transformation.getLoopId() << endl;
     // We can get the extents as a vector using getExtents()
-    vector<string> gotExtents = transformation.getExtents();
-
-    cout << "Extents: ";
-    for( vector<string>::iterator it = gotExtents.begin(); it != gotExtents.end(); it++ ){
-      cout << "(" << *it << ") ";
-    }
-    cout << endl;
-
-    // We can get the symbols as a vector using getSymbols()
-    vector<string> gotSymbols = transformation.getSymbols();
-
-    cout << "Symbols: ";
-    for( vector<string>::iterator it = gotSymbols.begin(); it != gotSymbols.end(); it++ ){
-      cout << "\"" << *it << "\" ";
-    }
-    cout << endl;
+    Tuple gotExtents = transformation.getExtents();
+    cout << "Extents: " << gotExtents << endl;
 
   }
 
