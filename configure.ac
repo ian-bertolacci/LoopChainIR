@@ -37,5 +37,14 @@ AS_IF([test x"$PYTHON" == x"missing"],
 	)
 )
 
+dnl Check for unzip
+AC_SUBST( UNZIP, missing )
+AS_IF([test x"$UNZIP" == x"missing"],
+	AC_CHECK_PROG( _UNZIP_maybe, unzip, [unzip], [missing], )
+	AS_IF([test x"$_UNZIP_maybe" != x"missing"],
+		AC_SUBST( UNZIP, $_UNZIP_maybe )
+	)
+)
+
 dnl Process Makefile.in to create Makefile
 AC_OUTPUT(Makefile)

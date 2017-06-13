@@ -27,8 +27,8 @@ SOURCE_INC = $(THIRD_PARTY_INSTALL)/include
 
 # Google Test paths
 GTEST_DIR=$(THIRD_PARTY_BUILD)/gtest
-GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
-                $(GTEST_DIR)/include/gtest/internal/*.h
+GTEST_HEADERS = $(SOURCE_INC)/gtest/*.h \
+                $(SOURCE_INC)/gtest/internal/*.h
 GTEST_SRCS = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 # Compiler command and flags
@@ -37,7 +37,6 @@ CXXFLAGS=@CXXFLAGS@
 
 # LD flags for tests
 TEST_LDFLAGS += -lisl -lortools -lz -lrt -pthread -L$(SOURCE_LIB)
-
 
 # Archiver command and flags
 AR=ar
@@ -48,6 +47,9 @@ DOXYGEN=doxygen
 
 # Python command
 PYTHON=@PYTHON@
+
+# Unzip command
+UNZIP=@UNZIP@
 
 # Library name and full path
 LIBNAME=loopchainIR
@@ -127,7 +129,7 @@ integration-tests: $(EXE)
 	$(PYTHON) $(UTIL)/integration-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(addprefix $(REG_TEST_DIR)/,$(INT_TEST))
 
 $(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/libgtest_main.a
-	$(CXX) $(CXXFLAGS) $(INCFLAGS) \
+	$(CXX) $(CXXFLAGS) $(INCFLAGS) -I$(SOURCE_INC) \
 		$(UNIT_TEST_SRC)/$@.cpp \
 		-l$(LIBNAME) -lgtest_main $(TEST_LDFLAGS) -L$(UNIT_TEST_BIN) -L$(LIB) \
 		-o $(UNIT_TEST_BIN)/$@
@@ -140,18 +142,18 @@ $(INT_TEST): $(EXE)
 
 $(GTEST_DIR) : | $(SOURCE_LIB) $(SOURCE_INC) $(THIRD_PARTY_BUILD)
 	# Unzip and copy gtest
-	unzip -q $(THIRD_PARTY_SRC)/gtest-1.7.0.zip -d $(THIRD_PARTY_BUILD)
+	$(UNZIP) -q $(THIRD_PARTY_SRC)/gtest-1.7.0.zip -d $(THIRD_PARTY_BUILD)
 	mv $(THIRD_PARTY_BUILD)/gtest-1.7.0 $(GTEST_DIR)
 	cp -r $(GTEST_DIR)/include/gtest $(SOURCE_INC)
 
 $(GTEST_SRCS) : $(GTEST_DIR)
 
 $(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS)
-	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR) $(INCFLAGS) -c \
+	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR) -I$(SOURCE_INC) $(INCFLAGS) -c \
             ${GTEST_DIR}/src/gtest-all.cc -o $@
 
 $(UNIT_TEST_BIN)/gtest_main.o : $(GTEST_SRCS)
-	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR) $(INCFLAGS) -c \
+	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR) -I$(SOURCE_INC) $(INCFLAGS) -c \
             $(GTEST_DIR)/src/gtest_main.cc -o $@
 
 $(UNIT_TEST_BIN)/gtest.a : $(UNIT_TEST_BIN)/gtest-all.o
