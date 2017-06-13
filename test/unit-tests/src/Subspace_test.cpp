@@ -10,8 +10,8 @@ Copyright 2016 University of Arizona
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "Subspace.hpp"
-#include "util.hpp"
+#include <LoopChainIR/Subspace.hpp>
+#include <LoopChainIR/util.hpp>
 #include <iostream>
 #include <utility>
 

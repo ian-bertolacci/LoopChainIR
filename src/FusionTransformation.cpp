@@ -10,8 +10,8 @@ Copyright 2015-2016 Colorado State University
 Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
-#include "FusionTransformation.hpp"
-#include "util.hpp"
+#include <LoopChainIR/FusionTransformation.hpp>
+#include <LoopChainIR/util.hpp>
 #include <iostream>
 #include <sstream>
 

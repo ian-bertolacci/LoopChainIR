@@ -10,9 +10,9 @@ Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "TileTransformation.hpp"
-#include "ShiftTransformation.hpp"
-#include "DefaultSequentialTransformation.hpp"
+#include <LoopChainIR/TileTransformation.hpp>
+#include <LoopChainIR/ShiftTransformation.hpp>
+#include <LoopChainIR/DefaultSequentialTransformation.hpp>
 #include <iostream>
 #include <utility>
 

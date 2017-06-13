@@ -1,7 +1,7 @@
 /******************************************************************************
 How To RectangularDomain
 ******************************************************************************/
-#include "RectangularDomain.hpp"
+#include <LoopChainIR/RectangularDomain.hpp>
 #include <iostream>
 #include <utility>
 

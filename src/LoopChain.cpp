@@ -9,8 +9,8 @@ Contains an ordered sequence of loop nests.
 Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
-#include "LoopChain.hpp"
-#include "util.hpp"
+#include <LoopChainIR/LoopChain.hpp>
+#include <LoopChainIR/util.hpp>
 #include <algorithm>
 
 using namespace LoopChainIR;

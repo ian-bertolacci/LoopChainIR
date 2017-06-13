@@ -10,8 +10,8 @@ Copyright 2016 University of Arizona
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "Accesses.hpp"
-#include "util.hpp"
+#include <LoopChainIR/Accesses.hpp>
+#include <LoopChainIR/util.hpp>
 #include <iostream>
 #include <utility>
 #include <limits>

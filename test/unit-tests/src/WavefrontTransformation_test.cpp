@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "WavefrontTransformation.hpp"
-#include "FusionTransformation.hpp"
+#include <LoopChainIR/WavefrontTransformation.hpp>
+#include <LoopChainIR/FusionTransformation.hpp>
 #include <iostream>
 #include <utility>
 

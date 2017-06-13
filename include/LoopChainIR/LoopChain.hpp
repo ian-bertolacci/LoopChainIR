@@ -13,7 +13,7 @@ Copyright 2017 Universiy of Arizona
 #ifndef LOOPCHAIN_HPP
 #define LOOPCHAIN_HPP
 
-#include "LoopNest.hpp"
+#include <LoopChainIR/LoopNest.hpp>
 
   namespace LoopChainIR{
 

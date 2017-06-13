@@ -10,7 +10,7 @@ Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "DefaultSequentialTransformation.hpp"
+#include <LoopChainIR/DefaultSequentialTransformation.hpp>
 #include <iostream>
 #include <utility>
 

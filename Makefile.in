@@ -25,21 +25,35 @@ DOC_PATH=$(PROJECT_DIR)/doxygen
 SOURCE_LIB = $(THIRD_PARTY_INSTALL)/lib
 SOURCE_INC = $(THIRD_PARTY_INSTALL)/include
 
-# Global Variables
-MAKE_JOBS=2
-
-# Compiler and flags
-CXX=g++
-LDFLAGS += -lisl -lortools -lz -lrt -pthread -L$(SOURCE_LIB)
-INCFLAGS += -isystem $(SOURCE_INC) -I$(SOURCE_INC) -I$(INCLUDE)
-CPPFLAGS += -g -DUSE_CBC -DUSE_CLP -DUSE_GLOP -Wall -Wno-deprecated -Wextra --std=c++11
-
-# Test Variables
-GTEST_DIR=$(THIRD_PARTY_INSTALL)/gtest
+# Google Test paths
+GTEST_DIR=$(THIRD_PARTY_BUILD)/gtest
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
-GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
+GTEST_SRCS = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
+# Compiler command and flags
+CXX=@CXX@
+CXXFLAGS=@CXXFLAGS@
+
+# LD flags for tests
+TEST_LDFLAGS += -lisl -lortools -lz -lrt -pthread -L$(SOURCE_LIB)
+
+
+# Archiver command and flags
+AR=ar
+AR_FLAGS=rv
+
+# Doxygen command
+DOXYGEN=doxygen
+
+# Python command
+PYTHON=@PYTHON@
+
+# Library name and full path
+LIBNAME=loopchainIR
+EXE=$(LIB)/lib$(LIBNAME).a
+
+# Unit tests list
 UNIT_TESTS = 	RectangularDomain_test \
 							LoopNest_test \
 							LoopChain_test \
@@ -53,6 +67,7 @@ UNIT_TESTS = 	RectangularDomain_test \
 							TileTransformation_test \
 							WavefrontTransformation_test
 
+# Integration tests list
 INT_TEST = 	1N_1D_shift_1.test \
 						1N_2D_shift_1_2.test \
 						1N_2D_tile.test \
@@ -76,7 +91,8 @@ INT_TEST = 	1N_1D_shift_1.test \
 						2N_3D_fuse.test \
 						3N_3D_2D_1D.test
 
-# Project object files and executable
+
+# Project object files
 OBJS = $(BIN)/RectangularDomain.o \
        $(BIN)/LoopChain.o \
 			 $(BIN)/LoopNest.o \
@@ -92,19 +108,15 @@ OBJS = $(BIN)/RectangularDomain.o \
 			 $(BIN)/AutomaticShiftTransformation.o \
 			 $(BIN)/util.o
 
-
-# Linkable library
-LIBNAME=loopchainIR
-EXE=$(LIB)/lib$(LIBNAME).a
-
 all: $(EXE)
 
-$(EXE): $(OBJS) $(INITED_FILE)
+$(EXE): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
 # Building the Ojbect Files
-$(OBJS): $(BIN)/%.o : $(SRC)/%.cpp $(INCLUDE)/%.hpp $(INITED_FILE)
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) $< -c -o $@
+$(OBJS): $(BIN)/%.o : $(SRC)/%.cpp $(INCLUDE)/LoopChainIR/%.hpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
 
 # Testing
 test: unit-tests integration-tests
@@ -112,25 +124,34 @@ test: unit-tests integration-tests
 unit-tests: $(UNIT_TESTS)
 
 integration-tests: $(EXE)
-	python $(UTIL)/integration-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(addprefix $(REG_TEST_DIR)/,$(INT_TEST))
+	$(PYTHON) $(UTIL)/integration-util.py -r $(UTIL)/resources -p $(PROJECT_DIR) $(addprefix $(REG_TEST_DIR)/,$(INT_TEST))
 
 $(UNIT_TESTS): $(EXE) $(UNIT_TEST_BIN)/libgtest_main.a
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(UNIT_TEST_SRC)/$@.cpp -l$(LIBNAME) -lgtest_main $(LDFLAGS) -L$(UNIT_TEST_BIN) -L$(LIB) -o $(UNIT_TEST_BIN)/$@
+	$(CXX) $(CXXFLAGS) $(INCFLAGS) \
+		$(UNIT_TEST_SRC)/$@.cpp \
+		-l$(LIBNAME) -lgtest_main $(TEST_LDFLAGS) -L$(UNIT_TEST_BIN) -L$(LIB) \
+		-o $(UNIT_TEST_BIN)/$@
 	$(UNIT_TEST_BIN)/$@
 
 $(INT_TEST): $(EXE)
-	python $(UTIL)/integration-util.py -r $(UTIL)/resources -se -p $(PROJECT_DIR) $(REG_TEST_DIR)/$@
+	$(PYTHON) $(UTIL)/integration-util.py -r $(UTIL)/resources -se -p $(PROJECT_DIR) $(REG_TEST_DIR)/$@
 
 #Building the Google Test framework
-$(GTEST_SRCS_): $(INITED_FILE)
-$(GTEST_HEADERS): $(INITED_FILE)
 
-$(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(INCFLAGS) -c \
+$(GTEST_DIR) : | $(SOURCE_LIB) $(SOURCE_INC) $(THIRD_PARTY_BUILD)
+	# Unzip and copy gtest
+	unzip -q $(THIRD_PARTY_SRC)/gtest-1.7.0.zip -d $(THIRD_PARTY_BUILD)
+	mv $(THIRD_PARTY_BUILD)/gtest-1.7.0 $(GTEST_DIR)
+	cp -r $(GTEST_DIR)/include/gtest $(SOURCE_INC)
+
+$(GTEST_SRCS) : $(GTEST_DIR)
+
+$(UNIT_TEST_BIN)/gtest-all.o : $(GTEST_SRCS)
+	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR) $(INCFLAGS) -c \
             ${GTEST_DIR}/src/gtest-all.cc -o $@
 
-$(UNIT_TEST_BIN)/gtest_main.o : $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(INCFLAGS) -c \
+$(UNIT_TEST_BIN)/gtest_main.o : $(GTEST_SRCS)
+	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR) $(INCFLAGS) -c \
             $(GTEST_DIR)/src/gtest_main.cc -o $@
 
 $(UNIT_TEST_BIN)/gtest.a : $(UNIT_TEST_BIN)/gtest-all.o
@@ -142,32 +163,13 @@ $(UNIT_TEST_BIN)/libgtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)
 # Building documentation
 doc: documentation
 documentation: clean-doc
-	doxygen
+	$(DOXYGEN)
 
-# Initialize the project and install third-party materials
-init: initialize
-initialize: $(INITED_FILE)
+$(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD) : | $(THIRD_PARTY_SRC)
+	mkdir $@
 
-$(INITED_FILE): $(THIRD_PARTY_SRC)
-	mkdir $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
-	mkdir $(SOURCE_LIB)
-	mkdir $(SOURCE_INC)
-	#
-	# Unzip and copy gtest
-	unzip -q $(THIRD_PARTY_SRC)/gtest-1.7.0.zip -d $(THIRD_PARTY_INSTALL)/.
-	mv $(THIRD_PARTY_INSTALL)/gtest-1.7.0 $(GTEST_DIR)
-	cp -r $(GTEST_DIR)/include/gtest $(SOURCE_INC)
-	#
-	# build ISL
-	tar -xzf $(THIRD_PARTY_SRC)/isl-0.15.tar.gz -C $(THIRD_PARTY_BUILD)/.
-	mv $(THIRD_PARTY_BUILD)/isl-0.15 $(THIRD_PARTY_BUILD)/isl
-		 cd $(THIRD_PARTY_BUILD)/isl \
-	&& export CPPFLAGS=-ggdb \
-	&& export CFLAGS=-ggdb \
-	&& ./configure --prefix=$(THIRD_PARTY_INSTALL) \
-	&& make -j$(MAKE_JOBS) \
-	&& make install
-	touch $(INITED_FILE)
+$(SOURCE_LIB) $(SOURCE_INC) : | $(THIRD_PARTY_INSTALL)
+	mkdir $@
 
 # Cleaning
 neat:
@@ -178,7 +180,6 @@ clean-doc:
 
 clean-third-party:
 	- rm -rf $(THIRD_PARTY_INSTALL) $(THIRD_PARTY_BUILD)
-	- rm $(INITED_FILE)
 
 clean-test:
 	- rm -r $(UNIT_TEST_BIN)/* $(REG_TEST_DIR)/*.log $(REG_TEST_DIR)/*.dir

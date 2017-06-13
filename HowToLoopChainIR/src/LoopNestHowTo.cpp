@@ -3,7 +3,7 @@ How To LoopNest
 Recommended Reading:
 + RectangularDomainHowTo.cpp
 ******************************************************************************/
-#include "LoopNest.hpp"
+#include <LoopChainIR/LoopNest.hpp>
 #include <iostream>
 #include <utility>
 

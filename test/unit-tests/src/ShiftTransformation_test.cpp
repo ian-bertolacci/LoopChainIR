@@ -10,7 +10,7 @@ Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "ShiftTransformation.hpp"
+#include <LoopChainIR/ShiftTransformation.hpp>
 #include <iostream>
 #include <utility>
 

@@ -10,11 +10,11 @@ Copyright 2015-2016 Colorado State University
 Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
-#include "ShiftTransformation.hpp"
+#include <LoopChainIR/ShiftTransformation.hpp>
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include "util.hpp"
+#include <LoopChainIR/util.hpp>
 
 using namespace LoopChainIR;
 using namespace std;

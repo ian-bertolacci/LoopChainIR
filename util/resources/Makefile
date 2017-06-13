@@ -7,4 +7,4 @@ TEST_BINARIES = code_generator \
 								test_exe
 
 $(TEST_BINARIES): %: %.cpp $(EXE)
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) $< -l$(LIBNAME) $(LDFLAGS) -L$(LIB) -o $@
+	$(CXX) $(CXXFLAGS) $< -l$(LIBNAME) $(TEST_LDFLAGS) -L$(LIB) -o $@

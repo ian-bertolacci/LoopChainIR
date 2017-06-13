@@ -13,8 +13,8 @@ Copyright 2017 Universiy of Arizona
 #ifndef TRANSFORMATION_HPP
 #define TRANSFORMATION_HPP
 
-#include "Schedule.hpp"
-#include "Subspace.hpp"
+#include <LoopChainIR/Schedule.hpp>
+#include <LoopChainIR/Subspace.hpp>
 #include <string>
 #include <vector>
 

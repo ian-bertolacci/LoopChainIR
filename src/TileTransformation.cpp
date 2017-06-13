@@ -10,9 +10,9 @@ Copyright 2015-2016 Colorado State University
 Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
-#include "TileTransformation.hpp"
-#include "DefaultSequentialTransformation.hpp"
-#include "util.hpp"
+#include <LoopChainIR/TileTransformation.hpp>
+#include <LoopChainIR/DefaultSequentialTransformation.hpp>
+#include <LoopChainIR/util.hpp>
 #include <iostream>
 #include <sstream>
 #include <iostream>

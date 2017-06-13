@@ -13,8 +13,8 @@ Copyright 2017 Universiy of Arizona
 #include <limits>
 #include <sstream>
 
-#include "Accesses.hpp"
-#include "util.hpp"
+#include <LoopChainIR/Accesses.hpp>
+#include <LoopChainIR/util.hpp>
 
 using namespace std;
 using namespace LoopChainIR;

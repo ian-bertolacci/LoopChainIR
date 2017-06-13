@@ -13,7 +13,7 @@ Copyright 2017 Universiy of Arizona
 #ifndef ISLASTROOT_HPP
 #define ISLASTROOT_HPP
 
-#include "all_isl.hpp"
+#include <LoopChainIR/all_isl.hpp>
 
 class IslAstRoot{
   public:

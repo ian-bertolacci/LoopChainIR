@@ -3,8 +3,8 @@ How To Schedule
 Recommended Reading:
 + LoopChainHowTo.cpp
 ******************************************************************************/
-#include "Schedule.hpp"
-#include "DefaultSequentialTransformation.hpp" // Not required for Schedule
+#include <LoopChainIR/Schedule.hpp>
+#include <LoopChainIR/DefaultSequentialTransformation.hpp> // Not required for Schedule
 #include <iostream>
 #include <utility>
 #include <vector>

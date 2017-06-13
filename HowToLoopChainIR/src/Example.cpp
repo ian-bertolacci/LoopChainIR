@@ -1,10 +1,10 @@
-#include "LoopChain.hpp"
-#include "LoopNest.hpp"
-#include "Accesses.hpp"
-#include "ShiftTransformation.hpp"
-#include "FusionTransformation.hpp"
-#include "AutomaticShiftTransformation.hpp"
-#include "TileTransformation.hpp"
+#include <LoopChainIR/LoopChain.hpp>
+#include <LoopChainIR/LoopNest.hpp>
+#include <LoopChainIR/Accesses.hpp>
+#include <LoopChainIR/ShiftTransformation.hpp>
+#include <LoopChainIR/FusionTransformation.hpp>
+#include <LoopChainIR/AutomaticShiftTransformation.hpp>
+#include <LoopChainIR/TileTransformation.hpp>
 
 #include <iostream>
 #include <utility>

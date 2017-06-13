@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "AutomaticShiftTransformation.hpp"
+#include <LoopChainIR/AutomaticShiftTransformation.hpp>
 #include <iostream>
 #include <utility>
 #include <vector>

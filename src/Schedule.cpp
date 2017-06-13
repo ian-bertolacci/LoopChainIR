@@ -9,9 +9,9 @@ Generate a simple sequential, non-parallel schedule from a LoopChain.
 Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
-#include "Schedule.hpp"
-#include "all_isl.hpp"
-#include "util.hpp"
+#include <LoopChainIR/Schedule.hpp>
+#include <LoopChainIR/all_isl.hpp>
+#include <LoopChainIR/util.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>

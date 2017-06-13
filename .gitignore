@@ -32,6 +32,12 @@
 # Debug files
 *.dSYM/
 
+# autoconf and configure
+config.log
+config.status
+autom4te.cache
+/Makefile
+
 # Doxygen output
 doxygen/
 

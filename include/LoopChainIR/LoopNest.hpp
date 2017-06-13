@@ -15,8 +15,8 @@ Copyright 2017 Universiy of Arizona
 #define LOOPNEST_HPP
 
 #include <list>
-#include "RectangularDomain.hpp"
-#include "Accesses.hpp"
+#include <LoopChainIR/RectangularDomain.hpp>
+#include <LoopChainIR/Accesses.hpp>
 
 namespace LoopChainIR{
 

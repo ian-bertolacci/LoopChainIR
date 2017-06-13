@@ -1,4 +1,4 @@
-#include "WavefrontTransformation.hpp"
+#include <LoopChainIR/WavefrontTransformation.hpp>
 #include <sstream>
 #include <iostream>
 #include <iterator>

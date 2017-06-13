@@ -1,4 +1,4 @@
-#include "AutomaticShiftTransformation.hpp"
+#include <LoopChainIR/AutomaticShiftTransformation.hpp>
 #include <linear_solver/linear_solver.h>
 #include <linear_solver/linear_solver.pb.h>
 #include <iostream>

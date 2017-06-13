@@ -3,8 +3,8 @@ How To Schedule
 Recommended Reading:
 + ScheduleHowTo.cpp
 ******************************************************************************/
-#include "ShiftTransformation.hpp"
-#include "FusionTransformation.hpp"
+#include <LoopChainIR/ShiftTransformation.hpp>
+#include <LoopChainIR/FusionTransformation.hpp>
 #include <iostream>
 #include <utility>
 #include <vector>
