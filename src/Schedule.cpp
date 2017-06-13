@@ -329,8 +329,8 @@ RectangularDomain::size_type Schedule::modifyIteratorsLength( int delta ){
   return this->getIteratorsLength();
 }
 
-LoopChain Schedule::getChain(){
-  return LoopChain(this->chain);
+LoopChain& Schedule::getChain(){
+  return this->chain;
 }
 
 std::string Schedule::getStatementPrefix(){

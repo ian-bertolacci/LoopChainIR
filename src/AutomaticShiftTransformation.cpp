@@ -1,266 +1,300 @@
 #include "AutomaticShiftTransformation.hpp"
+#include <linear_solver/linear_solver.h>
+#include <linear_solver/linear_solver.pb.h>
 #include <iostream>
-#include <sstream>
-#include <algorithm>
-#include "util.hpp"
+#include <map>
+#include <set>
+#include <vector>
+#include <list>
+#include <limits>
 
-using namespace LoopChainIR;
 using namespace std;
+using namespace LoopChainIR;
+using namespace operations_research;
 
-AutomaticShiftTransformation::AutomaticShiftTransformation()
-{ }
+AutomaticShiftTransformation::AutomaticShiftTransformation(){ }
 
-std::vector<std::string> AutomaticShiftTransformation::apply( Schedule& schedule ){
-  return this->apply( schedule, *(std::next(schedule.getSubspaceManager().get_iterator_to_loops())) );
+vector<string> AutomaticShiftTransformation::apply( Schedule& schedule ){
+  return this->apply( schedule, *(next(schedule.getSubspaceManager().get_iterator_to_loops())));
 }
 
+vector<string> AutomaticShiftTransformation::apply( Schedule& schedule, Subspace* subspace ){
+  vector<string> transformations;
 
-std::vector<std::string> AutomaticShiftTransformation::apply( Schedule& schedule, Subspace* subspace ){
-
-  std::list<ShiftTransformation*> shift_transformations = AutomaticShiftTransformation::computeShiftForFusion( schedule.getChain() );
-  std::vector<std::string> transformations_strings;
-
-  for( ShiftTransformation* transformation : shift_transformations ){
-    std::vector<std::string> shift_strings = transformation->apply( schedule, subspace );
-    for( std::string shift_string : shift_strings ){
-      transformations_strings.push_back( shift_string );
-    }
-  }
-
-  return transformations_strings;
-}
-
-std::list<Tuple> AutomaticShiftTransformation::computeShiftTuplesForFusion( const LoopChain& chain ){
-  std::list<Tuple> shifts;
-
-  DataspaceMinMaxCollection min_max_collection;
-  Tuple::size_type dimensionality = 0;
-  // Collect dimensionality of loop-chain dataspaces accesses
-  {
-    set<Tuple::size_type> dimensions_in_chain;
-    for( LoopNest nest : chain ){
-      for( Dataspace dataspace : nest.getDataspaces() ){
-        dimensions_in_chain.insert( dataspace.dimensions() );
-      }
-    }
-    assertWithException( dimensions_in_chain.size() <= 1, "There are dataspaces of different dimensionality in the loopchain" );
-    // If there are no dimensions, then there are no dataspaces,
-    // and no need to continue.
-    if( dimensions_in_chain.empty() ){
-      return shifts;
-    }
-    dimensionality = *(dimensions_in_chain.begin());
-  }
-
-  bool is_first_nest = true;
-  for( LoopNest nest : chain ){
-    Tuple shift = Tuple( vector<int>(dimensionality,0) );
-
-    if( ! is_first_nest ){
-      set<Tuple> shifts_of_all_data_spaces;
-
-      for( Dataspace dataspace : nest.getDataspaces() ){
-        if( ! min_max_collection.contains( dataspace.name ) ){
-          continue;
-        }
-
-        const DataspaceMinMax pev_min_max = min_max_collection[dataspace.name];
-        DataspaceMinMax current_min_max( dataspace );
-        // Lineup all pairs
-        list< pair<Tuple,Tuple> > pairs =
-          {
-            make_pair( current_min_max.maxWrite(), pev_min_max.minWrite() ),
-            make_pair( current_min_max.maxRead(),  pev_min_max.minWrite() ),
-            make_pair( current_min_max.maxWrite(), pev_min_max.minRead() ),
-          };
-        // remove pairs with any empty tuples
-        pairs.erase( remove_if( pairs.begin(),
-                                pairs.end(),
-                                [](pair<Tuple,Tuple> x){ return x.first == Tuple::createMagicEmptyTuple()
-                                                             || x.second == Tuple::createMagicEmptyTuple(); }),
-                     pairs.end() );
-        // perform subtraction
-        for( pair<Tuple,Tuple> twople : pairs ){
-          shifts_of_all_data_spaces.insert( twople.first - twople.second );
-        }
-      } // for dataspace : nest
-      // If any shifting was neccessary, shift = maxOnDims of all shifts
-      if( shifts_of_all_data_spaces.size() > 0 ){
-        shift = TupleCollection( shifts_of_all_data_spaces ).maxOnDims();
-      }
-    } // if not first dataspace
-
-    for( Dataspace dataspace : nest.getDataspaces() ){
-      DataspaceMinMax min_max( dataspace );
-      min_max.postShiftUpdate( shift );
-      min_max_collection.selfUnion( min_max );
-    }
-
-    shifts.push_back( shift );
-
-    is_first_nest = false;
-  }
-
-  return shifts;
-}
-
-std::list<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion( const LoopChain& chain ){
-  std::list<ShiftTransformation*> transformations;
-
-  std::list<Tuple> extents = computeShiftTuplesForFusion( chain );
-  assertWithException(  extents.size() == chain.length(),
-                        SSTR( "Number of shift extents, " << extents.size()
-                              << " is not equal to the number of nests in the loop chain, "
-                              << chain.length() ) );
-  {
-    LoopChain::size_type id = 0;
-    std::list<Tuple>::iterator tuple_it = extents.begin();
-    while( id != chain.length() && tuple_it != extents.end() ){
-      transformations.push_back( new ShiftTransformation( id, *tuple_it) );
-
-      ++id;
-      ++tuple_it;
-    }
+  vector<ShiftTransformation*> shift_transformations = this->computeShiftForFusion( subspace->size() , schedule.getChain() );
+  for( ShiftTransformation* shift : shift_transformations ){
+    vector<string> shifts = shift->apply( schedule );
+    transformations.insert( transformations.end(), shifts.begin(), shifts.end() );
   }
 
   return transformations;
 }
 
 
-DataspaceMinMax::DataspaceMinMax( const Dataspace& dataspace )
-: name( dataspace.name ),
-  maxReads_tuple(  dataspace.reads().maxOnDims() ),  minReads_tuple(  dataspace.reads().minOnDims()  ),
-  maxWrites_tuple( dataspace.writes().maxOnDims() ), minWrites_tuple( dataspace.writes().minOnDims() )
-{ }
+map<LoopChain::size_type, Tuple> AutomaticShiftTransformation::computeShiftTuplesForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple ) {
+  const bool debug = false;
+  MPSolver solver("ShiftSolver", MPSolver::CBC_MIXED_INTEGER_PROGRAMMING);
 
-DataspaceMinMax::DataspaceMinMax( const DataspaceMinMax& that )
-: name( that.name ),
-  maxReads_tuple(  that.maxReads_tuple ),  minReads_tuple(  that.minReads_tuple  ),
-  maxWrites_tuple( that.maxWrites_tuple ), minWrites_tuple( that.minWrites_tuple )
-{ }
+  const double infinity = solver.infinity();
 
-Tuple DataspaceMinMax::maxRead() const {
-  return this->maxReads_tuple;
-}
+  map< LoopChain::size_type, vector<MPVariable*>* > shift_variables;
+  map< pair<MPVariable*,MPVariable*>, int> max_difference_map;
 
-Tuple DataspaceMinMax::minRead() const {
-  return this->minReads_tuple;
-}
+  MPObjective* objective = solver.MutableObjective();
+  vector< MPConstraint* > constraints;
 
-Tuple DataspaceMinMax::maxWrite() const {
-  return this->maxWrites_tuple;
-}
+  map< LoopChain::size_type, map<string, Dataspace> > dataspaces;
+  map< LoopChain::size_type, set<string> > dataspace_names;
 
-Tuple DataspaceMinMax::minWrite() const {
-  return this->minWrites_tuple;
-}
+  for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
+    // Make shift tuple for this nest
+    vector<MPVariable*>* nest_shifts = new vector<MPVariable*>();
+    solver.MakeIntVarArray( dimensions,
+                            -infinity, infinity,
+                            SSTR("shift_" << nest_idx << "_"),
+                            nest_shifts
+                          );
+    shift_variables[nest_idx] = nest_shifts;
 
-void DataspaceMinMax::postShiftUpdate( const Tuple& extent ){
-  if( this->maxReads_tuple != Tuple::createMagicEmptyTuple() )
-    this->maxReads_tuple = this->maxReads_tuple - extent;
-  if( this->minReads_tuple != Tuple::createMagicEmptyTuple() )
-    this->minReads_tuple = this->minReads_tuple - extent;
-  if( this->maxWrites_tuple != Tuple::createMagicEmptyTuple() )
-    this->maxWrites_tuple = this->maxWrites_tuple - extent;
-  if( this->minWrites_tuple != Tuple::createMagicEmptyTuple() )
-    this->minWrites_tuple = this->minWrites_tuple - extent;
-}
+    // Setup objective initial coeffecients
+    for( MPVariable* variable : *nest_shifts ){
+      objective->SetCoefficient( variable, 1 );
+    }
 
-void DataspaceMinMax::selfUnion( const DataspaceMinMax& dataspace_minmax ){
-  if( dataspace_minmax.name == this->name ){
-    this->maxReads_tuple = TupleCollection( { this->maxRead(), dataspace_minmax.maxRead() } ).maxOnDims();
-    this->minReads_tuple = TupleCollection( { this->minRead(), dataspace_minmax.minRead() } ).minOnDims();
-    this->maxWrites_tuple = TupleCollection( { this->maxWrite(), dataspace_minmax.maxWrite() } ).maxOnDims();
-    this->minWrites_tuple = TupleCollection( { this->minWrite(), dataspace_minmax.minWrite() } ).minOnDims();
+    list<Dataspace> nest_unnamed_dataspaces = chain.getNest(nest_idx).getDataspaces();
+    map< string, Dataspace > nest_dataspaces;
+    set<string> nest_dataspace_names;
+
+    for( Dataspace dataspace : nest_unnamed_dataspaces ){
+      nest_dataspace_names.insert( dataspace.name );
+      nest_dataspaces.emplace( dataspace.name, dataspace );
+    }
+
+    dataspaces[nest_idx] = nest_dataspaces;
+    dataspace_names[nest_idx] = nest_dataspace_names;
+
+    // Doing things with respect to the previous nests
+    for( LoopChain::size_type previous_idx = 0; previous_idx < nest_idx; ++previous_idx ){
+      vector<MPVariable*>* previous_shifts = shift_variables[previous_idx];
+
+      // Setup constraints: c_ywd - C_xwd <= S_yd - S_xd
+      map<string, Dataspace> previous_dataspaces = dataspaces[previous_idx];
+
+      set<string> previous_dataspace_names;
+      for( map<string, Dataspace>::iterator iter = previous_dataspaces.begin(); iter != previous_dataspaces.end(); ++iter ){
+        previous_dataspace_names.insert( iter->first );
+      }
+
+      // Determine what dataspaces the pair of loops share
+      vector<string> common( previous_dataspace_names.size() + nest_dataspace_names.size(), "" );
+
+      vector<string>::iterator last_insert = set_intersection(
+                            previous_dataspace_names.begin(), previous_dataspace_names.end(),
+                            nest_dataspace_names.begin(), nest_dataspace_names.end(),
+                            common.begin()
+                          );
+
+      common.resize( last_insert - common.begin() );
+
+      // pair of loops do not share any dataspaces
+      if( common.size() < 1 ){
+        continue;
+      }
+
+      if( debug ){
+        cout << "=========================================\n"
+             << nest_idx << " vs " << previous_idx << endl;
+      }
+
+      for( string name : common ){
+
+        auto calc_func = [&](TupleCollection nest_collection, TupleCollection prev_collection) {
+          for( Tuple nest_access_tuple : nest_collection ){
+            for( Tuple previous_access_tuple : prev_collection ){
+              for( Subspace::size_type d = 0; d < dimensions; ++d ){
+                // Calculate constant lower bound
+                int difference = nest_access_tuple[d] - previous_access_tuple[d];
+                // Construct constraint constant <= nest_shift_d - prev_shift
+
+                auto map_index = make_pair( previous_shifts->at(d), nest_shifts->at(d) );
+                if( max_difference_map.find(map_index) == max_difference_map.end() ){
+                  max_difference_map[map_index] = difference;
+                } else {
+                  max_difference_map[map_index] = max( max_difference_map[map_index], difference );
+                }
+
+              } // for d
+            } // for previous_access_tuple
+          } // for nest_access_tuple
+
+        }; // lambda function calc_func
+
+        if( debug )
+          cout << name << endl;
+
+        Dataspace nest_dataspace = nest_dataspaces.find(name)->second;
+        Dataspace previous_dataspace = previous_dataspaces.find(name)->second;
+
+        // Writes - writes
+        if( debug )
+          cout << "Writes - Writes" << endl;
+        calc_func( nest_dataspace.writes(), previous_dataspace.writes() );
+
+        // Writes - Reads
+        if( debug )
+          cout << "Writes - Reads" << endl;
+        calc_func( nest_dataspace.writes(), previous_dataspace.reads() );
+
+        // Reads - Writes
+        if( debug )
+          cout << "Reads - Writes" << endl;
+        calc_func( nest_dataspace.reads(), previous_dataspace.writes() );
+
+      } // for( name : common )
+    } // for( previous_idx )
+  } // for( nest_idx )
+
+  if( debug )
+    cout << endl << "=========================================" << endl;
+
+  for( map< pair<MPVariable*,MPVariable*>, int >::value_type key_value : max_difference_map ){
+    MPVariable* prev_shift = key_value.first.first;
+    MPVariable* next_shift = key_value.first.second;
+    int max_difference = key_value.second;
+    MPConstraint* constraint = solver.MakeRowConstraint( max_difference, max_difference );
+    constraint->SetCoefficient( next_shift,  1 );
+    constraint->SetCoefficient( prev_shift, -1 );
+    constraints.push_back( constraint );
   }
-}
 
-void DataspaceMinMax::selfUnion( const Dataspace& dataspace ){
-  this->selfUnion( DataspaceMinMax(dataspace) );
-}
+  for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
+    vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
+    if( debug )
+      cout << "Loop " << nest_idx << endl;
+    for( Subspace::size_type d = 0; d < dimensions; ++d  ){
+      MPVariable* shift = nests_shifts->at( d );
+      shift->SetLB( 0 );
+    }
 
-std::string DataspaceMinMax::str() const {
-  ostringstream stream;
-  stream << this->name << ": "
-         << "\n\tMaxRead: " << this->maxRead()
-         << "\n\tMinRead: " << this->minRead()
-         << "\n\tMaxWrite: " << this->maxWrite()
-         << "\n\tMinWrite: " << this->minWrite();
-  return stream.str();
-}
+    if( debug ){
+      cout << endl;
+      for( MPVariable* var : *nests_shifts ){
+        cout << var->lb() << " <= " << var->name() << " <= " << var->ub() << endl;
+      }
+    }
 
-std::ostream& LoopChainIR::operator<<( std::ostream& os, const DataspaceMinMax& dataspace ){
-  return (os << dataspace.str());
-}
-
-DataspaceMinMaxCollection::DataspaceMinMaxCollection( )
-: dataspaces( )
-{ }
-
-DataspaceMinMaxCollection::DataspaceMinMaxCollection( std::list<DataspaceMinMax> dataspaces )
-: dataspaces( )
-{
-  for( DataspaceMinMax dsmm : dataspaces ){
-    this->selfUnion( dsmm );
+    if( debug )
+      cout << "=========================================" << endl;
   }
-}
 
-DataspaceMinMaxCollection::DataspaceMinMaxCollection( std::list<Dataspace> dataspaces )
-: dataspaces( )
-{
-  for( Dataspace dataspace : dataspaces ){
-    this->selfUnion( dataspace );
+  if( debug ){
+    cout << "Num constraints: " << constraints.size() << endl;
+    cout << "Constraints:" << endl;
+    for( MPConstraint* constraint : constraints ){
+      cout << constraint->lb() << " <= ";
+      bool not_first = false;
+      for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
+        vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
+        for( MPVariable* variable : *nests_shifts ){
+          if( constraint->GetCoefficient( variable ) != 0.0 ){
+            if( not_first ) cout << " + ";
+            not_first = true;
+            cout << "( " << constraint->GetCoefficient( variable ) << " * "
+                 << variable->name() << " )";
+          }
+        }
+      }
+      cout << " <= " << constraint->ub() << endl;
+    }
   }
-}
 
-void DataspaceMinMaxCollection::postShiftUpdate( const Tuple& extent ){
-  for( pair< string, DataspaceMinMax > key_value : this->dataspaces ){
-    this->dataspaces.find(key_value.first)->second.postShiftUpdate( extent );
+  if( debug ){
+    cout << "coeffecients:" << endl;
+    for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
+      vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
+      bool not_first = false;
+      cout << "( ";
+      for( MPVariable* v : *nests_shifts ){
+        if( not_first ) cout << ", ";
+        not_first = true;
+        cout << objective->GetCoefficient( v ) << "*" << v->name();
+      }
+      cout << " )" << endl;
+    }
   }
-}
 
-void DataspaceMinMaxCollection::selfUnion( const DataspaceMinMax& dataspace_minmax ){
-  if( this->dataspaces.count( dataspace_minmax.name ) > 0 ){
-    this->dataspaces.find( dataspace_minmax.name )->second.selfUnion( dataspace_minmax );
-  } else {
-    this->dataspaces.emplace( dataspace_minmax.name, DataspaceMinMax( dataspace_minmax ) );
+  map<LoopChain::size_type, Tuple> shift_tuples;
+
+  if( constraints.size() > 0 ){
+    objective->SetMinimization();
+    if( debug )
+      cout << "Objective is a " << (objective->minimization()?"minimization":"maximization") << " problem" << endl;
+
+    MPSolver::ResultStatus result_status = solver.Solve();
+
+    // Check that the problem has an optimal solution.
+    if( result_status != MPSolver::OPTIMAL ) {
+      ostringstream error_stream;
+      error_stream << "The problem does not have an optimal solution!" << endl
+                   << "it is ";
+      switch( result_status ){
+        case MPSolver::FEASIBLE : { error_stream << " FEASIBLE." << endl; break; }
+        case MPSolver::INFEASIBLE : { error_stream << " INFEASIBLE." << endl; break; }
+        case MPSolver::UNBOUNDED : { error_stream << " UNBOUNDED." << endl; break; }
+        case MPSolver::ABNORMAL : { error_stream << " ABNORMAL." << endl; break; }
+        case MPSolver::MODEL_INVALID : { error_stream << " MODEL_INVALID." << endl; break; }
+        case MPSolver::NOT_SOLVED : { error_stream << " NOT_SOLVED." << endl; break; }
+        default:
+          error_stream << " some unlisted status: " << result_status << endl;
+      }
+      assertWithException( result_status == MPSolver::OPTIMAL, error_stream.str() );
+    } else {
+      if( debug )
+        cout << "Optimal objective value = " << objective->Value() << endl;
+
+      for( map< LoopChain::size_type, vector<MPVariable*>* >::iterator it = shift_variables.begin();
+            it != shift_variables.end();
+            ++it ){
+        LoopChain::size_type nest_id = it->first;
+        vector<MPVariable*>* nests_shifts = it->second;
+        vector<int> extents;
+
+        if( debug )
+          cout << nest_id << ": (";
+        bool not_first = false;
+        for( MPVariable* var : *nests_shifts ){
+          if( debug ){
+            if( not_first ) cout << ", ";
+            not_first = true;
+            cout << var->solution_value();
+          }
+          extents.push_back( (int) var->solution_value() );
+        }
+
+        if( debug )
+          cout << ")" << endl;
+
+        Tuple tuple( extents );
+
+        if( include_zero_tuple || !tuple.isEmptyTuple() ){
+          shift_tuples.emplace( nest_id, tuple );
+        }
+      }
+    }
   }
+
+  return shift_tuples;
 }
 
-void DataspaceMinMaxCollection::selfUnion( const Dataspace& dataspace ){
-  this->selfUnion( DataspaceMinMax( dataspace ) );
-}
+vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple ){
+  map<LoopChain::size_type, Tuple> shift_tuples = computeShiftTuplesForFusion( dimensions, chain );
+  vector<ShiftTransformation*> transformations;
 
-DataspaceMinMaxCollection::iterator DataspaceMinMaxCollection::begin(){
-  return this->dataspaces.begin();
-}
-
-DataspaceMinMaxCollection::iterator DataspaceMinMaxCollection::end(){
-  return this->dataspaces.end();
-}
-
-bool DataspaceMinMaxCollection::contains( std::string name ) const {
-  return this->dataspaces.count( name ) > 0;
-}
-
-DataspaceMinMax& DataspaceMinMaxCollection::operator[]( std::string name ) {
-  assertWithException( this->contains(name), SSTR( "No such dataspace " << name << " in collection" ) );
-  return this->dataspaces.find( name )->second;
-}
-
-const DataspaceMinMax& DataspaceMinMaxCollection::operator[]( std::string name ) const {
-  return this->dataspaces.find( name )->second;
-}
-
-
-std::string DataspaceMinMaxCollection::str() const {
-  ostringstream stream;
-  for( pair< string, DataspaceMinMax > key_value : this->dataspaces ){
-    stream << key_value.second << endl;
+  for( map<LoopChain::size_type, Tuple>::value_type key_value : shift_tuples ){
+    LoopChain::size_type nest_id = key_value.first;
+    Tuple tuple = key_value.second;
+    transformations.push_back( new ShiftTransformation( nest_id, tuple ) );
   }
-  return stream.str();
-}
 
-std::ostream& LoopChainIR::operator<<( std::ostream& os, const DataspaceMinMaxCollection& collection ){
-  return (os << collection.str());
+  return transformations;
 }

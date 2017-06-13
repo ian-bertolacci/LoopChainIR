@@ -109,3 +109,34 @@ TEST( LoopNestTest, construct_dataspaces ){
       }
   );
 }
+
+TEST( LoopNestTest, shift_dataspaces ){
+  // COnstruct LoopNest from domain
+  LoopNest nest(
+      RectangularDomain( { make_pair( "0", "N") }, {"N" } ),
+      {
+        Dataspace(  "A",
+                    TupleCollection( {
+                      Tuple( {  0,  0 } ),
+                      Tuple( {  1, -1 } )
+                    } ),
+                    TupleCollection( 2 )
+                ),
+        Dataspace(  "B",
+                    TupleCollection( 2 ),
+                    TupleCollection( {
+                      Tuple( {  0,  0 } ),
+                      Tuple( {  1, -1 } )
+                    } )
+                )
+      }
+  );
+
+  nest.shiftDataspaces( Tuple( {1,1} ) );
+
+  /*
+  for( Dataspace& dataspace : nest.getDataspaces() ){
+    cout << dataspace << endl;
+  }
+  */
+}

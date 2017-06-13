@@ -11,6 +11,8 @@
 #include "ShiftTransformation.hpp"
 #include "FusionTransformation.hpp"
 #include "TileTransformation.hpp"
+#include "AutomaticShiftTransformation.hpp"
+#include "WavefrontTransformation.hpp"
 #include "Schedule.hpp"
 #include "Transformation.hpp"
 

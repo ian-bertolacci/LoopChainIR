@@ -15,6 +15,7 @@ Copyright 2017 Universiy of Arizona
 
 #include "LoopChain.hpp"
 #include "Transformation.hpp"
+#include "Accesses.hpp"
 
 #include <string>
 #include <vector>
@@ -28,8 +29,7 @@ namespace LoopChainIR {
   class ShiftTransformation : public Transformation {
   private:
     LoopChain::size_type loop_id;
-    std::vector<std::string> extents;
-    std::vector<std::string> symbols;
+    Tuple extent;
 
   public:
     typedef int size_type;
@@ -47,6 +47,14 @@ namespace LoopChainIR {
 
     /*!
     \brief
+    Shift all loops specified in nest by the extent.
+    \param[in] loop The id of the loop-nest within the chain to be shifted
+    \param[in] extent The extent by which the loops are shifted by
+    */
+    ShiftTransformation( LoopChain::size_type loop, std::string extent );
+
+    /*!
+    \brief
     Shift all loops specified in nest by the extents.
     \param[in] loop The id of the loop-nest within the chain to be shifted
     \param[in] extents The extent by which the loop is shifted by.
@@ -57,35 +65,6 @@ namespace LoopChainIR {
     ShiftTransformation( LoopChain::size_type loop, std::vector<std::string> extents );
 
     /*!
-    \brief
-    Shift all loops specified in nest by the extents.
-    \param[in] loop The id of the loop-nest within the chain to be shifted
-    \param[in] extents The extent by which the loop is shifted by.
-               Note that extents.size() must be equal to
-               chain.getNest( loop ).getDomain().dimensions(), where chain is the
-               LoopChain on which the transformations are being applied to.
-    \param[in] symbols Symbols found within any of the extent expressions.
-    */
-    ShiftTransformation( LoopChain::size_type loop, std::vector<std::string> extents, std::vector<std::string> symbols );
-
-    /*!
-    \brief
-    Shift all loops specified in nest by the extent.
-    \param[in] loop The id of the loop-nest within the chain to be shifted
-    \param[in] extent The extent by which the loops are shifted by
-    */
-    ShiftTransformation( LoopChain::size_type loop, std::string extent );
-
-    /*!
-    \brief
-    Shift all loops specified in nest by the extent.
-    \param[in] loop The id of the loop-nest within the chain to be shifted
-    \param[in] extent The extent by which the loops are shifted by
-    \param[in] symbols Symbols found within the extent expression.
-    */
-    ShiftTransformation( LoopChain::size_type loop, std::string extent, std::vector<std::string> symbols );
-
-    /*!
     \returns The loop id within the associated loop chain.
     */
     LoopChain::size_type getLoopId();
@@ -93,12 +72,12 @@ namespace LoopChainIR {
     /*!
     \returns A vector of the extents;
     */
-    std::vector<std::string> getExtents();
+    Tuple getExtents();
 
     /*!
     \returns A vector of the symbols within the extents;
     */
-    std::vector<std::string> getSymbols();
+    //std::vector<std::string> getSymbols();
 
     /*!
     \brief

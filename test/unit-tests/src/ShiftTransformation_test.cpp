@@ -41,11 +41,9 @@ TEST(ShiftTransformationTest, GEN_1N_1D_0_Empty_Loop) {
   ShiftTransformation transformation(0, "0");
   schedulers.push_back( &transformation );
 
-  vector<string> test_extents(1,"0"); // one element of '0'
-  vector<string> test_symbols;
+  Tuple test_extents( { 0 } ); // one element of '0'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -66,7 +64,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_0_Single_Iteration) {
   LoopChain chain;
 
   {
-      string lower[1] = { "1" };
+    string lower[1] = { "1" };
     string upper[1] = { "1" };
     chain.append( LoopNest( RectangularDomain( lower, upper, 1 ) ) );
   }
@@ -76,11 +74,9 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_0_Single_Iteration) {
   ShiftTransformation transformation(0, "0");
   schedulers.push_back( &transformation );
 
-  vector<string> test_extents(1,"0"); // one element of '0'
-  vector<string> test_symbols;
+  Tuple test_extents( { 0 } ); // one element of '0'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -111,11 +107,10 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_0_N_Iterations) {
   ShiftTransformation transformation(0, "0");
   schedulers.push_back( &transformation );
 
-  vector<string> test_extents(1,"0"); // one element of '0'
-  vector<string> test_symbols;
+  Tuple test_extents( { 0 } ); // one element of '0'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -152,11 +147,10 @@ TEST(ShiftTransformationTest, GEN_1N_1D_5_Empty_Loop) {
   ShiftTransformation transformation(0, "5");
   schedulers.push_back( &transformation );
 
-  vector<string> test_extents(1,"5"); // one element of '0'
-  vector<string> test_symbols;
+  Tuple test_extents( { 5 } ); // one element of '0'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -186,11 +180,10 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_5_Single_Iteration) {
   ShiftTransformation transformation(0, "5");
   schedulers.push_back( &transformation );
 
-  vector<string> test_extents(1,"5"); // one element of '5'
-  vector<string> test_symbols;
+  Tuple test_extents( { 5 } ); // one element of '5'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -221,11 +214,10 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_5_N_Iterations) {
   ShiftTransformation transformation(0, "5");
   schedulers.push_back( &transformation );
 
-  vector<string> test_extents(1,"5"); // one element of '0'
-  vector<string> test_symbols;
+  Tuple test_extents( { 5 } ); // one element of '0'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -262,11 +254,10 @@ TEST(ShiftTransformationTest, GEN_1N_1D_neg5_Empty_Loop) {
   ShiftTransformation transformation(0, "-5");
   schedulers.push_back( &transformation );
 
-  vector<string> test_extents(1,"-5"); // one element of '0'
-  vector<string> test_symbols;
+  Tuple test_extents( { -5 } ); // one element of '0'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -296,11 +287,10 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_neg5_Single_Iteration) {
   ShiftTransformation transformation(0, "-5");
   schedulers.push_back( &transformation );
 
-  vector<string> test_extents(1,"-5"); // one element of '5'
-  vector<string> test_symbols;
+  Tuple test_extents( { -5 } ); // one element of '5'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -331,11 +321,10 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_neg5_N_Iterations) {
   ShiftTransformation transformation(0, "-5");
   schedulers.push_back( &transformation );
 
-  vector<string> test_extents(1,"-5"); // one element of '0'
-  vector<string> test_symbols;
+  Tuple test_extents( { -5 } ); // one element of '0'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -356,6 +345,7 @@ Apply shift of a symbolic
 /*
 Apply shift of K to a loop with no iterations
 */
+/*
 TEST(ShiftTransformationTest, GEN_1N_1D_K_Empty_Loop) {
   LoopChain chain;
 
@@ -377,7 +367,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_K_Empty_Loop) {
   vector<string> test_symbols(1,"K"); // one element of 'K'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -389,10 +379,11 @@ TEST(ShiftTransformationTest, GEN_1N_1D_K_Empty_Loop) {
   // Because this is an empty loop, the code will be an empty statement body
   ASSERT_EQ( sched.codegen(), string("{\n}\n") );
 }
-
+*/
 /*
 Apply shift of K to a loop with one iteration
 */
+/*
 TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_Single_Iteration) {
   LoopChain chain;
 
@@ -412,7 +403,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_Single_Iteration) {
   vector<string> test_symbols(1,"K"); // one element of 'K'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -424,10 +415,11 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_Single_Iteration) {
   // Because this is an empty loop, the code will be an empty statement body
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
-
+*/
 /*
 Apply shift of K to a loop with N iterations
 */
+/*
 TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_N_Iterations) {
   LoopChain chain;
 
@@ -448,7 +440,7 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_N_Iterations) {
   vector<string> test_symbols(1,"K"); // one element of 'K'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -460,10 +452,11 @@ TEST(ShiftTransformationTest, GEN_1N_1D_Shift_K_N_Iterations) {
   // Because this is an empty loop, the code will be an empty statement body
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
-
+*/
 /*
 Apply shift of K to a loop with NxM iterations
 */
+/*
 TEST(ShiftTransformationTest, GEN_1N_2D_Shift_K_NxM_Iterations) {
   LoopChain chain;
 
@@ -489,7 +482,7 @@ TEST(ShiftTransformationTest, GEN_1N_2D_Shift_K_NxM_Iterations) {
   vector<string> test_symbols(1, "K");
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -501,10 +494,11 @@ TEST(ShiftTransformationTest, GEN_1N_2D_Shift_K_NxM_Iterations) {
   // Because this is an empty loop, the code will be an empty statement body
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
-
+*/
 /*
 Apply shift of K to a loop with N iterations
 */
+/*
 TEST(ShiftTransformationTest, GEN_2N_1D_Shift_K_N_Iterations) {
   LoopChain chain;
 
@@ -532,7 +526,7 @@ TEST(ShiftTransformationTest, GEN_2N_1D_Shift_K_N_Iterations) {
   vector<string> test_symbols(1,"K"); // one element of 'K'
   ASSERT_EQ( 0, transformation.getLoopId() );
   ASSERT_EQ( test_extents, transformation.getExtents() );
-  ASSERT_EQ( test_symbols, transformation.getSymbols() );
+
 
   // Create Schedule object from chain
   Schedule sched( chain );
@@ -544,7 +538,7 @@ TEST(ShiftTransformationTest, GEN_2N_1D_Shift_K_N_Iterations) {
   // Because this is an empty loop, the code will be an empty statement body
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
-
+*/
 
 /*
 Test assertions
@@ -605,4 +599,50 @@ TEST(ShiftTransformationTest, Assertion_Test_extents_gt_domain) {
   Schedule sched( chain );
   // Exception happens here
   ASSERT_THROW( sched.apply( schedulers ), assert_exception );
+}
+
+TEST(ShiftTransformationTest, shift_dataspaces) {
+  LoopChain chain;
+
+  chain.append(
+    LoopNest(
+      RectangularDomain( { make_pair( "0", "N"), make_pair( "0", "M") }, {"N","M"} ),
+      {
+        Dataspace(  "A",
+                    TupleCollection( {
+                      Tuple( {  0,  0 } ),
+                      Tuple( {  1, -1 } )
+                    } ),
+                    TupleCollection( 2 )
+                ),
+        Dataspace(  "B",
+                    TupleCollection( 2 ),
+                    TupleCollection( {
+                      Tuple( {  0,  0 } ),
+                      Tuple( {  1, -1 } )
+                    } )
+                )
+      }
+    )
+  );
+
+  // Create an ordered list of Transformations
+  vector<Transformation*> transformations;
+  // Constructor does not throw exception, that happens in application
+  transformations.push_back( new ShiftTransformation(0, Tuple({1,1})) );
+
+  Schedule sched( chain );
+
+  /*
+  for( Dataspace ds : sched.getChain( ).getNest( 0 ).getDataspaces() ){
+    cout << ds << endl;
+  }
+  */
+
+  sched.apply( transformations );
+  /*
+  for( Dataspace ds : sched.getChain( ).getNest( 0 ).getDataspaces() ){
+    cout << ds << endl;
+  }
+  */
 }

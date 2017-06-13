@@ -43,9 +43,19 @@ namespace LoopChainIR{
     RectangularDomain& getDomain();
 
     /*!
-    \returnst a copy of the LoopNest's Dataspaces.
+    \returns a copy of the LoopNest's Dataspaces.
     */
     std::list<Dataspace> getDataspaces() const;
+
+    /*!
+    \brief Replaces the original dataspaces with the given ones.
+    */
+    void replaceDataspaces( std::list<Dataspace> dataspaces );
+
+    /*!
+    \brief Shifts all the accesses by some extent.
+    */
+    void shiftDataspaces( Tuple extent );
   };
 
 }

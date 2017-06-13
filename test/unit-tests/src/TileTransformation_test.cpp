@@ -560,3 +560,53 @@ TEST( TileTransformation_test, 1N_2D_nested_2 ){
   // Test
   ASSERT_NE( sched.codegen(), string("{\n}\n") );
 }
+
+TEST(TileTransformationTest, tile_dataspaces) {
+  LoopChain chain;
+
+  chain.append(
+    LoopNest(
+      RectangularDomain( { make_pair( "0", "N"), make_pair( "0", "M") }, {"N","M"} ),
+      {
+        Dataspace(  "A",
+                    TupleCollection( {
+                      Tuple( {  0,  0 } ),
+                      Tuple( {  1,  0 } ),
+                      Tuple( {  0,  2 } ),
+                      Tuple( { -3,  0 } ),
+                      Tuple( {  0, -4 } )
+                    } ),
+                    TupleCollection( 2 )
+                ),
+        Dataspace(  "B",
+                    TupleCollection( 2 ),
+                    TupleCollection( {
+                      Tuple( {  0,  0 } ),
+                    } )
+                )
+      }
+    )
+  );
+
+  // Create an ordered list of Transformations
+  vector<Transformation*> transformations = {
+    new TileTransformation( 0, { make_pair( 0, "8" ), make_pair( 0, "8" ) } )
+  };
+
+
+  Schedule sched( chain );
+
+  /*
+  for( Dataspace ds : sched.getChain( ).getNest( 0 ).getDataspaces() ){
+    cout << ds << endl;
+  }
+  */
+
+  ASSERT_NO_THROW({ sched.apply( transformations ); });
+
+  /*
+  for( Dataspace ds : sched.getChain( ).getNest( 0 ).getDataspaces() ){
+    cout << ds << endl;
+  }
+  */
+}

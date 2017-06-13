@@ -23,6 +23,22 @@ Tuple::Tuple( vector<int> values )
 : tuple( values.begin(), values.end() )
 { }
 
+Tuple::Tuple( vector<string> values )
+: tuple()
+{
+  for( string value : values ){
+    this->tuple.push_back( stoi( value ) );
+  }
+}
+
+Tuple::Tuple( std::initializer_list<int> values )
+: Tuple( vector<int>( values ) )
+{ }
+
+Tuple::Tuple( std::initializer_list<std::string> values )
+: Tuple( vector<string>( values ) )
+{ }
+
 Tuple::Tuple( const Tuple& that )
 : Tuple( that.tuple )
 { }
@@ -37,6 +53,16 @@ Tuple::size_type Tuple::dimensions() const {
 
 bool Tuple::isEmptyTuple() const {
   return this->dimensions() == 0;
+}
+
+bool Tuple::isZeroTuple() const {
+  for( int element : this->tuple ){
+    if( element != 0 ){
+      return false;
+    }
+  }
+
+  return true;
 }
 
 Tuple::iterator Tuple::begin(){
@@ -282,6 +308,10 @@ TupleCollection Dataspace::reads() const {
 
 TupleCollection Dataspace::writes() const {
   return TupleCollection( this->write_collection );
+}
+
+TupleCollection Dataspace::allAccesses() const {
+  return TupleCollection( this->reads(), this->writes() );
 }
 
 Tuple::size_type Dataspace::dimensions() const {

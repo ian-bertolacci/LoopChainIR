@@ -17,6 +17,7 @@ Copyright 2017 Universiy of Arizona
 #include <iostream>
 #include <vector>
 #include <set>
+#include <initializer_list>
 
 namespace LoopChainIR {
 
@@ -28,12 +29,16 @@ namespace LoopChainIR {
       typedef container_type::size_type size_type;
       typedef container_type::iterator iterator;
       Tuple( std::vector<int> values );
+      Tuple( std::initializer_list<int> values );
+      Tuple( std::vector<std::string> values );
+      Tuple( std::initializer_list<std::string> values );
       Tuple( const Tuple& other );
 
       static Tuple createMagicEmptyTuple();
 
       size_type dimensions() const;
       bool isEmptyTuple() const;
+      bool isZeroTuple() const;
       iterator begin();
       iterator end();
 
@@ -89,6 +94,7 @@ namespace LoopChainIR {
 
       TupleCollection reads() const;
       TupleCollection writes() const;
+      TupleCollection allAccesses() const;
       Tuple::size_type dimensions() const;
 
       std::string str() const;

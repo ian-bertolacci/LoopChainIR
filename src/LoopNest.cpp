@@ -30,3 +30,22 @@ RectangularDomain& LoopNest::getDomain(){
 std::list<Dataspace> LoopNest::getDataspaces() const {
   return std::list<Dataspace>( this->dataspaces );
 }
+
+void LoopNest::replaceDataspaces( std::list<Dataspace> dataspaces ) {
+  this->dataspaces.clear();
+  this->dataspaces.insert( this->dataspaces.begin(), dataspaces.begin(), dataspaces.end() );
+}
+
+void LoopNest::shiftDataspaces( Tuple extent ){
+  std::list<Dataspace> shifted_dataspaces;
+
+  for( Dataspace& dataspace : this->dataspaces ){
+    TupleCollection reads = dataspace.reads();
+    TupleCollection writes = dataspace.writes();
+    reads.shiftAll( extent );
+    writes.shiftAll( extent );
+    shifted_dataspaces.push_back( Dataspace( dataspace.name, reads, writes ) );
+  }
+
+  this->replaceDataspaces( shifted_dataspaces );
+}

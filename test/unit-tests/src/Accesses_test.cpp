@@ -29,6 +29,23 @@ TEST( Tuple_test, construct ){
   }
 }
 
+
+TEST( Tuple_test, construct_str ){
+  vector<string> values = { "1", "2", "3" };
+  vector<int> int_values = { 1, 2, 3 };
+  ASSERT_NO_THROW({ Tuple maythrow( values );  });
+  Tuple tuple( values );
+  ASSERT_EQ( tuple.dimensions(), values.size() );
+  for( Tuple::size_type d = 0; d < tuple.dimensions(); d += 1 ){
+    ASSERT_EQ( tuple[d], int_values[d] );
+  }
+}
+
+TEST( Tuple_test, construct_str_throw ){
+  vector<string> values = { "1", "N", "3" };
+  ASSERT_THROW({ Tuple maythrow( values ); }, std::invalid_argument );
+}
+
 TEST( Tuple_test, less_than ){
   EXPECT_FALSE( Tuple( { 0, 0, 0 } ) < Tuple( { 0, 0, 0 } ) );
   EXPECT_TRUE(  Tuple( { 0, 0    } ) < Tuple( { 0, 0, 0 } ) );
