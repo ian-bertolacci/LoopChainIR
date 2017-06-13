@@ -103,12 +103,12 @@ timestamp_t Subspace::get_stage() const {
   return this->stage;
 }
 
-std::string Subspace::get_iterators( timestamp_t stage, bool use_aliases ){
+std::string Subspace::get_iterators( timestamp_t stage, bool use_aliases ) const {
   ostringstream stream;
 
   if( this->get_stage() <= stage ){
     bool not_first = false;
-    for( Subspace::iterator iter = this->begin( use_aliases ); iter != this->end(); ++iter ){
+    for( Subspace::const_iterator iter = this->begin( use_aliases ); iter != this->end(); ++iter ){
       stream << (not_first?",":"") << *iter ;
       not_first = true;
     }
@@ -117,7 +117,7 @@ std::string Subspace::get_iterators( timestamp_t stage, bool use_aliases ){
   return stream.str();
 }
 
-std::string Subspace::get( Subspace::size_type index, bool use_aliases ){
+std::string Subspace::get( Subspace::size_type index, bool use_aliases ) const {
   if( this->is_aliased() && use_aliases ){
     return SSTR( alias_prefix << this->all_iterators[index] );
   } else {
@@ -126,7 +126,7 @@ std::string Subspace::get( Subspace::size_type index, bool use_aliases ){
 }
 
 
-std::string Subspace::operator[]( size_type index ){
+std::string Subspace::operator[]( size_type index ) const {
   return this->get( index, this->is_aliased() );
 }
 
@@ -241,7 +241,15 @@ SubspaceManager::iterator SubspaceManager::end(){
   return this->subspaces.end();
 }
 
-SubspaceManager::iterator SubspaceManager::get_iterator_to_subspace( Subspace* subspace ){
+SubspaceManager::const_iterator SubspaceManager::begin() const {
+  return this->subspaces.begin();
+}
+
+SubspaceManager::const_iterator SubspaceManager::end() const {
+  return this->subspaces.end();
+}
+
+SubspaceManager::iterator SubspaceManager::get_iterator_to_subspace( const Subspace* subspace ){
   SubspaceManager::iterator iter = this->subspaces.begin();
   while( iter != this->subspaces.end() && *iter != subspace ){
     ++iter;
@@ -264,6 +272,32 @@ Subspace* SubspaceManager::get_loops(){
 Subspace* SubspaceManager::get_nest(){
   return *( this->get_iterator_to_nest() );
 }
+
+
+SubspaceManager::const_iterator SubspaceManager::get_iterator_to_subspace( const Subspace* subspace ) const {
+  SubspaceManager::const_iterator iter = this->subspaces.begin();
+  while( iter != this->subspaces.end() && *iter != subspace ){
+    ++iter;
+  }
+  return iter;
+}
+
+SubspaceManager::const_iterator SubspaceManager::get_iterator_to_loops() const {
+  return this->get_iterator_to_subspace( this->loop );
+}
+
+SubspaceManager::const_iterator SubspaceManager::get_iterator_to_nest() const {
+  return this->get_iterator_to_subspace( this->nest );
+}
+
+const Subspace* SubspaceManager::get_loops() const {
+  return *( this->get_iterator_to_loops() );
+}
+
+const Subspace* SubspaceManager::get_nest() const {
+  return *( this->get_iterator_to_nest() );
+}
+
 
 std::string SubspaceManager::get_safe_prefix( std::string base ){
   if( this->safe_prefixes.count( base ) == 0 ){
@@ -289,23 +323,23 @@ SubspaceManager::iterator SubspaceManager::insert_right( Subspace* subspace, Sub
   return this->insert_left( subspace, std::next(cursor) );
 }
 
-Subspace::size_type SubspaceManager::size(){
+Subspace::size_type SubspaceManager::size() const {
   Subspace::size_type size = 0;
-  for( Subspace* subspace : *this ){
-    size += subspace->complete_size();
+  for( SubspaceManager::const_iterator it = this->begin(); it != this->end(); ++it ){
+    size += (*it)->complete_size();
   }
   return size;
 }
 
-timestamp_t SubspaceManager::get_current_stage(){
+timestamp_t SubspaceManager::get_current_stage() const {
   return this->stage;
 }
 
-timestamp_t SubspaceManager::get_input_stage(){
+timestamp_t SubspaceManager::get_input_stage() const {
   return this->get_current_stage();
 }
 
-timestamp_t SubspaceManager::get_output_stage() {
+timestamp_t SubspaceManager::get_output_stage() const {
   return this->get_input_stage() + 1;
 }
 
@@ -321,12 +355,13 @@ timestamp_t SubspaceManager::next_stage(){
   return this->advance_stage();
 }
 
-std::string SubspaceManager::get_iterators( timestamp_t stage, bool use_aliases ){
+std::string SubspaceManager::get_iterators( timestamp_t stage, bool use_aliases ) const {
   ostringstream stream;
 
   bool not_first = false;
-  for( Subspace* subspace : *this ){
-    std::string subspace_str =  subspace->get_iterators( stage, use_aliases );
+  for( SubspaceManager::const_iterator it = this->begin(); it != this->end(); ++it ){
+    const Subspace* subspace = *it;
+    std::string subspace_str = subspace->get_iterators( stage, use_aliases );
 
     if( subspace_str != "" ){
       stream << (not_first? "," : "") << subspace_str;
@@ -338,14 +373,14 @@ std::string SubspaceManager::get_iterators( timestamp_t stage, bool use_aliases 
   return stream.str();
 }
 
-std::string SubspaceManager::get_iterators( ){
+std::string SubspaceManager::get_iterators( ) const {
   return this->get_iterators( this->get_current_stage(), true );
 }
 
-std::string SubspaceManager::get_input_iterators(){
+std::string SubspaceManager::get_input_iterators() const {
   return this->get_iterators( this->get_input_stage(), false );
 }
 
-std::string SubspaceManager::get_output_iterators(){
+std::string SubspaceManager::get_output_iterators() const {
   return this->get_iterators( this->get_output_stage(), true );
 }

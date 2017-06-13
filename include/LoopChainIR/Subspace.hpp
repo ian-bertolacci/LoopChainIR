@@ -98,13 +98,13 @@ namespace LoopChainIR {
       /*! \brief Returns the stage assigned to this Subspace. */
       timestamp_t get_stage() const;
       /*! \brief Returns a string of the iterators at or before the specified stage, with option to use aliases. */
-      std::string get_iterators( timestamp_t stage, bool use_aliases );
+      std::string get_iterators( timestamp_t stage, bool use_aliases ) const;
 
       /*! \brief Returns the index'th iterator, with option to use aliases. */
-      std::string get( size_type index, bool use_aliases );
+      std::string get( size_type index, bool use_aliases ) const;
 
       /*! \brief Returns the index'th iterator, respecting alias state. */
-      std::string operator[]( size_type index );
+      std::string operator[]( size_type index ) const;
       /*! \brief Returns true if the subspaces have the same iterators. Aliasing and stage not considered. */
       bool operator==( const Subspace that ) const;
       /*! \brief Returns true if the subspaces do not have the same iterators. Aliasing and stage not considered. */
@@ -159,6 +159,7 @@ namespace LoopChainIR {
     public:
       typedef std::vector<Subspace*> Container;
       typedef Container::iterator iterator;
+      typedef Container::const_iterator const_iterator;
 
     protected:
       typedef std::insert_iterator<Container> insert_iterator;
@@ -179,43 +180,62 @@ namespace LoopChainIR {
       iterator begin();
       /*! \brief Returns an iterator to the end of the Subspaces. */
       iterator end();
+
+      /*! \brief Returns an iterator to the first Subspace, with option to use aliases. */
+      const_iterator begin( bool use_aliases ) const;
+      /*! \brief Returns an iterator to the first Subspace, respecting alias state of Subspaces */
+      const_iterator begin() const;
+      /*! \brief Returns an iterator to the end of the Subspaces. */
+      const_iterator end() const;
+
       /*! \brief Returns an itreator referencing the loops Subspace (typically [loops_c]). */
-      iterator get_iterator_to_loops()
+      iterator get_iterator_to_loops();
       /*! \brief Returns an itreator referencing the nests Subspace (typically [i_0,i_1,...m,i_c]). */;
       iterator get_iterator_to_nest();
       /*! \brief Given a pointer to a Subspace this SubspaceManager manages, returns an iterator to it. */
-      iterator get_iterator_to_subspace( Subspace* subspace );
+      iterator get_iterator_to_subspace( const Subspace* subspace );
       /*! \brief Returns a pointer to the loops Subspace. */
       Subspace* get_loops();
       /*! \brief Returns a pointer to the nests Subspace. */
       Subspace* get_nest();
+
+      /*! \brief Returns an itreator referencing the loops Subspace (typically [loops_c]). */
+      const_iterator get_iterator_to_loops() const;
+      /*! \brief Returns an itreator referencing the nests Subspace (typically [i_0,i_1,...m,i_c]). */;
+      const_iterator get_iterator_to_nest() const;
+      /*! \brief Given a pointer to a Subspace this SubspaceManager manages, returns an iterator to it. */
+      const_iterator get_iterator_to_subspace( const Subspace* subspace ) const;
+      /*! \brief Returns a pointer to the loops Subspace. */
+      const Subspace* get_loops() const;
+      /*! \brief Returns a pointer to the nests Subspace. */
+      const Subspace* get_nest() const;
 
       std::string get_safe_prefix( std::string basic );
 
       iterator insert_left( Subspace* subpsace, iterator cursor );
       iterator insert_right( Subspace* subpsace, iterator cursor );
 
-      Subspace::size_type size();
+      Subspace::size_type size() const;
 
       /*! \brief Returns the current stage. */
-      timestamp_t get_current_stage();
+      timestamp_t get_current_stage() const;
       /*! \brief Returns the stage that forms the input iteration space of a function created at this stage. */
-      timestamp_t get_input_stage();
+      timestamp_t get_input_stage() const;
       /*! \brief Returns the stage that forms the output iteration space of a function created at this stage. */
-      timestamp_t get_output_stage();
+      timestamp_t get_output_stage() const;
       /*! \brief Advances the curent stage forward by one. */
       timestamp_t advance_stage();
       /*! \brief Advances stage, and unsets alias for all managed subspaces. */
       timestamp_t next_stage();
 
       /*! \brief Returns string of iterators for this stage, with option to use aliases. */
-      std::string get_iterators( timestamp_t stage, bool use_aliases );
+      std::string get_iterators( timestamp_t stage, bool use_aliases ) const;
       /*! \brief Returns string of iterators for the current stage, respecting all Subspaces alias state. */
-      std::string get_iterators( );
+      std::string get_iterators( ) const;
       /*! \brief Returns string of iterators that forms the input iteration space of a function created at this stage, not respecting any Subspaces alias state. */
-      std::string get_input_iterators();
+      std::string get_input_iterators() const;
       /*! \brief Returns string of iterators that forms the output iteration space of a function created at this stage, respecting all Subspaces alias state. */
-      std::string get_output_iterators();
+      std::string get_output_iterators() const;
   };
 }
 #endif

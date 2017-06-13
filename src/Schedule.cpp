@@ -207,15 +207,16 @@ IslAstRoot* Schedule::codegenToIslAst(){
   isl_ast_build* build = isl_ast_build_alloc(ctx);
   build = isl_ast_build_set_options( build, separate_map );
 
-  // Create iterator names by the thousands
-  int dims = 100;
-  isl_id_list* names = isl_id_list_alloc( ctx, dims );
-  for( int d = 0; d < dims; ++d ){
-    isl_id* id = isl_id_alloc( ctx, (this->getIteratorPrefix() + to_string(d)).c_str(), NULL );
-    names = isl_id_list_add( names, id );
+  // Create hundreds of iterator names
+  {
+    int dims = 100;
+    isl_id_list* names = isl_id_list_alloc( ctx, dims );
+    for( int d = 0; d < dims; ++d ){
+      isl_id* id = isl_id_alloc( ctx, (this->getIteratorPrefix() + to_string(d)).c_str(), NULL );
+      names = isl_id_list_add( names, id );
+    }
+    build = isl_ast_build_set_iterators( build, names );
   }
-  build = isl_ast_build_set_iterators( build, names );
-
 
   isl_ast_node* tree = isl_ast_build_node_from_schedule_map( build, schedule_map );
 
@@ -312,7 +313,9 @@ std::string Schedule::codegenToISCC( ) const {
   for( int i = 1; i < stmt_count; i += 1 ){
     os << ((i>1)?"+":"") << "S" << i;
   }
-  os << ") );";
+  const Subspace* nest = manager.get_nest();;
+  os << ") ) using { [" << manager.get_input_iterators() << "] -> "
+      << "separate[" << nest->get( nest->size() , false ) << "] };";
   return std::string( os.str() );
 }
 
