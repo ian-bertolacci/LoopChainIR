@@ -4,8 +4,8 @@ PROJECT_DIR ?= $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 BIN=$(PROJECT_DIR)/bin
 SRC=$(PROJECT_DIR)/src
 INCLUDE=$(PROJECT_DIR)/include
-UTIL=$(PROJECT_DIR)/util
 LIB=$(PROJECT_DIR)/lib
+UTIL=$(PROJECT_DIR)/util
 
 TEST=$(PROJECT_DIR)/test
 UNIT_TEST_DIR=$(TEST)/unit-tests
@@ -54,6 +54,11 @@ UNZIP=@UNZIP@
 # Library name and full path
 LIBNAME=loopchainIR
 EXE=$(LIB)/lib$(LIBNAME).a
+
+# Install location
+prefix=@prefix@
+# Install log file
+INSTALL_LOG=$(PROJECT_DIR)/installed.txt
 
 # Unit tests list
 UNIT_TESTS = 	RectangularDomain_test \
@@ -186,8 +191,43 @@ clean-third-party:
 clean-test:
 	- rm -r $(UNIT_TEST_BIN)/* $(REG_TEST_DIR)/*.log $(REG_TEST_DIR)/*.dir
 
+clean-install:
+	- rm $(INSTALL_LOG)
+
 clean: clean-test
 	- rm $(BIN)/*
 	- rm $(LIB)/*
 
-clean-all: clean-third-party clean clean-doc
+clean-all: clean-third-party clean clean-doc clean-install
+
+install: all
+	# Remove previous install logs
+	- rm $(INSTALL_LOG)
+	# Write to instal log all files and directories created during installation
+	# listing directories first
+	[ -e $(prefix)/lib ] || echo $(prefix)/lib >> $(INSTALL_LOG)
+	[ -e $(prefix)/include ] || echo $(prefix)/include >> $(INSTALL_LOG)
+	find $(LIB)/* -type d -exec echo $(prefix)/"{}" \; | sed "s|$(PROJECT_DIR)/||" >> $(INSTALL_LOG)
+	find $(INCLUDE)/* -type d -exec echo $(prefix)/"{}" \; | sed "s|$(PROJECT_DIR)/||" >> $(INSTALL_LOG)
+	find $(LIB)/* -type f -exec echo $(prefix)/"{}" \; | sed "s|$(PROJECT_DIR)/||" >> $(INSTALL_LOG)
+	find $(INCLUDE)/* -type f -exec echo $(prefix)/"{}" \; | sed "s|$(PROJECT_DIR)/||" >> $(INSTALL_LOG)
+
+	# Create $(prefix)/lib and $(prefix)/include (if necessary)
+	libtool --mode=install install -d lib $(prefix)
+	libtool --mode=install install -d include $(prefix)
+	# Copy all header files to $(prefix)/include (replicates dir stucture)
+	libtool --mode=install cp -r $(INCLUDE)/ $(prefix)/
+	# Copy all libraries to $(prefix)/lib
+	libtool --mode=install install $(LIB)/* $(prefix)/lib
+
+uninstall:
+	# Test for existence of install log file
+	[ ! -e $(INSTALL_LOG) ] && ( echo "No install log" && false ) || true
+	# For each file in install log, if file exists, remove it
+	for f in $$( cat $(INSTALL_LOG) ); \
+	do \
+		if [ -e $$f ]; \
+		then \
+			rm -rf $$f ;\
+		fi; \
+	done
