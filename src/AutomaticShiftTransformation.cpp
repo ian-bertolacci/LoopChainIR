@@ -42,9 +42,7 @@ map<LoopChain::size_type, Tuple> AutomaticShiftTransformation::computeShiftTuple
   #elif defined USE_GUROBI
     MPSolver::OptimizationProblemType optimizationProblemType = MPSolver::GUROBI_MIXED_INTEGER_PROGRAMMING;
   #elif defined USE_CPLEX
-    OptimizationProblemType optimizationProblemType = MPSolver::CPLEX_MIXED_INTEGER_PROGRAMMING
-  #elif defined USE_BOP
-    MPSolver::OptimizationProblemType optimizationProblemType = MPSolver::BOP_INTEGER_PROGRAMMING;
+    MPSolver::OptimizationProblemType optimizationProblemType = MPSolver::CPLEX_MIXED_INTEGER_PROGRAMMING;
   #else
     #error "Google Optimization Tools has no proper backend!"
   #endif

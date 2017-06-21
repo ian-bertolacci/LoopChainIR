@@ -679,6 +679,13 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+with_scip_solver
+with_glpk_solver
+with_cbc_solver
+with_slm_solver
+with_gurobi_solver
+with_cplex_solver
+enable_debugging
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1305,6 +1312,22 @@ if test -n "$ac_init_help"; then
      short | recursive ) echo "Configuration of LoopChainIR version-0.1:";;
    esac
   cat <<\_ACEOF
+
+Optional Features:
+  --disable-option-checking  ignore unrecognized --enable/--with options
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-debugging      Enable gdb debugging options
+
+Optional Packages:
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-scip-solver      Use scip as the linear solver backend
+  --with-glpk-solver      Use glpk as the linear solver backend
+  --with-cbc-solver       Use cbc as the linear solver backend
+  --with-slm-solver       Use slm as the linear solver backend
+  --with-gurobi-solver    Use gurobi as the linear solver backend
+  --with-cplex-solver     Use cplex as the linear solver backend
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -3370,7 +3393,72 @@ $as_echo "#define HAVE_CXX11 1" >>confdefs.h
 
 
 
-CXXFLAGS="-O3 -g -DUSE_CBC -DUSE_CLP -DUSE_GLOP -Wall -Wno-deprecated -Wextra --std=c++11 -fPIC -I\$(INCLUDE)"
+OR_TOOLS_USE_SOLVERS=""
+
+# Check whether --with-scip_solver was given.
+if test "${with_scip_solver+set}" = set; then :
+  withval=$with_scip_solver; OR_TOOLS_USE_SOLVERS+="-DUSE_SCIP "
+
+fi
+
+
+# Check whether --with-glpk_solver was given.
+if test "${with_glpk_solver+set}" = set; then :
+  withval=$with_glpk_solver; OR_TOOLS_USE_SOLVERS+="-DUSE_GLPK "
+
+fi
+
+
+# Check whether --with-cbc_solver was given.
+if test "${with_cbc_solver+set}" = set; then :
+  withval=$with_cbc_solver; OR_TOOLS_USE_SOLVERS+="-DUSE_CBC "
+
+fi
+
+
+# Check whether --with-slm_solver was given.
+if test "${with_slm_solver+set}" = set; then :
+  withval=$with_slm_solver; OR_TOOLS_USE_SOLVERS+="-DUSE_SLM "
+
+fi
+
+
+# Check whether --with-gurobi_solver was given.
+if test "${with_gurobi_solver+set}" = set; then :
+  withval=$with_gurobi_solver; OR_TOOLS_USE_SOLVERS+="-DUSE_GUROBI "
+
+fi
+
+
+# Check whether --with-cplex_solver was given.
+if test "${with_cplex_solver+set}" = set; then :
+  withval=$with_cplex_solver; OR_TOOLS_USE_SOLVERS+="-DUSE_CPLEX "
+
+fi
+
+
+if test x"$OR_TOOLS_USE_SOLVERS" == x""; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: No solver specified, defaulting to CBC" >&5
+$as_echo "$as_me: No solver specified, defaulting to CBC" >&6;}
+  OR_TOOLS_USE_SOLVERS="-DUSE_CBC"
+
+fi
+
+# Check whether --enable-debugging was given.
+if test "${enable_debugging+set}" = set; then :
+  enableval=$enable_debugging; CXX_DEBUG_FLAGS="-ggdb"
+else
+  CXX_DEBUG_FLAGS=""
+
+fi
+
+
+CXX_BASE_FLAGS="-fPIC"
+
+CXX_WARNING_LEVEL="-Wall -Wno-deprecated -Wextra"
+CXX_OPTIMIZATION_LEVEL="-O3"
+
+CXXFLAGS="${CXX_BASE_FLAGS} ${CXX_WARNING_LEVEL} ${CXX_OPTIMIZATION_LEVEL} ${CXX_DEBUG_FLAGS} ${OR_TOOLS_USE_SOLVERS}"
 
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -3856,11 +3944,11 @@ done
 
 
 
-    as_ac_Lib=`$as_echo "ac_cv_lib_ ortools _ #include <linear_solver/linear_solver.h> #include <string> " | $as_tr_sh`
+    as_ac_Lib=`$as_echo "ac_cv_lib_ortools_ #include <linear_solver/linear_solver.h> #include <string> " | $as_tr_sh`
 
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -l ortools " >&5
-$as_echo_n "checking for -l ortools ... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lortools" >&5
+$as_echo_n "checking for -lortools... " >&6; }
 if eval \${$as_ac_Lib+:} false; then :
   $as_echo_n "(cached) " >&6
 else
@@ -3873,7 +3961,7 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
         ax_try_link_save_LIBS=$LIBS
-        LIBS="-l ortools  $LIBS"
+        LIBS="-lortools $LIBS"
 
         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -3893,9 +3981,7 @@ main ()
     #elif defined USE_GUROBI
       operations_research::MPSolver::OptimizationProblemType optimizationProblemType = operations_research::MPSolver::GUROBI_MIXED_INTEGER_PROGRAMMING;
     #elif defined USE_CPLEX
-      operations_research::MPSolver::OptimizationProblemType optimizationProblemType = operations_research::MPSolver::CPLEX_MIXED_INTEGER_PROGRAMMING
-    #elif defined USE_BOP
-      operations_research::MPSolver::OptimizationProblemType optimizationProblemType = operations_research::MPSolver::BOP_INTEGER_PROGRAMMING;
+      operations_research::MPSolver::OptimizationProblemType optimizationProblemType = operations_research::MPSolver::CPLEX_MIXED_INTEGER_PROGRAMMING;
     #else
       #error "Google Optimization Tools has no proper backend!"
     #endif
@@ -3930,10 +4016,10 @@ $as_echo "$ac_res" >&6; }
         if eval test \"x\$"$as_ac_Lib"\" = x"yes"; then :
 
             cat >>confdefs.h <<_ACEOF
-#define HAVE_LIB_ORTOOLS_ 1
+#define HAVE_LIBORTOOLS 1
 _ACEOF
 
-                        (echo $LIBS | grep -q -- "-l ortools  ") || LIBS="-l ortools  $LIBS"
+                        (echo $LIBS | grep -q -- "-lortools ") || LIBS="-lortools $LIBS"
 
 else
   as_fn_error $? "Cannot find MPSolver in libortools. A Working Google Optimization Tools (Google OR-Tools) is required." "$LINENO" 5
