@@ -10,7 +10,7 @@ Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "FusionTransformation.hpp"
+#include <LoopChainIR/FusionTransformation.hpp>
 #include <iostream>
 #include <utility>
 

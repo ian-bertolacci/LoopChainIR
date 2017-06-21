@@ -3,18 +3,18 @@
 #include <fstream>
 #include <string>
 
-#include "all_isl.hpp"
-#include "LoopChain.hpp"
-#include "LoopNest.hpp"
-#include "RectangularDomain.hpp"
-#include "DefaultSequentialTransformation.hpp"
-#include "ShiftTransformation.hpp"
-#include "FusionTransformation.hpp"
-#include "TileTransformation.hpp"
-#include "AutomaticShiftTransformation.hpp"
-#include "WavefrontTransformation.hpp"
-#include "Schedule.hpp"
-#include "Transformation.hpp"
+#include <LoopChainIR/all_isl.hpp>
+#include <LoopChainIR/LoopChain.hpp>
+#include <LoopChainIR/LoopNest.hpp>
+#include <LoopChainIR/RectangularDomain.hpp>
+#include <LoopChainIR/DefaultSequentialTransformation.hpp>
+#include <LoopChainIR/ShiftTransformation.hpp>
+#include <LoopChainIR/FusionTransformation.hpp>
+#include <LoopChainIR/TileTransformation.hpp>
+#include <LoopChainIR/AutomaticShiftTransformation.hpp>
+#include <LoopChainIR/WavefrontTransformation.hpp>
+#include <LoopChainIR/Schedule.hpp>
+#include <LoopChainIR/Transformation.hpp>
 
 using namespace std;
 using namespace LoopChainIR;

@@ -10,7 +10,7 @@ Copyright 2015-2016 Colorado State University
 Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
-#include "util.hpp"
+#include <LoopChainIR/util.hpp>
 
 void assertWithException( bool condition, const std::string& message ){
   if( !condition ){

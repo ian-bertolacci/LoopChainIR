@@ -13,8 +13,8 @@ Copyright 2017 Universiy of Arizona
 #ifndef TILE_SCHEDULE_HPP
 #define TILE_SCHEDULE_HPP
 
-#include "LoopChain.hpp"
-#include "Transformation.hpp"
+#include <LoopChainIR/LoopChain.hpp>
+#include <LoopChainIR/Transformation.hpp>
 
 #include <string>
 #include <vector>

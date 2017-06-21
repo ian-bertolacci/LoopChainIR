@@ -12,13 +12,13 @@ Copyright 2017 Universiy of Arizona
 #ifndef SCHEDULE_HPP
 #define SCHEDULE_HPP
 
-#include "LoopChain.hpp"
-#include "RectangularDomain.hpp"
-#include "Transformation.hpp"
-#include "IslAstRoot.hpp"
-#include "all_isl.hpp"
-#include "Subspace.hpp"
-#include "util.hpp"
+#include <LoopChainIR/LoopChain.hpp>
+#include <LoopChainIR/RectangularDomain.hpp>
+#include <LoopChainIR/Transformation.hpp>
+#include <LoopChainIR/IslAstRoot.hpp>
+#include <LoopChainIR/all_isl.hpp>
+#include <LoopChainIR/Subspace.hpp>
+#include <LoopChainIR/util.hpp>
 #include <string>
 #include <vector>
 #include <iostream>

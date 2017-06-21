@@ -10,7 +10,7 @@ Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "LoopChain.hpp"
+#include <LoopChainIR/LoopChain.hpp>
 #include <iostream>
 #include <utility>
 

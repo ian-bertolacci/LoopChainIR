@@ -13,9 +13,9 @@ Copyright 2017 Universiy of Arizona
 #ifndef DEFAULT_SEQUENTIAL_SCHEDULE_HPP
 #define DEFAULT_SEQUENTIAL_SCHEDULE_HPP
 
-#include "LoopChain.hpp"
-#include "Transformation.hpp"
-#include "Schedule.hpp"
+#include <LoopChainIR/LoopChain.hpp>
+#include <LoopChainIR/Transformation.hpp>
+#include <LoopChainIR/Schedule.hpp>
 
 #include <string>
 #include <vector>

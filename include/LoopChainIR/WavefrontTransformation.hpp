@@ -1,7 +1,7 @@
 #ifndef WAVEFRONTTRANSFORMATION_HPP
 #define WAVEFRONTTRANSFORMATION_HPP
 
-#include "Transformation.hpp"
+#include <LoopChainIR/Transformation.hpp>
 
 namespace LoopChainIR {
   class WavefrontTransformation : public Transformation {

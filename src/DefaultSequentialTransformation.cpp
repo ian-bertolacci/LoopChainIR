@@ -10,8 +10,8 @@ Copyright 2015-2016 Colorado State University
 Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
-#include "DefaultSequentialTransformation.hpp"
-#include "util.hpp"
+#include <LoopChainIR/DefaultSequentialTransformation.hpp>
+#include <LoopChainIR/util.hpp>
 #include <iostream>
 
 using namespace LoopChainIR;

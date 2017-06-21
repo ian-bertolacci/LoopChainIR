@@ -3,7 +3,7 @@ How To LoopChain
 Recommended Reading:
 + LoopNestHowTo.cpp
 ******************************************************************************/
-#include "LoopChain.hpp"
+#include <LoopChainIR/LoopChain.hpp>
 #include <iostream>
 #include <utility>
 

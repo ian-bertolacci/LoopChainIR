@@ -12,8 +12,8 @@ expression that gives that bound. For example the bounds 0 <= x <= N+M would be
 Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
-#include "RectangularDomain.hpp"
-#include "util.hpp"
+#include <LoopChainIR/RectangularDomain.hpp>
+#include <LoopChainIR/util.hpp>
 
 using namespace LoopChainIR;
 

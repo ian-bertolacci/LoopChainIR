@@ -10,8 +10,8 @@ Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
 #include "gtest/gtest.h"
-#include "Schedule.hpp"
-#include "util.hpp"
+#include <LoopChainIR/Schedule.hpp>
+#include <LoopChainIR/util.hpp>
 #include <iostream>
 #include <utility>
 

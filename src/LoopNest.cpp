@@ -10,8 +10,8 @@ loop nest.
 Copyright 2015-2016 Colorado State University
 *******************************************************************************/
 
-#include "LoopNest.hpp"
-#include "util.hpp"
+#include <LoopChainIR/LoopNest.hpp>
+#include <LoopChainIR/util.hpp>
 
 using namespace LoopChainIR;
 

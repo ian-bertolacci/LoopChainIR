@@ -14,10 +14,10 @@ Copyright 2017 Universiy of Arizona
 #ifndef AUTOMATIC_SHIFT_TRANSFORMATION_HPP
 #define AUTOMATIC_SHIFT_TRANSFORMATION_HPP
 
-#include "LoopChain.hpp"
-#include "Transformation.hpp"
-#include "ShiftTransformation.hpp"
-#include "Accesses.hpp"
+#include <LoopChainIR/LoopChain.hpp>
+#include <LoopChainIR/Transformation.hpp>
+#include <LoopChainIR/ShiftTransformation.hpp>
+#include <LoopChainIR/Accesses.hpp>
 #include <string>
 #include <vector>
 #include <map>

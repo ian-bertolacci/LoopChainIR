@@ -10,8 +10,8 @@ Copyright 2015-2016 Colorado State University
 Copyright 2017 Universiy of Arizona
 *******************************************************************************/
 
-#include "Subspace.hpp"
-#include "util.hpp"
+#include <LoopChainIR/Subspace.hpp>
+#include <LoopChainIR/util.hpp>
 #include <iostream>
 #include <sstream>
 
