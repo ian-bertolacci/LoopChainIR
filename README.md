@@ -3,19 +3,28 @@ The code repository for the internal representation data structure that holds a
 loop chain execution schedule.
 
 ## Quickstart
-The entire build process is controlled through the Makefile at the root of this
-project.
 
-After getting this repository (via git clone, zip download, carrier pigeon,
-what have you ), run:
+### Prerequisites
+LoopChainIR depends on the following libraries:
++ [Google Opitmization Tools (ortools)](https://developers.google.com/optimization/)
++ [Integer Set Library (ISL)](http://isl.gforge.inria.fr/)
 
-`make all`
+### Configure, Make, Test, and install
+You must first configure the project before building using the configuration script:
+```
+./configure
+```
 
-This will build and locally install all third-party materials in the correct place (through `make initialize`), then build the LoopChainIR library.
+See the configuration options available using `./configure --help`.
 
-To ensure that everything is in working order, run:
+After a successful configuration, the makefile will be generated.
+Run `make all` to compile the LoopChainIR library object.
+To ensure the project is in working order run `make test` to run the unit and integration tests.
 
-`make test`
+To install, run `make install`.
+To choose a non-default installation location, use the `--prefix` option of the configuration script.
+To uninstall run `make uninstall`.
+`installed.txt` lists the full path of each file and directory that was installed.
 
 ## Project Directory Structure
 * bin/ : Where all executables (including intermediate \*.o and \*.a files)
@@ -78,6 +87,10 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
 * `clean`: Performs `clean-test` and removes (recursively) all files under $(BIN).
 
 * `clean-all`: Performs `clean`, `clean-third-party`, and `clean-doc`. Mimics a restored project state.
+
+* `install`: Copies the libray and header files to the location described by $(prefix).
+
+* `uninstall`: Removes the files listed in the install log (install.txt)
 
 ## Documentation
 The LoopChainIR API is documented using Doxygen.
@@ -304,11 +317,7 @@ There are options for the script:
 Included with this project are several third-party materials under the
 $(THIRD_PARTY_SRC) directory.
 
-1. ISL
-  + [isl-0.15.tar.gz](http://isl.gforge.inria.fr/isl-0.15.tar.gz)
-  + Under MIT License
-  + Requires GMP (Not provided).
-2. Google Test
+1. Google Test
   + [gtest-1.7.0.zip](https://code.google.com/p/googletest/downloads/detail?name=gtest-1.7.0.zip)
   + Under BSD 3-Clause License
 
