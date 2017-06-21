@@ -33,7 +33,7 @@ GTEST_SRCS = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 # Compiler command and flags
 CXX=@CXX@
-CXXFLAGS=@CXXFLAGS@
+CXXFLAGS = @CXXFLAGS@ -I$(INCLUDE)
 
 # LD flags for tests
 TEST_LDFLAGS += -lisl -lortools -lz -lrt -pthread -L$(SOURCE_LIB)

@@ -11,8 +11,85 @@ AC_LANG([C++])
 AC_PROG_CXX
 AX_CXX_COMPILE_STDCXX_11([noext])
 
+dnl Create command line flags
+dnl Create flags for all linear solver backends
+dnl Create --with-ortools-backend flag
+dnl TODO Prove that solver is present
+OR_TOOLS_USE_SOLVERS=""
+AC_ARG_WITH(
+  [scip_solver],
+  [AS_HELP_STRING(
+    [--with-scip-solver],
+    [Use scip as the linear solver backend]
+  )],
+  [OR_TOOLS_USE_SOLVERS+="-DUSE_SCIP "]
+)
+AC_ARG_WITH(
+  [glpk_solver],
+  [AS_HELP_STRING(
+    [--with-glpk-solver],
+    [Use glpk as the linear solver backend]
+  )],
+  [OR_TOOLS_USE_SOLVERS+="-DUSE_GLPK "]
+)
+AC_ARG_WITH(
+  [cbc_solver],
+  [AS_HELP_STRING(
+    [--with-cbc-solver],
+    [Use cbc as the linear solver backend]
+  )],
+  [OR_TOOLS_USE_SOLVERS+="-DUSE_CBC "]
+)
+AC_ARG_WITH(
+  [slm_solver],
+  [AS_HELP_STRING(
+    [--with-slm-solver],
+    [Use slm as the linear solver backend]
+  )],
+  [OR_TOOLS_USE_SOLVERS+="-DUSE_SLM "]
+)
+AC_ARG_WITH(
+  [gurobi_solver],
+  [AS_HELP_STRING(
+    [--with-gurobi-solver],
+    [Use gurobi as the linear solver backend]
+  )],
+  [OR_TOOLS_USE_SOLVERS+="-DUSE_GUROBI "]
+)
+AC_ARG_WITH(
+  [cplex_solver],
+  [AS_HELP_STRING(
+    [--with-cplex-solver],
+    [Use cplex as the linear solver backend]
+  )],
+  [OR_TOOLS_USE_SOLVERS+="-DUSE_CPLEX "]
+)
+
+dnl TODO Automatically find and determine a solver to use
+AS_IF(
+  [test x"$OR_TOOLS_USE_SOLVERS" == x""],
+  [AC_MSG_NOTICE([No solver specified, defaulting to CBC])]
+  OR_TOOLS_USE_SOLVERS="-DUSE_CBC"
+)
+
+dnl Create --enable-debug
+AC_ARG_ENABLE(
+  [debugging],
+  [AS_HELP_STRING(
+    [--enable-debugging],
+    [Enable gdb debugging options]
+  )],
+  CXX_DEBUG_FLAGS="-ggdb",
+  CXX_DEBUG_FLAGS=""
+)
+
 dnl set CXXFLAGS
-CXXFLAGS="-O3 -g -DUSE_CBC -DUSE_CLP -DUSE_GLOP -Wall -Wno-deprecated -Wextra --std=c++11 -fPIC -I\$(INCLUDE)"
+CXX_BASE_FLAGS="-fPIC"
+
+CXX_WARNING_LEVEL="-Wall -Wno-deprecated -Wextra"
+CXX_OPTIMIZATION_LEVEL="-O3"
+
+CXXFLAGS="${CXX_BASE_FLAGS} ${CXX_WARNING_LEVEL} ${CXX_OPTIMIZATION_LEVEL} ${CXX_DEBUG_FLAGS} ${OR_TOOLS_USE_SOLVERS}"
 
 dnl Check existance of libraries
 dnl Check for ISL
@@ -37,8 +114,9 @@ AC_CHECK_HEADERS(
   [AC_MSG_ERROR(Missing linear_solver/linear_solver.h. A Working Google Optimization Tools (Google OR-Tools) is required.)]
 )
 dnl Check for OR-Tools Library
+dnl TODO better way of doing this
 AX_TRY_LINK(
-  [ ortools ],
+  [ortools],
   [ #include <linear_solver/linear_solver.h> #include <string> ],
   [
     #if defined USE_SCIP
@@ -52,9 +130,7 @@ AX_TRY_LINK(
     #elif defined USE_GUROBI
       operations_research::MPSolver::OptimizationProblemType optimizationProblemType = operations_research::MPSolver::GUROBI_MIXED_INTEGER_PROGRAMMING;
     #elif defined USE_CPLEX
-      operations_research::MPSolver::OptimizationProblemType optimizationProblemType = operations_research::MPSolver::CPLEX_MIXED_INTEGER_PROGRAMMING
-    #elif defined USE_BOP
-      operations_research::MPSolver::OptimizationProblemType optimizationProblemType = operations_research::MPSolver::BOP_INTEGER_PROGRAMMING;
+      operations_research::MPSolver::OptimizationProblemType optimizationProblemType = operations_research::MPSolver::CPLEX_MIXED_INTEGER_PROGRAMMING;
     #else
       #error "Google Optimization Tools has no proper backend!"
     #endif

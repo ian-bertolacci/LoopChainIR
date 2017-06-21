@@ -1,6 +1,5 @@
 #include <LoopChainIR/AutomaticShiftTransformation.hpp>
 #include <linear_solver/linear_solver.h>
-#include <linear_solver/linear_solver.pb.h>
 #include <iostream>
 #include <map>
 #include <set>
@@ -32,8 +31,23 @@ vector<string> AutomaticShiftTransformation::apply( Schedule& schedule, Subspace
 
 
 map<LoopChain::size_type, Tuple> AutomaticShiftTransformation::computeShiftTuplesForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple ) {
-  const bool debug = false;
-  MPSolver solver("ShiftSolver", MPSolver::CBC_MIXED_INTEGER_PROGRAMMING);
+  #if defined USE_SCIP
+    MPSolver::OptimizationProblemType optimizationProblemType = MPSolver::SCIP_MIXED_INTEGER_PROGRAMMING;
+  #elif defined USE_GLPK
+    MPSolver::OptimizationProblemType optimizationProblemType = MPSolver::GLPK_MIXED_INTEGER_PROGRAMMING;
+  #elif defined USE_CBC
+    MPSolver::OptimizationProblemType optimizationProblemType = MPSolver::CBC_MIXED_INTEGER_PROGRAMMING;
+  #elif defined USE_SLM
+    MPSolver::OptimizationProblemType optimizationProblemType = MPSolver::SULUM_MIXED_INTEGER_PROGRAMMING;
+  #elif defined USE_GUROBI
+    MPSolver::OptimizationProblemType optimizationProblemType = MPSolver::GUROBI_MIXED_INTEGER_PROGRAMMING;
+  #elif defined USE_CPLEX
+    MPSolver::OptimizationProblemType optimizationProblemType = MPSolver::CPLEX_MIXED_INTEGER_PROGRAMMING;
+  #else
+    #error "Google Optimization Tools has no proper backend!"
+  #endif
+
+  MPSolver solver("ShiftSolver", optimizationProblemType);
 
   const double infinity = solver.infinity();
 
@@ -101,61 +115,44 @@ map<LoopChain::size_type, Tuple> AutomaticShiftTransformation::computeShiftTuple
         continue;
       }
 
-      if( debug ){
-        cout << "=========================================\n"
-             << nest_idx << " vs " << previous_idx << endl;
-      }
+      auto calc_func = [&](TupleCollection nest_collection, TupleCollection prev_collection) {
+        for( Tuple nest_access_tuple : nest_collection ){
+          for( Tuple previous_access_tuple : prev_collection ){
+            for( Subspace::size_type d = 0; d < dimensions; ++d ){
+              // Calculate constant lower bound
+              int difference = nest_access_tuple[d] - previous_access_tuple[d];
+              // Construct constraint constant <= nest_shift_d - prev_shift
+
+              auto map_index = make_pair( previous_shifts->at(d), nest_shifts->at(d) );
+              if( max_difference_map.find(map_index) == max_difference_map.end() ){
+                max_difference_map[map_index] = difference;
+              } else {
+                max_difference_map[map_index] = max( max_difference_map[map_index], difference );
+              }
+
+            } // for d
+          } // for previous_access_tuple
+        } // for nest_access_tuple
+
+      }; // lambda function calc_func
 
       for( string name : common ){
-
-        auto calc_func = [&](TupleCollection nest_collection, TupleCollection prev_collection) {
-          for( Tuple nest_access_tuple : nest_collection ){
-            for( Tuple previous_access_tuple : prev_collection ){
-              for( Subspace::size_type d = 0; d < dimensions; ++d ){
-                // Calculate constant lower bound
-                int difference = nest_access_tuple[d] - previous_access_tuple[d];
-                // Construct constraint constant <= nest_shift_d - prev_shift
-
-                auto map_index = make_pair( previous_shifts->at(d), nest_shifts->at(d) );
-                if( max_difference_map.find(map_index) == max_difference_map.end() ){
-                  max_difference_map[map_index] = difference;
-                } else {
-                  max_difference_map[map_index] = max( max_difference_map[map_index], difference );
-                }
-
-              } // for d
-            } // for previous_access_tuple
-          } // for nest_access_tuple
-
-        }; // lambda function calc_func
-
-        if( debug )
-          cout << name << endl;
 
         Dataspace nest_dataspace = nest_dataspaces.find(name)->second;
         Dataspace previous_dataspace = previous_dataspaces.find(name)->second;
 
         // Writes - writes
-        if( debug )
-          cout << "Writes - Writes" << endl;
         calc_func( nest_dataspace.writes(), previous_dataspace.writes() );
 
         // Writes - Reads
-        if( debug )
-          cout << "Writes - Reads" << endl;
         calc_func( nest_dataspace.writes(), previous_dataspace.reads() );
 
         // Reads - Writes
-        if( debug )
-          cout << "Reads - Writes" << endl;
         calc_func( nest_dataspace.reads(), previous_dataspace.writes() );
 
       } // for( name : common )
     } // for( previous_idx )
   } // for( nest_idx )
-
-  if( debug )
-    cout << endl << "=========================================" << endl;
 
   for( map< pair<MPVariable*,MPVariable*>, int >::value_type key_value : max_difference_map ){
     MPVariable* prev_shift = key_value.first.first;
@@ -169,57 +166,9 @@ map<LoopChain::size_type, Tuple> AutomaticShiftTransformation::computeShiftTuple
 
   for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
     vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
-    if( debug )
-      cout << "Loop " << nest_idx << endl;
     for( Subspace::size_type d = 0; d < dimensions; ++d  ){
       MPVariable* shift = nests_shifts->at( d );
       shift->SetLB( 0 );
-    }
-
-    if( debug ){
-      cout << endl;
-      for( MPVariable* var : *nests_shifts ){
-        cout << var->lb() << " <= " << var->name() << " <= " << var->ub() << endl;
-      }
-    }
-
-    if( debug )
-      cout << "=========================================" << endl;
-  }
-
-  if( debug ){
-    cout << "Num constraints: " << constraints.size() << endl;
-    cout << "Constraints:" << endl;
-    for( MPConstraint* constraint : constraints ){
-      cout << constraint->lb() << " <= ";
-      bool not_first = false;
-      for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
-        vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
-        for( MPVariable* variable : *nests_shifts ){
-          if( constraint->GetCoefficient( variable ) != 0.0 ){
-            if( not_first ) cout << " + ";
-            not_first = true;
-            cout << "( " << constraint->GetCoefficient( variable ) << " * "
-                 << variable->name() << " )";
-          }
-        }
-      }
-      cout << " <= " << constraint->ub() << endl;
-    }
-  }
-
-  if( debug ){
-    cout << "coeffecients:" << endl;
-    for( LoopChain::size_type nest_idx = 0; nest_idx < chain.length(); ++nest_idx ){
-      vector<MPVariable*>* nests_shifts = shift_variables[nest_idx];
-      bool not_first = false;
-      cout << "( ";
-      for( MPVariable* v : *nests_shifts ){
-        if( not_first ) cout << ", ";
-        not_first = true;
-        cout << objective->GetCoefficient( v ) << "*" << v->name();
-      }
-      cout << " )" << endl;
     }
   }
 
@@ -227,8 +176,6 @@ map<LoopChain::size_type, Tuple> AutomaticShiftTransformation::computeShiftTuple
 
   if( constraints.size() > 0 ){
     objective->SetMinimization();
-    if( debug )
-      cout << "Objective is a " << (objective->minimization()?"minimization":"maximization") << " problem" << endl;
 
     MPSolver::ResultStatus result_status = solver.Solve();
 
@@ -249,8 +196,6 @@ map<LoopChain::size_type, Tuple> AutomaticShiftTransformation::computeShiftTuple
       }
       assertWithException( result_status == MPSolver::OPTIMAL, error_stream.str() );
     } else {
-      if( debug )
-        cout << "Optimal objective value = " << objective->Value() << endl;
 
       for( map< LoopChain::size_type, vector<MPVariable*>* >::iterator it = shift_variables.begin();
             it != shift_variables.end();
@@ -259,20 +204,9 @@ map<LoopChain::size_type, Tuple> AutomaticShiftTransformation::computeShiftTuple
         vector<MPVariable*>* nests_shifts = it->second;
         vector<int> extents;
 
-        if( debug )
-          cout << nest_id << ": (";
-        bool not_first = false;
         for( MPVariable* var : *nests_shifts ){
-          if( debug ){
-            if( not_first ) cout << ", ";
-            not_first = true;
-            cout << var->solution_value();
-          }
           extents.push_back( (int) var->solution_value() );
         }
-
-        if( debug )
-          cout << ")" << endl;
 
         Tuple tuple( extents );
 
