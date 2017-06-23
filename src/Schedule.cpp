@@ -164,7 +164,7 @@ Schedule::const_iterator Schedule::end_transformations() const {
 }
 
 
-IslAstRoot* Schedule::codegenToIslAst(){
+ISLASTRoot* Schedule::codegenToIslAst(){
   isl_ctx* ctx = isl_ctx_alloc();
 
   // Union domains together
@@ -223,12 +223,12 @@ IslAstRoot* Schedule::codegenToIslAst(){
   // free ISL objects
   isl_ast_build_free( build );
 
-  return new IslAstRoot( tree, ctx );
+  return new ISLASTRoot( tree, ctx );
 }
 
 std::string Schedule::codegen( ){
   // Create ISL AST Tree
-  IslAstRoot& root = *this->codegenToIslAst();
+  ISLASTRoot& root = *this->codegenToIslAst();
   isl_ctx* ctx = root.ctx;
   isl_ast_node* tree = root.root;
 

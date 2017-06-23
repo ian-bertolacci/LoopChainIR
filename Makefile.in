@@ -72,7 +72,7 @@ UNIT_TESTS = 	RectangularDomain_test \
 							ShiftTransformation_test \
 							AutomaticShiftTransformation_test \
 							TileTransformation_test \
-							WavefrontTransformation_test
+							WavefrontTransformation_test \
 
 # Integration tests list
 INT_TEST = 	1N_1D_shift_1.test \
@@ -100,20 +100,27 @@ INT_TEST = 	1N_1D_shift_1.test \
 
 
 # Project object files
-OBJS = $(BIN)/RectangularDomain.o \
-       $(BIN)/LoopChain.o \
-			 $(BIN)/LoopNest.o \
-			 $(BIN)/Schedule.o \
-			 $(BIN)/Subspace.o \
-			 $(BIN)/DefaultSequentialTransformation.o \
-			 $(BIN)/ShiftTransformation.o \
-			 $(BIN)/TileTransformation.o \
-			 $(BIN)/FusionTransformation.o \
-			 $(BIN)/WavefrontTransformation.o \
-			 $(BIN)/IslAstRoot.o \
-			 $(BIN)/Accesses.o \
-			 $(BIN)/AutomaticShiftTransformation.o \
-			 $(BIN)/util.o
+ROSE_DEPENDENT_SRC = \
+										SageTransformationWalker \
+										PrintISLWalker
+
+BASE_SRC = \
+					RectangularDomain \
+					LoopChain \
+					LoopNest \
+					Schedule \
+					Subspace \
+					DefaultSequentialTransformation \
+					ShiftTransformation \
+					TileTransformation \
+					FusionTransformation \
+					WavefrontTransformation \
+					ISLASTRoot \
+					Accesses \
+					AutomaticShiftTransformation \
+					util
+
+OBJS = $(addprefix $(BIN)/,$(addsuffix .o,@SOURCE_SELECTION@))
 
 all: $(EXE)
 

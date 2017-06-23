@@ -37,6 +37,7 @@ config.log
 config.status
 autom4te.cache
 /Makefile
+aclocal.m4
 
 # Doxygen output
 doxygen/
@@ -53,3 +54,6 @@ third-party/initialized
 test/unit-tests/bin/*
 test/regression-tests/*.dir
 test/regression-tests/*.log
+
+# Install output
+/installed.txt

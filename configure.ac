@@ -1,10 +1,12 @@
 AC_INIT([LoopChainIR],[version-0.1])
 
-m4_include([m4/ax_require_defined.m4])
-m4_include([m4/ax_cxx_compile_stdcxx.m4])
-m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
-m4_include([m4/ax_cxx_check_lib.m4])
-m4_include([m4/ax_try_link.m4])
+dnl  m4_include([m4/ax_require_defined.m4])
+dnl  m4_include([m4/ax_cxx_compile_stdcxx.m4])
+dnl  m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
+dnl  m4_include([m4/ax_cxx_check_lib.m4])
+dnl  m4_include([m4/ax_try_link.m4])
+
+AC_CONFIG_MACRO_DIR([m4])
 
 dnl Set language to C++
 AC_LANG([C++])
@@ -72,20 +74,28 @@ AS_IF(
   OR_TOOLS_USE_SOLVERS="-DUSE_CBC"
 )
 
-dnl Create --enable-debug
+dnl Create --enable-debugging
 AC_ARG_ENABLE(
   [debugging],
   [AS_HELP_STRING(
     [--enable-debugging],
-    [Enable gdb debugging options]
+    [Enable gdb debugging options. Default=no]
   )],
   CXX_DEBUG_FLAGS="-ggdb",
   CXX_DEBUG_FLAGS=""
 )
 
+dnl Create --disable-rose
+AC_ARG_ENABLE(
+  [rose],
+  [AS_HELP_STRING(
+    [--enable-rose],
+    [Enable using Rose and Rose dependent parts of library. (Default=yes)]
+  )]
+)
+
 dnl set CXXFLAGS
 CXX_BASE_FLAGS="-fPIC"
-
 CXX_WARNING_LEVEL="-Wall -Wno-deprecated -Wextra"
 CXX_OPTIMIZATION_LEVEL="-O3"
 
@@ -97,21 +107,21 @@ dnl Check for ISL headers
 AC_CHECK_HEADERS(
   [isl/version.h],
   [],
-  [AC_MSG_ERROR(Missing isl/version.h. A Working Integer Set Library (ISL) is required.)]
+  [AC_MSG_ERROR(A Working Integer Set Library (ISL) installation is required. (Missing isl/version.h.))]
 )
 dnl Check for ISL Library
 AC_SEARCH_LIBS(
   isl_version,
   isl,
   [],
-  [AC_MSG_ERROR(Cannot find isl_version in libisl. A Working Integer Set Library (ISL) is required.)]
+  [AC_MSG_ERROR(A Working Integer Set Library (ISL) installation is required. (Cannot find isl_version in libisl.))]
 )
 dnl Check for OR-Tools
 dnl Check for OR-Tools headers
 AC_CHECK_HEADERS(
   [linear_solver/linear_solver.h],
   [],
-  [AC_MSG_ERROR(Missing linear_solver/linear_solver.h. A Working Google Optimization Tools (Google OR-Tools) is required.)]
+  [AC_MSG_ERROR(A Working Google Optimization Tools (Google OR-Tools) installation is required. (Missing linear_solver/linear_solver.h.))]
 )
 dnl Check for OR-Tools Library
 dnl TODO better way of doing this
@@ -138,7 +148,23 @@ AX_TRY_LINK(
     operations_research::MPSolver( std::string("test"), optimizationProblemType );
   ],
   [],
-  [AC_MSG_ERROR(Cannot find MPSolver in libortools. A Working Google Optimization Tools (Google OR-Tools) is required.)],
+  [AC_MSG_ERROR(A Working Google Optimization Tools (Google OR-Tools) installation is required. (Cannot find MPSolver in libortools.))],
+)
+dnl Check for Rose
+dnl Check for Rose headers
+AS_IF(
+  [test x"$enable_rose" != x"no"],
+  [
+    AC_CHECK_HEADERS(
+      [rose.h],
+      [],
+      [AC_MSG_ERROR(A Working Rose installation is required. (Missing rose.h.))],
+      [
+        [ #undef HAVE_SYS_STAT_H ]
+        AC_INCLUDES_DEFAULT
+      ]
+    )
+  ]
 )
 
 dnl Check for software
@@ -194,5 +220,14 @@ AS_IF(
 )
 
 dnl Process Makefile.in to create Makefile
+dnl If rose is enabled include the rose dependent sources to be compiled.
+AS_IF(
+  [test x"$enable_rose" != x"no"],
+  [SOURCE_SELECTION="\$(BASE_SRC) \$(ROSE_DEPENDENT_SRC)"],
+  [SOURCE_SELECTION="\$(BASE_SRC)"],
+)
+AC_SUBST(SOURCE_SELECTION, $SOURCE_SELECTION)
+
 AC_CONFIG_FILES([Makefile])
+
 AC_OUTPUT
