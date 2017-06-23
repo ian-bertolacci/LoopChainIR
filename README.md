@@ -8,6 +8,8 @@ loop chain execution schedule.
 LoopChainIR depends on the following libraries:
 + [Google Opitmization Tools (ortools)](https://developers.google.com/optimization/)
 + [Integer Set Library (ISL)](http://isl.gforge.inria.fr/)
++ [ROSE compiler infrastructure](http://rosecompiler.org/) (optional)
+  - Use `--disable-rose` when running configure scrip if not using Rose.
 
 ### Configure, Make, Test, and install
 You must first configure the project before building using the configuration script:
@@ -88,9 +90,9 @@ their build directories, and their install directories. Known as $(THIRD_PARTY)
 
 * `clean-all`: Performs `clean`, `clean-third-party`, and `clean-doc`. Mimics a restored project state.
 
-* `install`: Copies the libray and header files to the location described by $(prefix).
+* `install`: Copies the library and header files to the location described by $(prefix). Installed files are listed in the install log (install.txt)
 
-* `uninstall`: Removes the files listed in the install log (install.txt)
+* `uninstall`: Removes (recursive, **forced**) the files listed in the install log (install.txt)
 
 ## Documentation
 The LoopChainIR API is documented using Doxygen.
