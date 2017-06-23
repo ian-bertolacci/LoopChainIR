@@ -1,9 +1,9 @@
 /*! ****************************************************************************
-\file IslAstRoot.hpp
+\file ISLASTRoot.hpp
 \authors Ian J. Bertolacci
 
 \brief
-Defines the IslAstRoot class
+Defines the ISLASTRoot class
 
 \copyright
 Copyright 2016 Colorado State University
@@ -15,12 +15,12 @@ Copyright 2017 Universiy of Arizona
 
 #include <LoopChainIR/all_isl.hpp>
 
-class IslAstRoot{
+class ISLASTRoot{
   public:
     isl_ast_node* root;
     isl_ctx* ctx;
 
-    IslAstRoot( isl_ast_node* root, isl_ctx* ctx );
+    ISLASTRoot( isl_ast_node* root, isl_ctx* ctx );
 };
 
 #endif

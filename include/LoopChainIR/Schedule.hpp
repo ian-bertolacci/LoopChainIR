@@ -15,7 +15,7 @@ Copyright 2017 Universiy of Arizona
 #include <LoopChainIR/LoopChain.hpp>
 #include <LoopChainIR/RectangularDomain.hpp>
 #include <LoopChainIR/Transformation.hpp>
-#include <LoopChainIR/IslAstRoot.hpp>
+#include <LoopChainIR/ISLASTRoot.hpp>
 #include <LoopChainIR/all_isl.hpp>
 #include <LoopChainIR/Subspace.hpp>
 #include <LoopChainIR/util.hpp>
@@ -211,7 +211,7 @@ namespace LoopChainIR {
     \returns
     Pointer to isl_ast_node struct.
     */
-    IslAstRoot* codegenToIslAst();
+    ISLASTRoot* codegenToIslAst();
 
     /*! \brief Generates ISCC code that can be used by the ISCC interpreter to generate code equivalent to the output of ISL */
     std::string codegenToISCC( ) const;
