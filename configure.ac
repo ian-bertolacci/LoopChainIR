@@ -85,7 +85,7 @@ AC_ARG_ENABLE(
   CXX_DEBUG_FLAGS=""
 )
 
-dnl Create --disable-rose
+dnl Create --enable-rose
 AC_ARG_ENABLE(
   [rose],
   [AS_HELP_STRING(

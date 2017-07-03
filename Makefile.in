@@ -122,6 +122,7 @@ BASE_SRC = \
 
 OBJS = $(addprefix $(BIN)/,$(addsuffix .o,@SOURCE_SELECTION@))
 
+.PHONY: all
 all: $(EXE)
 
 $(EXE): $(OBJS)
@@ -133,6 +134,7 @@ $(OBJS): $(BIN)/%.o : $(SRC)/%.cpp $(INCLUDE)/LoopChainIR/%.hpp
 
 
 # Testing
+.PHONY: test unit-tests integration-tests
 test: unit-tests integration-tests
 
 unit-tests: $(UNIT_TESTS)
@@ -175,6 +177,7 @@ $(UNIT_TEST_BIN)/libgtest_main.a : $(UNIT_TEST_BIN)/gtest-all.o $(UNIT_TEST_BIN)
 	$(AR) $(ARFLAGS) $@ $^
 
 # Building documentation
+.PHONY: doc documentation
 doc: documentation
 documentation: clean-doc
 	$(DOXYGEN)
@@ -186,6 +189,7 @@ $(SOURCE_LIB) $(SOURCE_INC) : | $(THIRD_PARTY_INSTALL)
 	mkdir $@
 
 # Cleaning
+.PHONY: neat clean-doc clean-third-party clean-test clean-install clean-all clean
 neat:
 	- rm $(BIN)/*.o
 
@@ -207,6 +211,8 @@ clean: clean-test
 
 clean-all: clean-third-party clean clean-doc clean-install
 
+# Installation
+.PHONY: install uninstall
 install: all
 	# Remove previous install logs
 	- rm $(INSTALL_LOG)
