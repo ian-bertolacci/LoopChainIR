@@ -2,6 +2,8 @@
 #define SAGETRANSFORMATIONWALKER_HPP
 
 #include <LoopChainIR/all_isl.hpp>
+#include <LoopChainIR/util.hpp>
+
 #include <rose.h>
 #include <list>
 #include <map>
@@ -20,6 +22,8 @@ namespace LoopChainIR {
   class SageTransformationWalker {
     protected:
       const bool VISIT_TO_NODE_NOT_IMPLEMENTED = false;
+      const bool ENCOUNTERED_UNKOWN_NODE = false;
+      const bool ENCOUNTERED_ERROR_NODE = false;
 
       std::map<std::string,SgVariableSymbol*> symbol_maps;
 
