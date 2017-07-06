@@ -72,7 +72,8 @@ UNIT_TESTS = 	RectangularDomain_test \
 							ShiftTransformation_test \
 							AutomaticShiftTransformation_test \
 							TileTransformation_test \
-							WavefrontTransformation_test
+							WavefrontTransformation_test \
+							ParallelAnnotation_test
 
 # Integration tests list
 INT_TEST = 	1N_1D_shift_1.test \
@@ -118,6 +119,7 @@ BASE_SRC = \
 					ISLASTRoot \
 					Accesses \
 					AutomaticShiftTransformation \
+					ParallelAnnotation \
 					util
 
 OBJS = $(addprefix $(BIN)/,$(addsuffix .o,@SOURCE_SELECTION@))

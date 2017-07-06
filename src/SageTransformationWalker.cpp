@@ -912,18 +912,6 @@ SgNode* SageTransformationWalker::visit_node_error(isl_ast_node* node __attribut
 
 SgNode* SageTransformationWalker::visit_node_for(isl_ast_node* node){
   this->depth += 1;
-  // Check for parallel annotation
-  {
-    isl_id* maybe_annotation = isl_ast_node_get_annotation( node );
-    cout << "Annotation addr " << static_cast<void*>( maybe_annotation ) << endl;
-    cout << "Node addr " << static_cast<void*>( node ) << endl;
-    if( maybe_annotation != NULL ){
-      cout << "Annotation: \"" << string( isl_id_get_name( maybe_annotation ) ) << "\"" << endl;
-    } else {
-      cout << "Null annotation." << endl;
-    }
-  }
-
   // Build inititialization statement
   SgStatement* initialization = NULL;
   SgName* name = NULL;
@@ -992,16 +980,28 @@ SgNode* SageTransformationWalker::visit_node_for(isl_ast_node* node){
     }
   }
 
-  SgBasicBlock* body = buildBasicBlock ();
+  // TODO this is an embarrasment.
+  // Create a parent for the for statement
+  SgBasicBlock* dumb_wrapper = buildBasicBlock();
+  if( this->verbose ){
+    cout << string(this->depth*2, ' ') << "basic block @ " << static_cast<void*>(dumb_wrapper) << endl;
+  }
+  this->push( dumb_wrapper );
+
+  // TODO This is a hack.
+  // Need to create empty body for for statement,
+  // because we *must* make for statement before the body code.
+  SgBasicBlock* body = buildBasicBlock();
 
   // Construct for loop node
   SgForStatement* for_stmt = buildForStatement( initialization, condition, increment, body );
+  appendStatement( for_stmt, dumb_wrapper );
   {
     this->push( for_stmt );
     this->push( isSgScopeStatement( getLoopBody( for_stmt ) ) );
     SgStatement* sg_stmt = isSgStatement( this->visit( isl_ast_node_for_get_body( node ) ) );
-    this->pop();
-    this->pop();
+    this->pop(); // pop body
+    this->pop(); // pop for stmt
 
     assertWithException( sg_stmt != NULL, "Could not create for loop body." );
 
@@ -1017,12 +1017,36 @@ SgNode* SageTransformationWalker::visit_node_for(isl_ast_node* node){
     setLoopBody( for_stmt, body );
   }
 
+
+  // Check for parallel annotation
+  {
+    isl_id* maybe_annotation = isl_ast_node_get_annotation( node );
+    if( maybe_annotation != NULL ){
+      if( string( isl_id_get_name( maybe_annotation ) ) == string("parallel annotation") ){
+        // TODO make work with OmpSupport tools
+        // This does not currently add an annotation.
+        //OmpSupport::OmpAttribute* pragma = OmpSupport::buildOmpAttribute( OmpSupport::e_parallel_for, for_stmt, false );
+        //OmpSupport::addOmpAttribute( pragma, for_stmt );
+        //OmpSupport::generatePragmaFromOmpAttribute( for_stmt );
+
+        // Manually create prama with literal "omp parallel for" invocation.
+        SgPragmaDeclaration* prama_decl = buildPragmaDeclaration( string("omp parallel for"), this->top() );
+        SageInterface::insertStatement( for_stmt, prama_decl );
+        if( this->verbose ){
+          cout << string(this->depth*2, ' ') << "pragma declaration @ " << static_cast<void*>( prama_decl ) << endl;
+        }
+      }
+    }
+  }
+
+  this->pop(); // pop dumb_wrapper
+
   this->depth -= 1;
   if( this->verbose ){
     cout << string(this->depth*2, ' ') << "for @ " << static_cast<void*>(for_stmt) << endl;
   }
 
-  return for_stmt;
+  return dumb_wrapper;
 }
 
 SgNode* SageTransformationWalker::visit_node_if(isl_ast_node* node){
