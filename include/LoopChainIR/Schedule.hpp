@@ -54,6 +54,7 @@ namespace LoopChainIR {
     RectangularDomain::size_type iterators_length;
     std::vector<std::string> transformations;
     std::vector<std::string> domains;
+    std::set<Subspace*> parallel_subspaces;
     std::string statement_prefix;
     std::string root_statement_symbol;
     std::string iterator_prefix;
@@ -228,11 +229,18 @@ namespace LoopChainIR {
     /*! \brief Decrease depth of nested transformations. */
     int decrementDepth();
 
+    void addParallelSubspace( Subspace* subspace );
+
   public:
     friend std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule);
 
   };
 
+  // Callback function called during isl_ast_build_set_after_each_for to annotate parallel loops
+  __isl_give isl_ast_node* custom_for_builder_callback( __isl_take isl_ast_node *node, __isl_keep isl_ast_build* build, void* user );
+
+  // Callback function called during isl_ast_node_print after setting option with isl_ast_print_options_set_print_for
+  __isl_give isl_printer* custom_for_printer_callback( __isl_take isl_printer *p, __isl_take isl_ast_print_options *options, __isl_keep isl_ast_node *node, void *user );
 
 }
 

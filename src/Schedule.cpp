@@ -218,12 +218,33 @@ ISLASTRoot* Schedule::codegenToIslAst(){
     build = isl_ast_build_set_iterators( build, names );
   }
 
+  // Collect depths of parallel loops
+  std::set<Subspace::size_type> parallel_depths;
+  for( Subspace* subspace : this->parallel_subspaces ){
+    Subspace::size_type depth = 1;
+    SubspaceManager::iterator cursor = manager.get_iterator_to_subspace( subspace );
+    --cursor;
+    for( SubspaceManager::iterator cursor = --(manager.get_iterator_to_subspace( subspace ));
+         cursor != manager.get_iterator_to_loops();
+         --cursor
+    ) {
+      depth += (*cursor)->size();
+    }
+    parallel_depths.insert( depth );
+  }
+  // Annotate loops of appropriate depth
+  //annotateParallelISLLoops( isl_root, parallel_depths );
+  isl_ast_build_set_after_each_for( build, custom_for_builder_callback, (void*) &parallel_depths );
+
   isl_ast_node* tree = isl_ast_build_node_from_schedule_map( build, schedule_map );
 
   // free ISL objects
   isl_ast_build_free( build );
 
-  return new ISLASTRoot( tree, ctx );
+  // Create the ISL AST Root object
+  ISLASTRoot* isl_root = new ISLASTRoot( tree, ctx );
+
+  return isl_root;
 }
 
 std::string Schedule::codegen( ){
@@ -240,8 +261,11 @@ std::string Schedule::codegen( ){
 
   // Write code to memeory file
   isl_printer* p = isl_printer_to_file(ctx, memory_file);
-               p = isl_printer_set_output_format(p, ISL_FORMAT_C);
-               p = isl_printer_print_ast_node(p, tree);
+  p = isl_printer_set_output_format(p, ISL_FORMAT_C);
+  isl_ast_print_options* print_options = isl_ast_print_options_alloc(ctx);
+  // Set option to print for nodes with my printer (custom_for_printer_callback)
+  print_options = isl_ast_print_options_set_print_for(print_options, custom_for_printer_callback, NULL);
+  isl_ast_node_print(tree, p, print_options);
 
   // Read text and close file
   std::string code_text;
@@ -260,21 +284,12 @@ std::string Schedule::codegen( ){
     code_text.resize( find_null );
   }
 
-  // Free ISL objects
-  /*
-  TODO Figure out how to free these objects...
-  isl_union_map_free( chain_map ); // breaks.
-  isl_union_map_free( schedule ); // breaks
-  isl_union_set_free( full_domain ); // breaks
-  breaks
-  for( std::vector<isl_union_set*>::iterator it = domains.begin(); it != domains.end(); ++it ){
-    isl_union_set_free(*it);
-  }
-  */
-
   isl_printer_free( p );
   isl_ast_node_free( tree );
-  isl_ctx_free( ctx );
+  // TODO Why do objects still ref this?
+  // TODO Seems to be symptom of the custom_for_builder_callback.
+  // This is disabled to prevent scary warnings
+  //isl_ctx_free( ctx );
 
   return code_text;
 }
@@ -366,6 +381,39 @@ int Schedule::decrementDepth(){
   return this->getDepth();
 }
 
+void Schedule::addParallelSubspace( Subspace* subspace ){
+  this->parallel_subspaces.insert( subspace );
+}
+
 std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule){
   return os << schedule.codegenToISCC() ;
+}
+
+__isl_give isl_ast_node* LoopChainIR::custom_for_builder_callback( __isl_take isl_ast_node *node, __isl_keep isl_ast_build* build, void* user ){
+  string annotation_str;
+  isl_space* space = isl_ast_build_get_schedule_space( build );
+  unsigned dimensions = isl_space_dim( space, isl_dim_set );
+  std::set<Subspace::size_type>* depths = static_cast<std::set<Subspace::size_type>*>( user );
+  if( depths->count(dimensions) > 0 ){
+    annotation_str = "parallel annotation";
+  } else {
+    annotation_str = "";
+  }
+  isl_id* annotation = isl_id_alloc( isl_ast_build_get_ctx(build), annotation_str.c_str(), NULL );
+  assertWithException( annotation != NULL, "Failed to create annotation in custom_for_builder_callback." );
+  isl_ast_node* new_node = isl_ast_node_set_annotation( node, annotation );
+  assertWithException( new_node != NULL, "Failed to create annotated node during custom_for_builder_callback." );
+  return new_node;
+}
+
+__isl_give isl_printer* LoopChainIR::custom_for_printer_callback( __isl_take isl_printer *p, __isl_take isl_ast_print_options *options, __isl_keep isl_ast_node *node, void *user ){
+  isl_id* maybe_annotation = isl_ast_node_get_annotation( node );
+  if( maybe_annotation != NULL && string( isl_id_get_name( maybe_annotation ) ) == string("parallel annotation") ){
+    p = isl_printer_start_line(p);
+    p = isl_printer_print_str(p, "#pragma omp parallel for");
+    p = isl_printer_end_line(p);
+  }
+
+  p = isl_ast_node_for_print(node, p, options);
+  return p;
 }

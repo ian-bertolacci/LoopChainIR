@@ -9,6 +9,7 @@
 
 #include <LoopChainIR/util.hpp>
 #include <LoopChainIR/SageTransformationWalker.hpp>
+#include <LoopChainIR/util.hpp>
 
 using namespace std;
 using namespace SageBuilder;
@@ -325,10 +326,11 @@ list<SgNode*> SageTransformationWalker::visit_expr_operands(isl_ast_expr* node )
 }
 
 SgExpression* SageTransformationWalker::visit_op_operand( isl_ast_expr* node, int pos ){
-  assert( isl_ast_expr_get_op_n_arg(node) > pos );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) > pos, SSTR( "Invalid isl_ast_expr_op position " << pos << " > " << isl_ast_expr_get_op_n_arg(node) << " (isl_ast_expr_get_op_n_arg(node))") );
+  assertWithException( pos >= 0, SSTR("Invalid isl_ast_expr_op position " << pos << " < 0.") );
   SgExpression* sg_expr = isSgExpression( this->visit( isl_ast_expr_get_op_arg( node, pos ) ) );
 
-  assert( sg_expr != NULL );
+  assertWithException( sg_expr != NULL, "Could not build SgExpression from ISL op expression." );
 
   return sg_expr;
 }
@@ -358,13 +360,13 @@ SgExpression* SageTransformationWalker::visit_op_cond_else_operand( isl_ast_expr
 }
 
 
-SgExpression* SageTransformationWalker::visit_op_error(isl_ast_expr* node){
-  assert( this->VISIT_TO_NODE_NOT_IMPLEMENTED );
+SgExpression* SageTransformationWalker::visit_op_error(isl_ast_expr* node __attribute__((unused))){
+  assertWithException( this->ENCOUNTERED_ERROR_NODE, "An error node has been encoutered during SageTransformationWalker." );
   return NULL;
 }
 
 SgExpression*  SageTransformationWalker::visit_op_and( isl_ast_expr* node ){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'and' operation does not have exactly two operands." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -381,7 +383,7 @@ SgExpression*  SageTransformationWalker::visit_op_and( isl_ast_expr* node ){
 }
 
 SgExpression*  SageTransformationWalker::visit_op_and_then(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'and' operation does not have exactly two operands." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -398,7 +400,7 @@ SgExpression*  SageTransformationWalker::visit_op_and_then(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_or(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'or' operation does not have exactly two operands." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -415,7 +417,7 @@ SgExpression* SageTransformationWalker::visit_op_or(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_or_else(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'or' operation does not have exactly two operands." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -432,7 +434,7 @@ SgExpression* SageTransformationWalker::visit_op_or_else(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_max(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) >= 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) >= 2, "ISL 'max' operation does not have two or more operands." );
 
   int last = isl_ast_expr_get_op_n_arg(node)-1;
 
@@ -459,7 +461,7 @@ SgExpression* SageTransformationWalker::visit_op_max(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_min(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) >= 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) >= 2, "ISL 'min' operation does not have two or more operands." );
 
   int last = isl_ast_expr_get_op_n_arg(node)-1;
 
@@ -487,7 +489,7 @@ SgExpression* SageTransformationWalker::visit_op_min(isl_ast_expr* node){
 
 // Unary minus
 SgExpression* SageTransformationWalker::visit_op_minus(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 1 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 1, "ISL 'unary minus' operation does not have exactly one operand.");
 
   // Get child node
   SgExpression* arg = this->visit_op_unary_operand( node );
@@ -503,7 +505,7 @@ SgExpression* SageTransformationWalker::visit_op_minus(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_add(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2," ISL 'add' operation does not have exactly two operands." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -520,7 +522,7 @@ SgExpression* SageTransformationWalker::visit_op_add(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_sub(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'unary minus' operation does not have exactly two operand." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -537,7 +539,7 @@ SgExpression* SageTransformationWalker::visit_op_sub(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_mul(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'multiplcation' operation does not have exactly two operand." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -554,7 +556,7 @@ SgExpression* SageTransformationWalker::visit_op_mul(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_div(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'divide' operation does not have exactly two operand." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -571,7 +573,7 @@ SgExpression* SageTransformationWalker::visit_op_div(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_fdiv_q(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'fdivq' operation does not have exactly two operand." );
 
   // Get function name
   SgName name( "floord" );
@@ -594,7 +596,7 @@ SgExpression* SageTransformationWalker::visit_op_fdiv_q(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_pdiv_q(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'pdivq' operation does not have exactly two operand." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -611,7 +613,7 @@ SgExpression* SageTransformationWalker::visit_op_pdiv_q(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_pdiv_r(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'pdivr' operation does not have exactly two operand." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -628,7 +630,7 @@ SgExpression* SageTransformationWalker::visit_op_pdiv_r(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_zdiv_r(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'zdivr' operation does not have exactly two operand." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -645,7 +647,7 @@ SgExpression* SageTransformationWalker::visit_op_zdiv_r(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_cond(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 3 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 3, "ISL 'ternary' operation does not have exactly three operand." );
 
   SgExpression* condition = this->visit_op_cond_condition_operand( node );
   SgExpression* then_exp = this->visit_op_cond_then_operand( node );
@@ -661,7 +663,7 @@ SgExpression* SageTransformationWalker::visit_op_cond(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_select(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 3 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 3, "ISL 'select' operation does not have exactly three operand." );
 
   SgExpression* condition = this->visit_op_cond_condition_operand( node );
   SgExpression* then_exp = this->visit_op_cond_then_operand( node );
@@ -677,7 +679,7 @@ SgExpression* SageTransformationWalker::visit_op_select(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_eq(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'equal-to' operation does not have exactly two operands.");
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -694,7 +696,7 @@ SgExpression* SageTransformationWalker::visit_op_eq(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_le(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL '<=' operation does not have exactly two operands." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -711,7 +713,7 @@ SgExpression* SageTransformationWalker::visit_op_le(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_lt(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL '<' operation does not have exactly two operands." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -728,7 +730,7 @@ SgExpression* SageTransformationWalker::visit_op_lt(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_ge(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2,  "ISL '>=' operation does not have exactly two operands." );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -745,7 +747,7 @@ SgExpression* SageTransformationWalker::visit_op_ge(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_gt(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2,  "ISL '>' operation does not have exactly two operands."  );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -762,7 +764,7 @@ SgExpression* SageTransformationWalker::visit_op_gt(isl_ast_expr* node){
 }
 
 SgExprStatement* SageTransformationWalker::visit_op_call(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) >= 1 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) >= 1,  "ISL 'call' operation does not have a function name." );
   // Get function name
   SgName name( isl_id_get_name( isl_ast_expr_get_id( isl_ast_expr_get_op_arg( node, 0 ) ) ) );
 
@@ -793,7 +795,7 @@ SgExprStatement* SageTransformationWalker::visit_op_call(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_access(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) >= 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) >= 2,  "ISL 'access' operation does not have exactly two operands."  );
 
   // Head will be the running result of an access
   // Begins as a non access expression; as the root array expressions
@@ -814,7 +816,7 @@ SgExpression* SageTransformationWalker::visit_op_access(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_member(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 2 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 2,  "ISL 'member access' operation does not have exactly two operands."  );
 
   // Get children nodes
   SgExpression* lhs = this->visit_op_lhs( node );
@@ -831,7 +833,7 @@ SgExpression* SageTransformationWalker::visit_op_member(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_address_of(isl_ast_expr* node){
-  assert( isl_ast_expr_get_op_n_arg(node) == 1 );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) == 1,  "ISL 'address of' operation does not have exactly two operands."  );
 
   // Get child node
   SgExpression* arg = this->visit_op_unary_operand( node );
@@ -846,8 +848,8 @@ SgExpression* SageTransformationWalker::visit_op_address_of(isl_ast_expr* node){
   return exp;
 }
 
-SgExpression* SageTransformationWalker::visit_op_unknown(isl_ast_expr* node){
-  assert( this->VISIT_TO_NODE_NOT_IMPLEMENTED );
+SgExpression* SageTransformationWalker::visit_op_unknown(isl_ast_expr* node __attribute__((unused)) ){
+  assertWithException( this->ENCOUNTERED_UNKOWN_NODE, "A node of undetermined type has been visited during SageTransformationWalker." );
   return NULL;
 }
 
@@ -859,7 +861,7 @@ SgVarRefExp* SageTransformationWalker::visit_expr_id(isl_ast_expr* node){
   // Get symbol from parent scope
   if( symbol == NULL ){
     symbol = lookupVariableSymbolInParentScopes( name, this->injection_site ) ;
-    assert( symbol != NULL );
+    assertWithException( symbol != NULL, SSTR( "Could not find symbol \"" <<  name << "\" in parent scope." ) );
     this->set_symbol( name.getString(), symbol );
   }
 
@@ -881,7 +883,7 @@ SgIntVal* SageTransformationWalker::visit_expr_int(isl_ast_expr* node){
   assert( den == 1 );
 
   int int_value = (int) num;
-  assert( ((long) int_value) == num );
+  assertWithException( ((long) int_value) == num, SSTR("Cast produced invalid number.") );
 
   SgIntVal* value = buildIntVal( int_value );
 
@@ -892,19 +894,19 @@ SgIntVal* SageTransformationWalker::visit_expr_int(isl_ast_expr* node){
   return value;
 }
 
-SgNode* SageTransformationWalker::visit_expr_unknown(isl_ast_expr* node){
-  assert( this->VISIT_TO_NODE_NOT_IMPLEMENTED );
+SgNode* SageTransformationWalker::visit_expr_unknown(isl_ast_expr* node __attribute__((unused))){
+  assertWithException( this->ENCOUNTERED_UNKOWN_NODE, "A node of undetermined type has been visited during SageTransformationWalker." );
   return NULL;
 }
 
-SgNode* SageTransformationWalker::visit_expr_error(isl_ast_expr* node){
-  assert( this->VISIT_TO_NODE_NOT_IMPLEMENTED );
+SgNode* SageTransformationWalker::visit_expr_error(isl_ast_expr* node __attribute__((unused))){
+  assertWithException( this->ENCOUNTERED_ERROR_NODE, "An error node has been encoutered during SageTransformationWalker." );
   return NULL;
 }
 
 
-SgNode* SageTransformationWalker::visit_node_error(isl_ast_node* node){
-  assert( this->VISIT_TO_NODE_NOT_IMPLEMENTED );
+SgNode* SageTransformationWalker::visit_node_error(isl_ast_node* node __attribute__((unused))){
+  assertWithException( this->ENCOUNTERED_ERROR_NODE, "An error node has been encoutered during SageTransformationWalker." );
   return NULL;
 }
 
@@ -921,7 +923,7 @@ SgNode* SageTransformationWalker::visit_node_for(isl_ast_node* node){
     // Get initialization expression
     SgExpression* init_exp = isSgExpression( this->visit( isl_ast_node_for_get_init( node ) ) );
 
-    assert( init_exp != NULL );
+    assertWithException( init_exp != NULL, "Could not create for initialization statement." );
 
     // Build variable declaration
     SgAssignInitializer* initalizer = buildAssignInitializer( init_exp, buildIntType() );
@@ -946,7 +948,7 @@ SgNode* SageTransformationWalker::visit_node_for(isl_ast_node* node){
   {
     SgExpression* as_exp = isSgExpression( this->visit( isl_ast_node_for_get_cond( node) ) );
 
-    assert( as_exp != NULL );
+    assertWithException( as_exp != NULL, "Could not create for conditional expression.");
 
     condition = buildExprStatement( as_exp );
     if( this->verbose ){
@@ -964,7 +966,7 @@ SgNode* SageTransformationWalker::visit_node_for(isl_ast_node* node){
     // if( this->verbose ) cout << string(this->depth*2, ' ') << "var_ref @ " << static_cast<void*>(var_ref) << endl;
     SgExpression* increment_exp = isSgExpression( this->visit( isl_ast_node_for_get_inc( node ) ) );
 
-    assert( increment_exp != NULL );
+    assertWithException( increment_exp != NULL, "Could not create for increment expression." );
 
     if( this->verbose ){
       cout << string(this->depth*2, ' ') << "exp @ " << static_cast<void*>(increment_exp) << endl;
@@ -978,45 +980,81 @@ SgNode* SageTransformationWalker::visit_node_for(isl_ast_node* node){
     }
   }
 
-  SgBasicBlock* body = buildBasicBlock ();
+  // TODO this is an embarrasment.
+  // Create a parent for the for statement
+  SgBasicBlock* dumb_wrapper = buildBasicBlock();
+  if( this->verbose ){
+    cout << string(this->depth*2, ' ') << "basic block @ " << static_cast<void*>(dumb_wrapper) << endl;
+  }
+  this->push( dumb_wrapper );
+
+  // TODO This is a hack.
+  // Need to create empty body for for statement,
+  // because we *must* make for statement before the body code.
+  SgBasicBlock* body = buildBasicBlock();
 
   // Construct for loop node
   SgForStatement* for_stmt = buildForStatement( initialization, condition, increment, body );
+  appendStatement( for_stmt, dumb_wrapper );
   {
     this->push( for_stmt );
     this->push( isSgScopeStatement( getLoopBody( for_stmt ) ) );
     SgStatement* sg_stmt = isSgStatement( this->visit( isl_ast_node_for_get_body( node ) ) );
-    this->pop();
-    this->pop();
+    this->pop(); // pop body
+    this->pop(); // pop for stmt
 
-    assert( sg_stmt != NULL );
+    assertWithException( sg_stmt != NULL, "Could not create for loop body." );
 
     if( isSgBasicBlock(sg_stmt) ){
       body = isSgBasicBlock( sg_stmt );
     } else {
       body = isSgBasicBlock( getLoopBody( for_stmt ) );
 
-      assert( body != NULL );
+      assertWithException( body != NULL, "Could not create for scoped body." );
 
       appendStatement( sg_stmt, body );
     }
     setLoopBody( for_stmt, body );
   }
 
+
+  // Check for parallel annotation
+  {
+    isl_id* maybe_annotation = isl_ast_node_get_annotation( node );
+    if( maybe_annotation != NULL ){
+      if( string( isl_id_get_name( maybe_annotation ) ) == string("parallel annotation") ){
+        // TODO make work with OmpSupport tools
+        // This does not currently add an annotation.
+        //OmpSupport::OmpAttribute* pragma = OmpSupport::buildOmpAttribute( OmpSupport::e_parallel_for, for_stmt, false );
+        //OmpSupport::addOmpAttribute( pragma, for_stmt );
+        //OmpSupport::generatePragmaFromOmpAttribute( for_stmt );
+
+        // Manually create prama with literal "omp parallel for" invocation.
+        SgPragmaDeclaration* prama_decl = buildPragmaDeclaration( string("omp parallel for"), this->top() );
+        SageInterface::insertStatement( for_stmt, prama_decl );
+        if( this->verbose ){
+          cout << string(this->depth*2, ' ') << "pragma declaration @ " << static_cast<void*>( prama_decl ) << endl;
+        }
+      }
+    }
+  }
+
+  this->pop(); // pop dumb_wrapper
+
   this->depth -= 1;
   if( this->verbose ){
     cout << string(this->depth*2, ' ') << "for @ " << static_cast<void*>(for_stmt) << endl;
   }
 
-  return for_stmt;
+  return dumb_wrapper;
 }
 
 SgNode* SageTransformationWalker::visit_node_if(isl_ast_node* node){
   SgExpression* condition_node = isSgExpression( this->visit( isl_ast_node_if_get_cond(node) ) );
-  assert( condition_node != NULL );
+  assertWithException( condition_node != NULL, "Could not create conditional expression." );
 
   SgStatement* then_node = isSgStatement( this->visit( isl_ast_node_if_get_then(node) ) );
-  assert( then_node != NULL );
+  assertWithException( then_node != NULL, "Could not create then statement.");
 
   // Always wrap statements as blocks
   if( !isSgBasicBlock(then_node) ){
@@ -1027,7 +1065,7 @@ SgNode* SageTransformationWalker::visit_node_if(isl_ast_node* node){
   SgStatement* else_node = NULL;
   if( isl_ast_node_if_has_else( node ) ){
     else_node = isSgStatement( this->visit( isl_ast_node_if_get_else(node) ) );
-    assert( else_node != NULL );
+    assertWithException( else_node != NULL, "Could not create else statement." );
 
     if( isSgBasicBlock( else_node) ){
       SgBasicBlock* block = buildBasicBlock( else_node );
@@ -1042,7 +1080,7 @@ SgNode* SageTransformationWalker::visit_node_if(isl_ast_node* node){
 
 SgNode* SageTransformationWalker::visit_node_block(isl_ast_node* node){
   SgBasicBlock* block = buildBasicBlock();
-
+  assertWithException( block != NULL, "Could not create empty basic block." );
   this->push( block );
 
   if( this->verbose ){
@@ -1053,7 +1091,7 @@ SgNode* SageTransformationWalker::visit_node_block(isl_ast_node* node){
   for( int i = 0; i < isl_ast_node_list_n_ast_node(list); i += 1 ){
     isl_ast_node* node = isl_ast_node_list_get_ast_node(list, i);
     SgStatement* sg_stmt = isSgStatement( this->visit( node ) );
-    assert( sg_stmt != NULL );
+    assertWithException( sg_stmt != NULL, "Could not create statement of block." );
 
     appendStatement( sg_stmt, block );
   }
@@ -1063,8 +1101,8 @@ SgNode* SageTransformationWalker::visit_node_block(isl_ast_node* node){
   return block;
 }
 
-SgNode* SageTransformationWalker::visit_node_mark(isl_ast_node* node){
-  assert( this->VISIT_TO_NODE_NOT_IMPLEMENTED );
+SgNode* SageTransformationWalker::visit_node_mark(isl_ast_node* node __attribute__((unused)) ){
+  assertWithException( this->VISIT_TO_NODE_NOT_IMPLEMENTED, "SageTransformationWalker::visit_node_mark Not implemented." );
   return NULL;
 }
 
@@ -1072,7 +1110,7 @@ SgNode* SageTransformationWalker::visit_node_user(isl_ast_node* node){
   return this->visit( isl_ast_node_user_get_expr(node) );
 }
 
-SgNode* SageTransformationWalker::visit_node_unknown(isl_ast_node* node){
-  assert( this->VISIT_TO_NODE_NOT_IMPLEMENTED );
+SgNode* SageTransformationWalker::visit_node_unknown(isl_ast_node* node __attribute__((unused)) ){
+  assertWithException( this->ENCOUNTERED_UNKOWN_NODE, "A node of undetermined type has been visited during SageTransformationWalker." );
   return NULL;
 }

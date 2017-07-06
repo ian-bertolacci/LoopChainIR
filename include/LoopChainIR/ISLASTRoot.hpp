@@ -15,12 +15,13 @@ Copyright 2017 Universiy of Arizona
 
 #include <LoopChainIR/all_isl.hpp>
 
-class ISLASTRoot{
-  public:
-    isl_ast_node* root;
-    isl_ctx* ctx;
+namespace LoopChainIR{
+  class ISLASTRoot {
+    public:
+      isl_ast_node* root;
+      isl_ctx* ctx;
 
-    ISLASTRoot( isl_ast_node* root, isl_ctx* ctx );
-};
-
+      ISLASTRoot( isl_ast_node* root, isl_ctx* ctx );
+  };
+}
 #endif

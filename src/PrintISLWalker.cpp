@@ -160,7 +160,8 @@ list<string> PrintISLWalker::visit_expr_operands(isl_ast_expr* node ){
 }
 
 string PrintISLWalker::visit_op_operand( isl_ast_expr* node, int pos ){
-  assert( isl_ast_expr_get_op_n_arg(node) > pos );
+  assertWithException( isl_ast_expr_get_op_n_arg(node) > pos, SSTR( "Invalid isl_ast_expr_op position " << pos << " > " << isl_ast_expr_get_op_n_arg(node) << " (isl_ast_expr_get_op_n_arg(node))") );
+  assertWithException( pos >= 0, SSTR("Invalid isl_ast_expr_op position " << pos << " < 0.") );
   return this->visit( isl_ast_expr_get_op_arg( node, pos ) );
 }
 
@@ -457,7 +458,7 @@ string PrintISLWalker::visit_op_unknown(isl_ast_expr* node){
 }
 
 
-string PrintISLWalker::visit_expr_error(isl_ast_expr* node){
+string PrintISLWalker::visit_expr_error(isl_ast_expr* node __attribute__((unused)) ){
   this->depth += 1;
   string result = this->getTab() + string("Expression error\n");
   this->depth -= 1;
@@ -482,7 +483,7 @@ string PrintISLWalker::visit_expr_int(isl_ast_expr* node){
   return result;
 }
 
-string PrintISLWalker::visit_expr_unknown(isl_ast_expr* node){
+string PrintISLWalker::visit_expr_unknown(isl_ast_expr* node __attribute__((unused)) ){
   this->depth += 1;
   string result = this->getTab() + string( "Expression unknown\n" );
   this->depth -= 1;
@@ -490,7 +491,7 @@ string PrintISLWalker::visit_expr_unknown(isl_ast_expr* node){
 }
 
 
-string PrintISLWalker::visit_node_error(isl_ast_node* node){
+string PrintISLWalker::visit_node_error(isl_ast_node* node __attribute__((unused)) ){
   this->depth += 1;
   string result = this->getTab() + string( "Node error\n" );
   this->depth -= 1;
@@ -538,7 +539,7 @@ string PrintISLWalker::visit_node_block(isl_ast_node* node){
   return result;
 }
 
-string PrintISLWalker::visit_node_mark(isl_ast_node* node){
+string PrintISLWalker::visit_node_mark(isl_ast_node* node __attribute__((unused)) ){
   this->depth += 1;
   string result = this->getTab() + string( "Node mark\n" );
   this->depth -= 1;
@@ -553,7 +554,7 @@ string PrintISLWalker::visit_node_user(isl_ast_node* node){
   return result;
 }
 
-string PrintISLWalker::visit_node_unknown(isl_ast_node* node){
+string PrintISLWalker::visit_node_unknown(isl_ast_node* node __attribute__((unused)) ){
   this->depth += 1;
   string result = this->getTab() + string( "Node unknown\n" );
   this->depth -= 1;

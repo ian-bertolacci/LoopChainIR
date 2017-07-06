@@ -221,7 +221,7 @@ map<LoopChain::size_type, Tuple> AutomaticShiftTransformation::computeShiftTuple
 }
 
 vector<ShiftTransformation*> AutomaticShiftTransformation::computeShiftForFusion( Subspace::size_type dimensions, LoopChain chain, bool include_zero_tuple ){
-  map<LoopChain::size_type, Tuple> shift_tuples = computeShiftTuplesForFusion( dimensions, chain );
+  map<LoopChain::size_type, Tuple> shift_tuples = computeShiftTuplesForFusion( dimensions, chain, include_zero_tuple );
   vector<ShiftTransformation*> transformations;
 
   for( map<LoopChain::size_type, Tuple>::value_type key_value : shift_tuples ){
