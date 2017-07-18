@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <limits>
+#include <algorithm>
 
 using namespace std;
 using namespace LoopChainIR;
