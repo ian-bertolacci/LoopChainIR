@@ -6,7 +6,7 @@ using namespace std;
 ParallelAnnotation::ParallelAnnotation(){ }
 
 std::vector<std::string> ParallelAnnotation::apply( Schedule& schedule ){
-  this->apply( schedule, schedule.getSubspaceManager().get_nest() );
+  this->apply( schedule, *(std::next(schedule.getSubspaceManager().get_iterator_to_loops())) );
   return std::vector<std::string>();
 }
 
