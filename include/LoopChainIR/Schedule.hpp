@@ -78,18 +78,6 @@ namespace LoopChainIR {
     RectangularDomain::size_type getIteratorsLength();
 
     /*!
-    \brief
-    Changes the length (in symbols) of the loop chain's iterator by delta.
-
-    \param[in] delta The change in length.
-
-    \returns
-    The new length.
-    */
-    RectangularDomain::size_type modifyIteratorsLength( int delta );
-
-
-    /*!
     \brief returns the original loop chain
     */
     LoopChain& getChain();
