@@ -3306,7 +3306,7 @@ if test "${enable_rose+set}" = set; then :
 fi
 
 
-CXX_BASE_FLAGS="-fPIC"
+CXX_BASE_FLAGS="-fPIC --std=c++0x"
 CXX_WARNING_LEVEL="-Wall -Wno-deprecated -Wextra"
 CXX_OPTIMIZATION_LEVEL="-O3"
 
@@ -3779,16 +3779,16 @@ else
 
 fi
 
-for ac_header in linear_solver/linear_solver.h
+for ac_header in ortools/linear_solver/linear_solver.h
 do :
-  ac_fn_cxx_check_header_mongrel "$LINENO" "linear_solver/linear_solver.h" "ac_cv_header_linear_solver_linear_solver_h" "$ac_includes_default"
-if test "x$ac_cv_header_linear_solver_linear_solver_h" = xyes; then :
+  ac_fn_cxx_check_header_mongrel "$LINENO" "ortools/linear_solver/linear_solver.h" "ac_cv_header_ortools_linear_solver_linear_solver_h" "$ac_includes_default"
+if test "x$ac_cv_header_ortools_linear_solver_linear_solver_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_LINEAR_SOLVER_LINEAR_SOLVER_H 1
+#define HAVE_ORTOOLS_LINEAR_SOLVER_LINEAR_SOLVER_H 1
 _ACEOF
 
 else
-  as_fn_error $? "A Working Google Optimization Tools (Google OR-Tools) installation is required. (Missing linear_solver/linear_solver.h.)" "$LINENO" 5
+  as_fn_error $? "A Working Google Optimization Tools (Google OR-Tools) installation is required. (Missing ortools/linear_solver/linear_solver.h.)" "$LINENO" 5
 
 fi
 
@@ -3796,7 +3796,7 @@ done
 
 
 
-    as_ac_Lib=`$as_echo "ac_cv_lib_ortools_ #include <linear_solver/linear_solver.h> #include <string> " | $as_tr_sh`
+    as_ac_Lib=`$as_echo "ac_cv_lib_ortools_ #include <ortools/linear_solver/linear_solver.h> #include <string> " | $as_tr_sh`
 
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for -lortools" >&5
@@ -3817,7 +3817,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
- #include <linear_solver/linear_solver.h> #include <string>
+ #include <ortools/linear_solver/linear_solver.h> #include <string>
 int
 main ()
 {
