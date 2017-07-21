@@ -95,7 +95,7 @@ AC_ARG_ENABLE(
 )
 
 dnl set CXXFLAGS
-CXX_BASE_FLAGS="-fPIC --std=c++0x"
+CXX_BASE_FLAGS="-fPIC"
 CXX_WARNING_LEVEL="-Wall -Wno-deprecated -Wextra"
 CXX_OPTIMIZATION_LEVEL="-O3"
 
