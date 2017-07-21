@@ -220,18 +220,19 @@ ISLASTRoot* Schedule::codegenToIslAst(){
 
   // Collect depths of parallel loops
   std::set<Subspace::size_type> parallel_depths;
-  for( Subspace* subspace : this->parallel_subspaces ){
+  {
     Subspace::size_type depth = 1;
-    SubspaceManager::iterator cursor = manager.get_iterator_to_subspace( subspace );
-    --cursor;
-    for( SubspaceManager::iterator cursor = --(manager.get_iterator_to_subspace( subspace ));
-         cursor != manager.get_iterator_to_loops();
-         --cursor
-    ) {
-      depth += (*cursor)->size();
+    for(
+      SubspaceManager::iterator cursor = manager.begin();
+      cursor != manager.end();
+      depth += (*cursor)->size(), ++cursor
+     ){
+      if( this->parallel_subspaces.count( *cursor ) != 0 ){
+        parallel_depths.insert( depth );
+      }
     }
-    parallel_depths.insert( depth );
   }
+
   // Annotate loops of appropriate depth
   //annotateParallelISLLoops( isl_root, parallel_depths );
   isl_ast_build_set_after_each_for( build, custom_for_builder_callback, (void*) &parallel_depths );
@@ -248,41 +249,21 @@ ISLASTRoot* Schedule::codegenToIslAst(){
 }
 
 std::string Schedule::codegen( ){
-  // Create ISL AST Tree
+  // Get ISL AST Tree
   ISLASTRoot& root = *this->codegenToIslAst();
   isl_ctx* ctx = root.ctx;
   isl_ast_node* tree = root.root;
 
-  // Create a memory file (and stream) to write to
-  int bytes = 1028*4;
-  int type_size = sizeof(char);
-
-  FILE* memory_file = fmemopen( calloc(bytes, type_size), bytes*type_size, "r+" );
-
-  // Write code to memeory file
-  isl_printer* p = isl_printer_to_file(ctx, memory_file);
+  // Write code to string
+  isl_printer* p = isl_printer_to_str(ctx);
   p = isl_printer_set_output_format(p, ISL_FORMAT_C);
   isl_ast_print_options* print_options = isl_ast_print_options_alloc(ctx);
   // Set option to print for nodes with my printer (custom_for_printer_callback)
   print_options = isl_ast_print_options_set_print_for(print_options, custom_for_printer_callback, NULL);
   isl_ast_node_print(tree, p, print_options);
 
-  // Read text and close file
-  std::string code_text;
-  std::fseek( memory_file, 0, SEEK_END );
-  code_text.resize( std::ftell(memory_file) );
-  std::rewind(memory_file);
-  std::fread(&code_text[0], 1, code_text.size(), memory_file );
-  std::fclose( memory_file );
-
-  // Fix weird issue where isl generates empty code body (i.e. {\n}\n)
-  // but leaves in the remaining file as null bytes.
-  // somehow this gets copied over from the FILE to the string and makes a big
-  // mess of things. Here we find the first null character and trim to it.
-  std::size_t find_null = code_text.find( '\0' );
-  if( find_null != std::string::npos ){
-    code_text.resize( find_null );
-  }
+  // Extract string
+  string code_text( isl_printer_get_str( p ) );
 
   isl_printer_free( p );
   isl_ast_node_free( tree );
@@ -338,15 +319,6 @@ RectangularDomain::size_type Schedule::getIteratorsLength() {
   return (RectangularDomain::size_type) this->manager.size(); //this->iterators_length;
 }
 
-RectangularDomain::size_type Schedule::modifyIteratorsLength( int delta ){
-  // Cannot have delta that would make iterators length 0
-  assertWithException( (RectangularDomain::size_type) -delta > this->getIteratorsLength(), "-delta > iterator length" );
-
-  this->iterators_length += delta;
-
-  return this->getIteratorsLength();
-}
-
 LoopChain& Schedule::getChain(){
   return this->chain;
 }
@@ -390,30 +362,39 @@ std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedul
 }
 
 __isl_give isl_ast_node* LoopChainIR::custom_for_builder_callback( __isl_take isl_ast_node *node, __isl_keep isl_ast_build* build, void* user ){
-  string annotation_str;
-  isl_space* space = isl_ast_build_get_schedule_space( build );
-  unsigned dimensions = isl_space_dim( space, isl_dim_set );
+  // Get dimensionality of loop nest at this point.
+  unsigned dimensions = isl_space_dim( isl_ast_build_get_schedule_space( build ), isl_dim_set );
+  // Magic cast void* to std::set<Subspace::size_type>*
   std::set<Subspace::size_type>* depths = static_cast<std::set<Subspace::size_type>*>( user );
-  if( depths->count(dimensions) > 0 ){
-    annotation_str = "parallel annotation";
-  } else {
-    annotation_str = "";
+
+  // If no the appropriate depth, return exiting, unmodified node
+  if( depths->count(dimensions) == 0 ){
+    return node;
   }
+
+  // Create annotation
+  string annotation_str = "parallel annotation";
   isl_id* annotation = isl_id_alloc( isl_ast_build_get_ctx(build), annotation_str.c_str(), NULL );
   assertWithException( annotation != NULL, "Failed to create annotation in custom_for_builder_callback." );
+
+  // Add annotation
   isl_ast_node* new_node = isl_ast_node_set_annotation( node, annotation );
   assertWithException( new_node != NULL, "Failed to create annotated node during custom_for_builder_callback." );
+
   return new_node;
 }
 
-__isl_give isl_printer* LoopChainIR::custom_for_printer_callback( __isl_take isl_printer *p, __isl_take isl_ast_print_options *options, __isl_keep isl_ast_node *node, void *user ){
+__isl_give isl_printer* LoopChainIR::custom_for_printer_callback( __isl_take isl_printer *p, __isl_take isl_ast_print_options *options, __isl_keep isl_ast_node *node, void *user __attribute__((unused)) ){
+  // Get annotation
   isl_id* maybe_annotation = isl_ast_node_get_annotation( node );
+  // If annotation is not null, and if string is the parallel annotation string print openmp annotation
   if( maybe_annotation != NULL && string( isl_id_get_name( maybe_annotation ) ) == string("parallel annotation") ){
     p = isl_printer_start_line(p);
     p = isl_printer_print_str(p, "#pragma omp parallel for");
     p = isl_printer_end_line(p);
   }
 
+  // print the for node as usual
   p = isl_ast_node_for_print(node, p, options);
   return p;
 }

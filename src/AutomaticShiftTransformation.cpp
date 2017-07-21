@@ -1,11 +1,12 @@
 #include <LoopChainIR/AutomaticShiftTransformation.hpp>
-#include <linear_solver/linear_solver.h>
+#include <ortools/linear_solver/linear_solver.h>
 #include <iostream>
 #include <map>
 #include <set>
 #include <vector>
 #include <list>
 #include <limits>
+#include <algorithm>
 
 using namespace std;
 using namespace LoopChainIR;

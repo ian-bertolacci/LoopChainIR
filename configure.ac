@@ -99,7 +99,7 @@ CXX_BASE_FLAGS="-fPIC"
 CXX_WARNING_LEVEL="-Wall -Wno-deprecated -Wextra"
 CXX_OPTIMIZATION_LEVEL="-O3"
 
-CXXFLAGS="${CXX_BASE_FLAGS} ${CXX_WARNING_LEVEL} ${CXX_OPTIMIZATION_LEVEL} ${CXX_DEBUG_FLAGS} ${OR_TOOLS_USE_SOLVERS}"
+CXXFLAGS="${CXX_BASE_FLAGS} ${CXX_WARNING_LEVEL} ${CXX_OPTIMIZATION_LEVEL} ${CXX_DEBUG_FLAGS} ${OR_TOOLS_USE_SOLVERS} ${CXXFLAGS}"
 
 dnl Check existance of libraries
 dnl Check for ISL
@@ -119,15 +119,15 @@ AC_SEARCH_LIBS(
 dnl Check for OR-Tools
 dnl Check for OR-Tools headers
 AC_CHECK_HEADERS(
-  [linear_solver/linear_solver.h],
+  [ortools/linear_solver/linear_solver.h],
   [],
-  [AC_MSG_ERROR(A Working Google Optimization Tools (Google OR-Tools) installation is required. (Missing linear_solver/linear_solver.h.))]
+  [AC_MSG_ERROR(A Working Google Optimization Tools (Google OR-Tools) installation is required. (Missing ortools/linear_solver/linear_solver.h.))]
 )
 dnl Check for OR-Tools Library
 dnl TODO better way of doing this
 AX_TRY_LINK(
   [ortools],
-  [ #include <linear_solver/linear_solver.h> #include <string> ],
+  [ #include <ortools/linear_solver/linear_solver.h> #include <string> ],
   [
     #if defined USE_SCIP
       operations_research::MPSolver::OptimizationProblemType optimizationProblemType = operations_research::MPSolver::SCIP_MIXED_INTEGER_PROGRAMMING;
