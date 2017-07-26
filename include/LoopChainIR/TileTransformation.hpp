@@ -21,6 +21,7 @@ Copyright 2017 Universiy of Arizona
 #include <map>
 #include <iostream>
 #include <sstream>
+#include <initializer_list>
 #include "stdio.h"
 
 namespace LoopChainIR {
@@ -39,8 +40,8 @@ namespace LoopChainIR {
     TileMap tile_sizes;
     bool uniform;
     mapped_type uniform_size;
-    Transformation* over_tiles;
-    Transformation* within_tiles;
+    std::vector<Transformation*> over_tiles;
+    std::vector<Transformation*> within_tiles;
     static int num_prefixes_used;
 
   public:
@@ -71,6 +72,12 @@ namespace LoopChainIR {
     \param[in] tile_size Size of tiles for loop, for all dimensions of tile.
     */
     TileTransformation( LoopChain::size_type loop, TileMap tile_sizes, Transformation* over_tiles, Transformation* within_tiles );
+
+    TileTransformation( LoopChain::size_type loop, TileMap tile_sizes, std::vector<Transformation*> over_tiles, std::vector<Transformation*> within_tiles );
+
+    TileTransformation( LoopChain::size_type loop, TileMap tile_sizes, std::initializer_list<Transformation*> over_tiles, std::initializer_list<Transformation*> within_tiles );
+
+
 
     /*!
     \brief

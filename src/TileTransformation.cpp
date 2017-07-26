@@ -23,17 +23,18 @@ using namespace LoopChainIR;
 int TileTransformation::num_prefixes_used = 0;
 
 TileTransformation::TileTransformation( LoopChain::size_type loop, TileMap tile_sizes, Transformation* over_tiles, Transformation* within_tiles )
+: TileTransformation( loop, tile_sizes, {over_tiles}, {within_tiles} )
+{ }
+
+TileTransformation::TileTransformation( LoopChain::size_type loop, TileMap tile_sizes, std::vector<Transformation*> over_tiles, std::vector<Transformation*> within_tiles )
 : loop(loop), tile_sizes( tile_sizes ), uniform( false ), over_tiles( over_tiles ), within_tiles( within_tiles )
 {
   assertWithException( tile_sizes.size() > 0, "Must tile along one or more dimensions." );
 }
 
-/*
-TileTransformation::TileTransformation( LoopChain::size_type loop, TileTransformation::mapped_type tile_size )
-  : loop(loop), uniform(true), uniform_size(tile_size) {
-
-}
-*/
+TileTransformation::TileTransformation( LoopChain::size_type loop, TileMap tile_sizes, std::initializer_list<Transformation*> over_tiles, std::initializer_list<Transformation*> within_tiles )
+: TileTransformation( loop, tile_sizes, std::vector<Transformation*>( over_tiles ), std::vector<Transformation*>( within_tiles) )
+{ }
 
 TileTransformation::TileTransformation( LoopChain::size_type loop, TileTransformation::TileMap tile_sizes )
 : TileTransformation( loop, tile_sizes, new DefaultSequentialTransformation(), new DefaultSequentialTransformation() )
@@ -165,20 +166,23 @@ std::vector<std::string> TileTransformation::apply( Schedule& schedule, Subspace
   // Add transformation to our list
   transformations.push_back( transformation.str() );
 
-  // Apply over tile transformation on the tile subpsace
   manager.next_stage();
   schedule.incrementDepth();
-  std::vector<std::string> over_transformations = this->over_tiles->apply( schedule, tile_subspace );
+  // Apply over tile transformation on the tile subpsace, appending (in order) any new transformations created
+  for( Transformation* transformation : this->over_tiles ){
+    std::vector<std::string> additional_transformations = transformation->apply( schedule, tile_subspace );
+    transformations.insert( transformations.end(), additional_transformations.begin(), additional_transformations.end() );
+  }
 
-  // Apply within tile transformation on the tiled subspace
   manager.next_stage();
-  std::vector<std::string> within_transformations = this->within_tiles->apply( schedule, subspace );
+
+  // Apply within tile transformation on the tiled subspace, appending (in order) any new transformations created
+  for( Transformation* transformation : this->within_tiles ){
+    std::vector<std::string> additional_transformations = transformation->apply( schedule, subspace );
+    transformations.insert( transformations.end(), additional_transformations.begin(), additional_transformations.end() );
+  }
+
   schedule.decrementDepth();
-
-  // append (in order) the the over and within transformations
-  transformations.insert( transformations.end(), over_transformations.begin(), over_transformations.end() );
-  transformations.insert( transformations.end(), within_transformations.begin(), within_transformations.end() );
-
   manager.next_stage();
 
   // Modify accesses of dataspaces
