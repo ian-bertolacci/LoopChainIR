@@ -228,7 +228,7 @@ ISLASTRoot* Schedule::codegenToIslAst(){
       depth += (*cursor)->size(), ++cursor
      ){
       if( this->parallel_subspaces.count( *cursor ) != 0 ){
-        parallel_depths.insert( depth );
+        parallel_depths.insert( depth + this->parallel_subspaces[*cursor] );
       }
     }
   }
@@ -353,8 +353,8 @@ int Schedule::decrementDepth(){
   return this->getDepth();
 }
 
-void Schedule::addParallelSubspace( Subspace* subspace ){
-  this->parallel_subspaces.insert( subspace );
+void Schedule::addParallelSubspace( Subspace* subspace, Subspace::size_type additional_depth ){
+  this->parallel_subspaces[subspace] = additional_depth;
 }
 
 std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule){

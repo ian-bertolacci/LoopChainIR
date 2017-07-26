@@ -54,7 +54,7 @@ namespace LoopChainIR {
     RectangularDomain::size_type iterators_length;
     std::vector<std::string> transformations;
     std::vector<std::string> domains;
-    std::set<Subspace*> parallel_subspaces;
+    std::map<Subspace*, Subspace::size_type> parallel_subspaces;
     std::string statement_prefix;
     std::string root_statement_symbol;
     std::string iterator_prefix;
@@ -217,7 +217,7 @@ namespace LoopChainIR {
     /*! \brief Decrease depth of nested transformations. */
     int decrementDepth();
 
-    void addParallelSubspace( Subspace* subspace );
+    void addParallelSubspace( Subspace* subspace, Subspace::size_type additional_depth );
 
   public:
     friend std::ostream& LoopChainIR::operator<<( std::ostream& os, const Schedule& schedule);

@@ -3,11 +3,15 @@
 
 #include <LoopChainIR/Transformation.hpp>
 #include <LoopChainIR/Schedule.hpp>
+#include <LoopChainIR/Subspace.hpp>
 
 namespace LoopChainIR {
   class ParallelAnnotation : public Transformation {
     public:
-      ParallelAnnotation();
+      const Subspace::size_type additional_depth;
+
+      ParallelAnnotation( );
+      ParallelAnnotation( Subspace::size_type additional_depth );
       /*!
       \brief
       Generate ISCC code for a transformation, and append it to the transformation
