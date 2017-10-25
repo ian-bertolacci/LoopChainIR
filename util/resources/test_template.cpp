@@ -4,23 +4,8 @@
 #include <set>
 #include <string>
 #include <iostream>
+
 using namespace std;
-
-#define max(x,y)  (((x)>(y))?(x):(y))
-#define min(x,y)  (((x)<(y))?(x):(y))
-
-#if ASSUME_POSITIVE_INTMOD
-#define intDiv(x,y)	(eassert(((x)%(y)) >= 0), ((x)/(y)))
-#define intMod(x,y)	(eassert(((x)%(y)) >= 0), ((x)%(y)))
-#else
-#define intDiv_(x,y)  ((((x)%(y))>=0) ? ((x)/(y)) : (((x)/(y)) -1))
-#define intMod_(x,y)  ((((x)%(y))>=0) ? ((x)%(y)) : (((x)%(y)) +y))
-#define checkIntDiv(x,y) (eassert((y) > 0 && intMod_((x),(y)) >= 0 && intMod_((x),(y)) <= (y) && x==((y)*intDiv_((x),(y)) + intMod_((x),(y)))))
-#define intDiv(x,y)	(checkIntDiv((x),(y)), intDiv_((x),(y)))
-#define intMod(x,y)	(checkIntDiv((x),(y)), intMod_((x),(y)))
-#endif
-
-#define floord(n, d)  intDiv((n), (d))
 
 template< class Tuple_Type >
 class Graph {

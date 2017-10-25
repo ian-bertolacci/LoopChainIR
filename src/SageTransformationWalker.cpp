@@ -573,29 +573,39 @@ SgExpression* SageTransformationWalker::visit_op_div(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_fdiv_q(isl_ast_expr* node){
+  /*
+  Round towards -infty
+  Typically been #define floord(x, y) ( ((((x)%(y))>=0) ? ((x)/(y)) : (((x)/(y))) -1 ) )
+  */
   assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'fdivq' operation does not have exactly two operand." );
 
-  // Get function name
-  SgName name( "floord" );
+  SgExpression* x = this->visit_op_lhs( node );
+  SgExpression* y = this->visit_op_rhs( node );
 
-  // Build parameters list
-  vector<SgExpression*> parameter_expressions;
-  parameter_expressions.push_back( this->visit_op_lhs( node ) );
-  parameter_expressions.push_back( this->visit_op_rhs( node ) );
-
-  SgExprListExp* parameters = buildExprListExp( parameter_expressions );
-
-  // Build call
-  SgExpression* call = buildFunctionCallExp( name, buildIntType(), parameters, this->get_global() );
+  SgExpression* exp = buildConditionalExp(
+    // x % y >=0
+    buildBinaryExpression<SgGreaterOrEqualOp>(
+      buildBinaryExpression<SgModOp>( x, y ),
+      buildIntVal( 0 )
+    ),
+    // x / y
+    buildBinaryExpression<SgDivideOp>( x, y ),
+    // (x / y) - 1
+    buildBinaryExpression<SgSubtractOp>(
+       buildBinaryExpression<SgDivideOp>( x, y ),
+       buildIntVal( 1 )
+    )
+  );
 
   if( this->verbose ){
-    cout << string(this->depth*2, ' ') << "fdiv_q @ " << static_cast<void*>(call) << endl;
+    cout << string(this->depth*2, ' ') << "Operation fdiv_q @ " << static_cast<void*>(exp) << endl;
   }
 
-  return call;
+  return exp;
 }
 
 SgExpression* SageTransformationWalker::visit_op_pdiv_q(isl_ast_expr* node){
+  /* Dividend is non-negative */
   assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'pdivq' operation does not have exactly two operand." );
 
   // Get children nodes
@@ -613,6 +623,7 @@ SgExpression* SageTransformationWalker::visit_op_pdiv_q(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_pdiv_r(isl_ast_expr* node){
+  /* Dividend is non-negative */
   assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'pdivr' operation does not have exactly two operand." );
 
   // Get children nodes
@@ -630,6 +641,7 @@ SgExpression* SageTransformationWalker::visit_op_pdiv_r(isl_ast_expr* node){
 }
 
 SgExpression* SageTransformationWalker::visit_op_zdiv_r(isl_ast_expr* node){
+  /* Result only compared against zero */
   assertWithException( isl_ast_expr_get_op_n_arg(node) == 2, "ISL 'zdivr' operation does not have exactly two operand." );
 
   // Get children nodes
