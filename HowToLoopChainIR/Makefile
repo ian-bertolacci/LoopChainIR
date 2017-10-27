@@ -33,7 +33,8 @@ EXAMPLES = RectangularDomainHowTo \
 					 ShiftTransformationHowTo \
 					 TileTransformationHowTo \
 					 MultipleTransformations \
-					 Example
+					 Example \
+					 ChapelTest
 
 LONG_EXAMPLES=$(addprefix $(EX_BIN)/,$(EXAMPLES))
 

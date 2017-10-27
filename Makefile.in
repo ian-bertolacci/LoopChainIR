@@ -33,7 +33,7 @@ GTEST_SRCS = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 # Compiler command and flags
 CXX=@CXX@
-CXXFLAGS = @CXXFLAGS@ -I$(INCLUDE)
+CXXFLAGS = @CXXFLAGS@ -Wno-unused -Wno-unused-value -I$(INCLUDE)
 
 # LD flags for tests
 TEST_LDFLAGS += -lisl -lortools -lz -lrt -pthread -L$(SOURCE_LIB)
@@ -101,9 +101,7 @@ INT_TEST = 	1N_1D_shift_1.test \
 
 
 # Project object files
-ROSE_DEPENDENT_SRC = \
-										SageTransformationWalker \
-										PrintISLWalker
+ROSE_DEPENDENT_SRC = SageTransformationWalker
 
 BASE_SRC = \
 					RectangularDomain \
@@ -120,6 +118,8 @@ BASE_SRC = \
 					Accesses \
 					AutomaticShiftTransformation \
 					ParallelAnnotation \
+					PrintISLWalker \
+					ChapelTransformationWalker \
 					util
 
 OBJS = $(addprefix $(BIN)/,$(addsuffix .o,@SOURCE_SELECTION@))

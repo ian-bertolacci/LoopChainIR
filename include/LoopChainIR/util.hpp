@@ -15,6 +15,23 @@ Copyright 2017 Universiy of Arizona
 
 #include <sstream>
 #include <stdexcept>
+#include <string>
+#include <iostream>
+#include <vector>
+
+template< typename Iterator >
+std::string stringJoin( std::string delimiter, Iterator begin, Iterator end ){
+  if( begin == end ) return std::string();
+
+  std::ostringstream new_string;
+  new_string << *begin;
+
+  for( Iterator it = (++begin); it != end; ++it ){
+    new_string << delimiter << *it;
+  }
+  return new_string.str();
+}
+
 
 /*!
 Macro to create strings from ostringstreams and other <<-able objects.

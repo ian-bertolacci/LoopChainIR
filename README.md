@@ -6,7 +6,7 @@ loop chain execution schedule.
 
 ### Prerequisites
 LoopChainIR depends on the following libraries:
-+ [Google Opitmization Tools (ortools)](https://developers.google.com/optimization/)
++ [Google Optimization Tools (ortools)](https://developers.google.com/optimization/)
 + [Integer Set Library (ISL)](http://isl.gforge.inria.fr/)
 + [ROSE compiler infrastructure](http://rosecompiler.org/) (optional)
   - Use `--disable-rose` when running configure scrip if not using Rose.
